@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatGPT {
-    public static final String[] KEYS = {"key1", "key2"};
+    public static final String[] KEYS = {"sk-", "sk-"};
     public static final ObjectMapper JSON_MAP = new ObjectMapper();
     public static final List<Model> MODELS = new ArrayList<>();
     public static final RequestBody BODY = new RequestBody("gpt-4o-mini", new ArrayList<Message>());

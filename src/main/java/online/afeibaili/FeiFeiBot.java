@@ -57,142 +57,142 @@ public final class FeiFeiBot extends JavaPlugin {
         GlobalEventChannel.INSTANCE.filter(event -> {
             if (event instanceof GroupEvent) {
                 GroupMessageEvent groupEvent = (GroupMessageEvent) event;
-                return GROUP.contains(groupEvent.getGroup().getId()) &&
-                        MASTER.contains(groupEvent.getSender().getId());
+                return GROUP.contains(groupEvent.getGroup().getId());
             }
             return false;
         }).subscribeAlways(GroupMessageEvent.class, e -> {
             String message = e.getMessage().contentToString();
             Group send = e.getSubject();
-
-            switch (message) {
-                case "菜单":
-                case "功能":
-                case "功能菜单":
-                    StringBuffer buffer = new StringBuffer();
-                    MENU.forEach(model -> {
-                        buffer.append(model).append("\n");
-                    });
-                    buffer.deleteCharAt(buffer.length() - 1);
-                    send.sendMessage(buffer.toString());
-                    break;
-                case "新会话":
-                case "开启新会话":
-                    ChatGPT.clearChat();
-                    ChatGPT.initChat();
-                    send.sendMessage("创建好了喵~");
-                    break;
-                case "查看模型":
-                case "当前模型":
-                    send.sendMessage(ChatGPT.getModel());
-                    break;
-                case "切换模型":
-                    buffer = new StringBuffer();
-                    ChatGPT.MODELS.forEach(model -> {
-                        buffer.append(model).append("\n");
-                    });
-                    buffer.deleteCharAt(buffer.length() - 1);
-                    send.sendMessage(buffer.toString());
-                    break;
-                case "查看群":
-                    buffer = new StringBuffer();
-                    GROUP.forEach(number -> {
-                        buffer.append(number).append("\n");
-                    });
-                    buffer.deleteCharAt(buffer.length() - 1);
-                    send.sendMessage(buffer.toString());
-                    break;
-                case "查看主人":
-                    buffer = new StringBuffer();
-                    MASTER.forEach(number -> {
-                        buffer.append(number).append("\n");
-                    });
-                    buffer.deleteCharAt(buffer.length() - 1);
-                    send.sendMessage(buffer.toString());
-                    break;
-                case "切换key":
-                case "切换KEY":
-                case "切换Key":
-                    send.sendMessage(ChatGPT.setKey());
-                    break;
-                case "查看key":
-                case "查看Key":
-                case "查看KEY":
-                    send.sendMessage(ChatGPT.getKey());
-                    break;
-                case "最大模型":
-                case "最大额度":
-                case "最大额度模型":
-                case "最大模型额度":
-                    send.sendMessage(ChatGPT.maxBalanceModel());
-                    break;
-                case "最小模型":
-                case "最小额度":
-                case "最小额度模型":
-                case "最小模型额度":
-                    send.sendMessage(ChatGPT.minBalanceModel());
-                    break;
-            }
-            String[] strings = message.split(" ");
-            if (strings.length > 1) switch (strings[0]) {
-                case "新会话":
-                case "开启新会话":
-                    ChatGPT.clearChat();
-                    send.sendMessage(ChatGPT.newChat(strings[1]));
-                    break;
-                case "切换模型":
-                    send.sendMessage(ChatGPT.setModel(strings[1]));
-                    break;
-                case "添加群":
-                    try {
-                        if (GROUP.contains(Long.parseLong(strings[1]))) {
-                            send.sendMessage("已经存在了喵~");
-                            break;
-                        }
-                        GROUP.add(Long.parseLong(strings[1]));
-                        send.sendMessage("添加" + strings[1] + "群成功了喵~");
-                    } catch (NumberFormatException ex) {
-                        send.sendMessage("群名不正确喵~");
-                    }
-                    break;
-                case "移除群":
-                case "删除群":
-                    if (Long.parseLong(strings[1]) == 975709430L) {
-                        send.sendMessage("无法移除主群喵~");
-                    } else {
+            if (MASTER.contains(e.getSender().getId())) {
+                switch (message) {
+                    case "菜单":
+                    case "功能":
+                    case "功能菜单":
+                        StringBuffer buffer = new StringBuffer();
+                        MENU.forEach(model -> {
+                            buffer.append(model).append("\n");
+                        });
+                        buffer.deleteCharAt(buffer.length() - 1);
+                        send.sendMessage(buffer.toString());
+                        break;
+                    case "新会话":
+                    case "开启新会话":
+                        ChatGPT.clearChat();
+                        ChatGPT.initChat();
+                        send.sendMessage("创建好了喵~");
+                        break;
+                    case "查看模型":
+                    case "当前模型":
+                        send.sendMessage(ChatGPT.getModel());
+                        break;
+                    case "切换模型":
+                        buffer = new StringBuffer();
+                        ChatGPT.MODELS.forEach(model -> {
+                            buffer.append(model).append("\n");
+                        });
+                        buffer.deleteCharAt(buffer.length() - 1);
+                        send.sendMessage(buffer.toString());
+                        break;
+                    case "查看群":
+                        buffer = new StringBuffer();
+                        GROUP.forEach(number -> {
+                            buffer.append(number).append("\n");
+                        });
+                        buffer.deleteCharAt(buffer.length() - 1);
+                        send.sendMessage(buffer.toString());
+                        break;
+                    case "查看主人":
+                        buffer = new StringBuffer();
+                        MASTER.forEach(number -> {
+                            buffer.append(number).append("\n");
+                        });
+                        buffer.deleteCharAt(buffer.length() - 1);
+                        send.sendMessage(buffer.toString());
+                        break;
+                    case "切换key":
+                    case "切换KEY":
+                    case "切换Key":
+                        send.sendMessage(ChatGPT.setKey());
+                        break;
+                    case "查看key":
+                    case "查看Key":
+                    case "查看KEY":
+                        send.sendMessage(ChatGPT.getKey());
+                        break;
+                    case "最大模型":
+                    case "最大额度":
+                    case "最大额度模型":
+                    case "最大模型额度":
+                        send.sendMessage(ChatGPT.maxBalanceModel());
+                        break;
+                    case "最小模型":
+                    case "最小额度":
+                    case "最小额度模型":
+                    case "最小模型额度":
+                        send.sendMessage(ChatGPT.minBalanceModel());
+                        break;
+                }
+                String[] strings = message.split(" ");
+                if (strings.length > 1) switch (strings[0]) {
+                    case "新会话":
+                    case "开启新会话":
+                        ChatGPT.clearChat();
+                        send.sendMessage(ChatGPT.newChat(strings[1]));
+                        break;
+                    case "切换模型":
+                        send.sendMessage(ChatGPT.setModel(strings[1]));
+                        break;
+                    case "添加群":
                         try {
-                            GROUP.remove(Long.parseLong(strings[1]));
-                            send.sendMessage("移除" + strings[1] + "群成功了喵~");
+                            if (GROUP.contains(Long.parseLong(strings[1]))) {
+                                send.sendMessage("已经存在了喵~");
+                                break;
+                            }
+                            GROUP.add(Long.parseLong(strings[1]));
+                            send.sendMessage("添加" + strings[1] + "群成功了喵~");
                         } catch (NumberFormatException ex) {
                             send.sendMessage("群名不正确喵~");
                         }
-                    }
-                    break;
-                case "添加主人":
-                    try {
-                        if (MASTER.contains(Long.parseLong(strings[1]))) {
-                            send.sendMessage("已经存在了喵~");
-                            break;
+                        break;
+                    case "移除群":
+                    case "删除群":
+                        if (Long.parseLong(strings[1]) == 975709430L) {
+                            send.sendMessage("无法移除主群喵~");
+                        } else {
+                            try {
+                                GROUP.remove(Long.parseLong(strings[1]));
+                                send.sendMessage("移除" + strings[1] + "群成功了喵~");
+                            } catch (NumberFormatException ex) {
+                                send.sendMessage("群名不正确喵~");
+                            }
                         }
-                        MASTER.add(Long.parseLong(strings[1]));
-                        send.sendMessage(strings[1] + "也是一位主人了喵~");
-                    } catch (NumberFormatException ex) {
-                        send.sendMessage("QQ不正确喵~");
-                    }
-                    break;
-                case "移除主人":
-                case "删除主人":
-                    if (Long.parseLong(strings[1]) == 2411718391L) {
-                        send.sendMessage("无法移除阿飞喵~");
-                    } else {
+                        break;
+                    case "添加主人":
                         try {
-                            MASTER.remove(Long.parseLong(strings[1]));
-                            send.sendMessage(strings[1] + "现在已经不是我的主人了喵~");
+                            if (MASTER.contains(Long.parseLong(strings[1]))) {
+                                send.sendMessage("已经存在了喵~");
+                                break;
+                            }
+                            MASTER.add(Long.parseLong(strings[1]));
+                            send.sendMessage(strings[1] + "也是一位主人了喵~");
                         } catch (NumberFormatException ex) {
                             send.sendMessage("QQ不正确喵~");
                         }
-                    }
-                    break;
+                        break;
+                    case "移除主人":
+                    case "删除主人":
+                        if (Long.parseLong(strings[1]) == 2411718391L) {
+                            send.sendMessage("无法移除阿飞喵~");
+                        } else {
+                            try {
+                                MASTER.remove(Long.parseLong(strings[1]));
+                                send.sendMessage(strings[1] + "现在已经不是我的主人了喵~");
+                            } catch (NumberFormatException ex) {
+                                send.sendMessage("QQ不正确喵~");
+                            }
+                        }
+                        break;
+                }
             }
             if (message.contains("菲菲") || message.contains("@2664306741")) {
                 try {
