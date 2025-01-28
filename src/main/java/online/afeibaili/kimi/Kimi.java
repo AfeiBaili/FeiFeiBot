@@ -29,7 +29,7 @@ public class Kimi {
         HttpRequest request = HttpRequest.newBuilder()
                 .setHeader("Authorization", "Bearer " + KEY)
                 .setHeader("Content-Type", "application/json")
-                .uri(new URI("https://api.moonshot.cn/v1"))
+                .uri(new URI("https://api.moonshot.cn/v1/chat/completions"))
                 .POST(HttpRequest.BodyPublishers.ofString(msg)).build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
