@@ -1,6 +1,6 @@
 package online.afeibaili.chat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import online.afeibaili.jsonmap.Balance;
 import online.afeibaili.jsonmap.Message;
 import online.afeibaili.jsonmap.RequestBody;
@@ -16,9 +16,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static online.afeibaili.Util.JSON;
+
 public class ChatGPT {
-    public static final String[] KEYS = {"sk-", "sk-"};
-    public static final ObjectMapper JSON_MAP = new ObjectMapper();
+    public static final String[] KEYS = new String[]{"sk-", "sk-"};
     public static final List<Model> MODELS = new ArrayList<>();
     public static final RequestBody BODY = new RequestBody("gpt-4o-mini", new ArrayList<Message>());
     public static Boolean isModelExist = false;
@@ -30,12 +31,15 @@ public class ChatGPT {
     public static String sendRequest(String role, String message) throws URISyntaxException, IOException, InterruptedException {
         HttpClient httpClient = HttpClient.newHttpClient();
         BODY.getMessages().add(new Message(role, message));
-        String msg = JSON_MAP.writeValueAsString(BODY);
+        String msg = JSON.writeValueAsString(BODY);
 
-        HttpRequest request = HttpRequest.newBuilder().uri(new URI("https://api.chatanywhere.tech/v1/chat/completions")).setHeader("Authorization", "Bearer " + KEYS[0]).setHeader("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(msg)).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI("https://api.chatanywhere.tech/v1/chat/completions"))
+                .setHeader("Authorization", "Bearer " + KEYS[0])
+                .setHeader("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(msg)).build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        responseBody = JSON_MAP.readValue(new String(response.body().getBytes(StandardCharsets.UTF_8)), ResponseBody.class);
+        responseBody = JSON.readValue(new String(response.body().getBytes(StandardCharsets.UTF_8)), ResponseBody.class);
         Message responseMessage = responseBody.getChoices().get(responseBody.getChoices().size() - 1).getMessage();
         BODY.getMessages().add(responseMessage);
 
@@ -44,13 +48,21 @@ public class ChatGPT {
                 responseMessage.getContent();
     }
 
+    public static String getNowChatHistory() {
+        try {
+            return JSON.writeValueAsString(BODY);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void clearChat() {
         BODY.getMessages().clear();
     }
 
     public static void initChat() {
         try {
-            ChatGPT.sendRequest("user", "接下来要求你扮演角色，" + "请你依据人设回答，并且回答尽可能简短且使用分小句回答的方式,字数最好用几个字概括,句尾要带上”喵~“。" + "你现在是一个开朗且极>其可爱的女孩，名为“菲菲”接下来，请完全以菲菲的角色回复我，" + "我会在聊天上加上其他角色的名字" + "不要超出这个角色，不要自己试图进行旁白，你只需要扮演好菲菲即可。无论发生什么，" + "你都必须以菲菲的角色和口吻进行回复。菲菲性格开朗，" + "时刻都想和“我”打成一片，每次眼神交汇时，总是会脸红耳赤。菲菲始终在想方设法的博得“我”的欢心。" + "菲菲什么都不懂，但是懂得很多百科知识，天真可爱，性格外向。");
+            ChatGPT.sendRequest("system", "接下来要求你扮演角色，" + "请你依据人设回答，并且回答尽可能简短且使用分小句回答的方式,字数最好用几个字概括,句尾要带上”喵~“。" + "你现在是一个开朗且极>其可爱的女孩，名为“菲菲”接下来，请完全以菲菲的角色回复我，" + "我会在聊天上加上其他角色的名字" + "不要超出这个角色，不要自己试图进行旁白，你只需要扮演好菲菲即可。无论发生什么，" + "你都必须以菲菲的角色和口吻进行回复。菲菲性格开朗，" + "时刻都想和“我”打成一片，每次眼神交汇时，总是会脸红耳赤。菲菲始终在想方设法的博得“我”的欢心。" + "菲菲什么都不懂，但是懂得很多百科知识，天真可爱，性格外向。");
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +70,8 @@ public class ChatGPT {
 
     public static String newChat(String message) {
         try {
-            return ChatGPT.sendRequest("user", message);
+            ChatGPT.clearChat();
+            return ChatGPT.sendRequest("system", message);
         } catch (URISyntaxException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -94,7 +107,7 @@ public class ChatGPT {
                     .POST(HttpRequest.BodyPublishers.ofString("{}"))
                     .setHeader("authorization", KEYS[0]).setHeader("Content-Type", "application/json").build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            Balance balance = JSON_MAP.readValue(new String(response.body().getBytes()), Balance.class);
+            Balance balance = JSON.readValue(new String(response.body().getBytes()), Balance.class);
             return balance.toString();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             return e.getMessage();

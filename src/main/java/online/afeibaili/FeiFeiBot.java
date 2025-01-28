@@ -8,6 +8,7 @@ import net.mamoe.mirai.event.events.BotOnlineEvent;
 import net.mamoe.mirai.event.events.GroupEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import online.afeibaili.chat.ChatGPT;
+import online.afeibaili.kimi.Kimi;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -27,6 +28,7 @@ public final class FeiFeiBot extends JavaPlugin {
 
         MENU.add("菜单|功能|功能菜单");
         MENU.add("新会话|开启新会话");
+        MENU.add("新Kimi");
         MENU.add("新会话 [模型]");
         MENU.add("开启菲菲");
         MENU.add("关闭菲菲");
@@ -41,6 +43,7 @@ public final class FeiFeiBot extends JavaPlugin {
         MENU.add("查看主人");
         MENU.add("添加主人 [QQ]");
         MENU.add("移除主人|删除主人 [QQ]");
+        MENU.add("获取当前聊天记录");
         MENU.add("最大模型额度");
         MENU.add("最小模型额度");
     }
@@ -66,6 +69,11 @@ public final class FeiFeiBot extends JavaPlugin {
                 ChatGPT.clearChat();
                 ChatGPT.initChat();
                 send.sendMessage("创建好了喵~");
+                break;
+            case "kimi新会话":
+            case "Kimi新会话":
+            case "KIMI新会话":
+                send.sendMessage(Kimi.newKimi());
                 break;
             case "开启菲菲":
                 isAlive = true;
@@ -113,6 +121,9 @@ public final class FeiFeiBot extends JavaPlugin {
             case "查看KEY":
                 send.sendMessage(ChatGPT.getKey());
                 break;
+            case "获取当前聊天记录":
+                ChatGPT.getNowChatHistory();
+                break;
             case "最大模型":
             case "最大额度":
             case "最大额度模型":
@@ -128,9 +139,8 @@ public final class FeiFeiBot extends JavaPlugin {
         }
         String[] strings = message.split(" ");
         if (strings.length > 1) switch (strings[0]) {
-            case "新会话":
-            case "开启新会话":
-                ChatGPT.clearChat();
+            case "新设定":
+            case "开启新设定":
                 send.sendMessage(ChatGPT.newChat(strings[1]));
                 break;
             case "切换模型":
@@ -210,6 +220,14 @@ public final class FeiFeiBot extends JavaPlugin {
                     ex.printStackTrace();
                 }
             }
+            if (message.contains("kimi") || message.contains("Kimi") || message.contains("KIMI")) {
+                try {
+                    send.sendMessage(Kimi.sendRequest("user", message));
+                } catch (IOException | InterruptedException ex) {
+                    send.sendMessage("向Kimi发送请求时出错\n" + "错误原因：" + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
         });
         GlobalEventChannel.INSTANCE.subscribeAlways(BotOnlineEvent.class, e -> {
             GROUP.forEach(g -> {
@@ -225,6 +243,7 @@ public final class FeiFeiBot extends JavaPlugin {
     public void onEnable() {
         getLogger().info("菲菲插件加载成功");
         ChatGPT.initChat();
+        Kimi.initKimi();
         listener();
     }
 }
