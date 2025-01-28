@@ -223,7 +223,7 @@ public final class FeiFeiBot extends JavaPlugin {
             if (message.contains("kimi") || message.contains("Kimi") || message.contains("KIMI")) {
                 try {
                     send.sendMessage(Kimi.sendRequest("user", message));
-                } catch (IOException | InterruptedException ex) {
+                } catch (Exception ex) {
                     send.sendMessage("向Kimi发送请求时出错\n" + "错误原因：" + ex.getMessage());
                     ex.printStackTrace();
                 }
