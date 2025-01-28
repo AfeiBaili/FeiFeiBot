@@ -1,4 +1,4 @@
-package online.afeibaili.chat.jsonmap;
+package online.afeibaili.jsonmap;
 
 import java.util.List;
 

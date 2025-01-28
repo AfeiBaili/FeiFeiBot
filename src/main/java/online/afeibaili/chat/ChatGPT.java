@@ -1,10 +1,10 @@
 package online.afeibaili.chat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import online.afeibaili.chat.jsonmap.Balance;
-import online.afeibaili.chat.jsonmap.Message;
-import online.afeibaili.chat.jsonmap.RequestBody;
-import online.afeibaili.chat.jsonmap.ResponseBody;
+import online.afeibaili.jsonmap.Balance;
+import online.afeibaili.jsonmap.Message;
+import online.afeibaili.jsonmap.RequestBody;
+import online.afeibaili.jsonmap.ResponseBody;
 
 import java.io.IOException;
 import java.net.URI;
