@@ -1,6 +1,6 @@
 package online.afeibaili.chat;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import online.afeibaili.Util;
 import online.afeibaili.jsonmap.Balance;
 import online.afeibaili.jsonmap.Message;
 import online.afeibaili.jsonmap.RequestBody;
@@ -19,7 +19,7 @@ import java.util.List;
 import static online.afeibaili.Util.JSON;
 
 public class ChatGPT {
-    public static final String[] KEYS = new String[]{"sk-", "sk-"};
+    public static final String KEY = Util.getProperty("ChatGPTKey");
     public static final List<Model> MODELS = new ArrayList<>();
     public static final RequestBody BODY = new RequestBody("gpt-4o-mini", new ArrayList<Message>());
     public static Boolean isModelExist = false;
@@ -34,7 +34,7 @@ public class ChatGPT {
         String msg = JSON.writeValueAsString(BODY);
 
         HttpRequest request = HttpRequest.newBuilder().uri(new URI("https://api.chatanywhere.tech/v1/chat/completions"))
-                .setHeader("Authorization", "Bearer " + KEYS[0])
+                .setHeader("Authorization", "Bearer " + KEY)
                 .setHeader("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(msg)).build();
 
@@ -49,11 +49,7 @@ public class ChatGPT {
     }
 
     public static String getNowChatHistory() {
-        try {
-            return JSON.writeValueAsString(BODY);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return BODY.getMessages().toString();
     }
 
     public static void clearChat() {
@@ -92,20 +88,14 @@ public class ChatGPT {
         return responseBody.getModel();
     }
 
-    public static String setKey() {
-        String temp = KEYS[0];
-        KEYS[0] = KEYS[1];
-        KEYS[1] = temp;
-        return "切换Key成功喵~";
-    }
-
     public static String getKey() {
         HttpClient client = HttpClient.newHttpClient();
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI("https://api.chatanywhere.org/v1/query/balance"))
                     .POST(HttpRequest.BodyPublishers.ofString("{}"))
-                    .setHeader("authorization", KEYS[0]).setHeader("Content-Type", "application/json").build();
+                    .setHeader("authorization", KEY)
+                    .setHeader("Content-Type", "application/json").build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             Balance balance = JSON.readValue(new String(response.body().getBytes()), Balance.class);
             return balance.toString();

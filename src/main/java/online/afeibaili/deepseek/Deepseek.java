@@ -1,6 +1,5 @@
-package online.afeibaili.kimi;
+package online.afeibaili.deepseek;
 
-import online.afeibaili.Util;
 import online.afeibaili.jsonmap.Message;
 import online.afeibaili.jsonmap.RequestBody;
 import online.afeibaili.jsonmap.ResponseBody;
@@ -15,10 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import static online.afeibaili.Util.JSON;
+import static online.afeibaili.Util.getProperty;
 
-public class Kimi {
-    public static final String KEY = Util.getProperty("KimiKey");
-    public static final RequestBody BODY = new RequestBody("moonshot-v1-8k", new ArrayList<Message>());
+public class Deepseek {
+    public static final String URL = "https://api.siliconflow.cn/v1/chat/completions";
+    public static final String KEY = getProperty("DeepseekKey");
+    public static final RequestBody BODY = new RequestBody("deepseek-ai/DeepSeek-V3", new ArrayList<Message>());
     public static ResponseBody responseBody;
 
     public static String sendRequest(String role, String message) throws IOException, InterruptedException, URISyntaxException {
@@ -30,7 +31,7 @@ public class Kimi {
         HttpRequest request = HttpRequest.newBuilder()
                 .setHeader("Authorization", "Bearer " + KEY)
                 .setHeader("Content-Type", "application/json")
-                .uri(new URI("https://api.moonshot.cn/v1/chat/completions"))
+                .uri(new URI(URL))
                 .POST(HttpRequest.BodyPublishers.ofString(msg)).build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
@@ -41,16 +42,16 @@ public class Kimi {
         return responseMessage.getContent();
     }
 
-    public static String initKimi() {
+    public static String initDeepseek() {
         try {
-            return Kimi.sendRequest("system", "你是 Kimi，由 Moonshot AI 提供的人工智能助手，你更擅长中文和英文的对话。你会为用户提供安全，有帮助，准确的回答。Moonshot AI 为专有名词，不可翻译成其他语言。");
+            return Deepseek.sendRequest("system", "你叫小鲸鱼，你很聪明也很可爱，你来帮助我们回答一些问题吧！");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String newKimi() {
+    public static String newDeepseek() {
         BODY.getMessages().clear();
-        return initKimi();
+        return initDeepseek();
     }
 }
