@@ -72,10 +72,7 @@ public class ChatGPT implements FeiFeiBot {
         Message responseMessage = responseBody.getChoices().get(responseBody.getChoices().size() - 1).getMessage();
         BODY.getMessages().add(responseMessage);
 
-        return responseMessage.getContent().charAt(responseMessage.getContent().length() - 1) == '\n' ?
-                responseMessage.getContent().substring(0, responseMessage.getContent().length() - 1) :
-                responseMessage.getContent();
-
+        return responseMessage.getContent();
     }
 
     public String getHistory() {
