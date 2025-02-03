@@ -1,4 +1,4 @@
-package online.afeibaili.jsonmap;
+package online.afeibaili.json;
 
 import java.util.List;
 

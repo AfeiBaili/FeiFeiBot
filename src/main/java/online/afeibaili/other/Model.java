@@ -1,4 +1,6 @@
-package online.afeibaili.chat;
+package online.afeibaili.other;
+
+import online.afeibaili.bot.ChatGPT;
 
 public enum Model {
     A("gpt-3.5-turbo", 0.0035, 0.0105),
@@ -46,6 +48,18 @@ public enum Model {
         this.input = input;
         this.output = output;
         ChatGPT.MODELS.add(this);
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public Double getInput() {
+        return input;
+    }
+
+    public Double getOutput() {
+        return output;
     }
 
     @Override

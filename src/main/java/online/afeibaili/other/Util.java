@@ -1,4 +1,4 @@
-package online.afeibaili;
+package online.afeibaili.other;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,6 +27,8 @@ public class Util {
                     p.put("ChatGPTKey", "");
                     p.put("KimiKey", "");
                     p.put("DeepseekKey", "");
+                    p.put("Group", "");
+                    p.put("Master", "");
                     FileWriter writer = new FileWriter(file);
                     FileReader reader = new FileReader(file);
                     p.store(writer, "");

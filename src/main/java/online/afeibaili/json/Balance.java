@@ -1,4 +1,4 @@
-package online.afeibaili.jsonmap;
+package online.afeibaili.json;
 
 public class Balance {
 
