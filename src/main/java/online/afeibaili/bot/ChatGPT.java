@@ -1,5 +1,6 @@
 package online.afeibaili.bot;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import online.afeibaili.json.Balance;
 import online.afeibaili.json.Message;
 import online.afeibaili.json.RequestBody;
@@ -72,9 +73,7 @@ public class ChatGPT implements FeiFeiBot {
         Message responseMessage = responseBody.getChoices().get(responseBody.getChoices().size() - 1).getMessage();
         BODY.getMessages().add(responseMessage);
 
-        return responseMessage.getContent().charAt(responseMessage.getContent().length() - 1) == '\n' ?
-                responseMessage.getContent().substring(0, responseMessage.getContent().length() - 1) :
-                responseMessage.getContent();
+        return responseMessage.getContent();
 
     }
 
@@ -91,7 +90,7 @@ public class ChatGPT implements FeiFeiBot {
                     .setHeader("authorization", KEY)
                     .setHeader("Content-Type", "application/json").build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            Balance balance = JSON.readValue(new String(response.body().getBytes()), Balance.class);
+            Balance balance = new ObjectMapper().readValue(new String(response.body().getBytes()), Balance.class);
             return balance.toString();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             return e.getMessage();

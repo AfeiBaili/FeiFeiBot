@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 
 import static online.afeibaili.other.Util.JSON;
@@ -51,9 +52,16 @@ public class Deepseek implements FeiFeiBot {
         String msg = JSON.writeValueAsString(BODY);
 
 
-        HttpRequest request = HttpRequest.newBuilder().uri(new URI("https://api.siliconflow.cn/v1/chat/completions")).setHeader("Authorization", "Bearer " + KEY).setHeader("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(msg)).build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .timeout(Duration.ofSeconds(5))
+                .uri(new URI("https://api.siliconflow.cn/v1/chat/completions")).setHeader("Authorization", "Bearer " + KEY).setHeader("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(msg)).build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        HttpResponse<String> response = null;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        } catch (IOException | InterruptedException e) {
+            return "连接超时！";
+        }
         ResponseBody responseBody = JSON.readValue(response.body(), ResponseBody.class);
         Message responseMessage = responseBody.getChoices().get(responseBody.getChoices().size() - 1).getMessage();
         BODY.getMessages().add(responseMessage);

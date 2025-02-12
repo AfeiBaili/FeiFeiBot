@@ -31,7 +31,7 @@ public class Util {
                     p.put("Master", "");
                     FileWriter writer = new FileWriter(file);
                     FileReader reader = new FileReader(file);
-                    p.store(writer, "");
+                    p.store(writer, "菲菲的配置属性");
                     properties.load(reader);
 
                     writer.close();
