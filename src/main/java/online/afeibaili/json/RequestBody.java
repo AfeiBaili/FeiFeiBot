@@ -6,8 +6,15 @@ public class RequestBody {
     String model = "gpt-3.5-turbo";
     List<Message> messages;
     Double temperature;
+    Boolean stream = false;
 
     public RequestBody() {
+    }
+
+    public RequestBody(String model, List<Message> messages, Boolean stream) {
+        this.model = model;
+        this.messages = messages;
+        this.stream = stream;
     }
 
     public RequestBody(String model, List<Message> messages, Double temperature) {
@@ -19,6 +26,14 @@ public class RequestBody {
     public RequestBody(String model, List<Message> messages) {
         this.model = model;
         this.messages = messages;
+    }
+
+    public Boolean getStream() {
+        return stream;
+    }
+
+    public void setStream(Boolean stream) {
+        this.stream = stream;
     }
 
     public Double getTemperature() {

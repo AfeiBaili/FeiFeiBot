@@ -10,19 +10,19 @@ import online.afeibaili.bot.ChatGPT;
 import online.afeibaili.bot.Deepseek;
 import online.afeibaili.bot.Kimi;
 import online.afeibaili.other.Commands;
+import online.afeibaili.other.Memory;
 import online.afeibaili.other.Method;
 import online.afeibaili.other.Util;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class MessageHandler {
     public static final HashMap<String, Method> COMMANDS = new HashMap<>();
     public static final List<Long> MASTERS = new ArrayList<>();
     public static final List<Long> GROUPS = new ArrayList<>();
+    public static final Set<Long> IMMERSIVES = new HashSet<>();
     public static final StringBuffer BUFFER = new StringBuffer();
     public static final ChatGPT CHATGPT = FeiFeiFactory.createChatGPT();
     public static final Kimi KIMI = FeiFeiFactory.createKimi();
@@ -31,6 +31,7 @@ public class MessageHandler {
     public static Long master;
     public static Long group;
     public static Boolean isAlive = true;
+    public static Boolean isImmersive = false;
     public static Integer LEVEL = 2; // 1 普通等级, 2管理等级
 
     static {
@@ -48,16 +49,17 @@ public class MessageHandler {
     }
 
     /**
-     * 解析命令
+     * 解析命令，包含消息事件
      *
-     * @param message 传入进来的消息
-     * @return 返回命令集中处理的逻辑
+     * @param message      传入进来的消息
+     * @param event 群聊消息事件
+     * @return 返回命令集中处理的结果
      */
-    public static String parsingMessage(String message) {
+    public static String parsingMessage(String message, GroupMessageEvent event) {
         String msg = new StringBuffer(message).deleteCharAt(0).toString();
         String[] param = msg.split(" +");
         Method method = COMMANDS.get(param[0]);
-        if (method != null) return method.get(param);
+        if (method != null) return method.get(param, event);
         else return "找不到命令喵~";
     }
 
@@ -75,11 +77,12 @@ public class MessageHandler {
             String message = e.getMessage().contentToString();
             Group send = e.getSubject();
             if ((MASTERS.contains(e.getSender().getId()) || LEVEL == 1) && message.charAt(0) == '/') {
-                send.sendMessage(parsingMessage(message));
+                send.sendMessage(parsingMessage(message, e));
             } else if (isAlive) {
-                if (message.contains("菲菲") || message.contains("@2664306741")) {
+                if (message.contains("菲菲") || message.contains("@2664306741") || IMMERSIVES.contains(e.getSender().getId())) {
                     try {
-                        send.sendMessage(CHATGPT.send("user", message));
+                        if (CHATGPT.getStream()) CHATGPT.sendAsStream("user", message, send);
+                        else send.sendMessage(CHATGPT.send("user", message));
                     } catch (URISyntaxException | IOException | InterruptedException ex) {
                         send.sendMessage("向ChatGPT发送请求时出错喵~\n" + "错误原因：" + ex.getMessage());
                         ex.printStackTrace();
@@ -121,6 +124,17 @@ public class MessageHandler {
                     group.sendMessage("菲菲闪亮登场！");
                 }
             });
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    GROUPS.forEach(g -> {
+                        Optional<Group> group = Optional.ofNullable(e.getBot().getGroup(g));
+                        group.ifPresent(gr -> gr.getBotAsMember().setNameCard("菲菲 | Memory：" + Memory.getMemory() + "%"));
+                    });
+                }
+            }, 10000, 60000);
         });
     }
 }

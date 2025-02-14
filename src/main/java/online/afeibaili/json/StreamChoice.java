@@ -3,28 +3,20 @@ package online.afeibaili.json;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Choice {
+public class StreamChoice {
     Integer index;
-    Message message;
+    Delta delta;
     String finish_reason;
     Boolean logprobs;
 
-    public Choice(Integer index, Message message, String finish_reason, Boolean logprobs) {
+
+    public StreamChoice() {
+    }
+
+    public StreamChoice(Integer index, Delta delta, String finish_reason, Boolean logprobs) {
         this.index = index;
-        this.message = message;
+        this.delta = delta;
         this.finish_reason = finish_reason;
-        this.logprobs = logprobs;
-    }
-
-
-    public Choice() {
-    }
-
-    public Boolean getLogprobs() {
-        return logprobs;
-    }
-
-    public void setLogprobs(Boolean logprobs) {
         this.logprobs = logprobs;
     }
 
@@ -36,12 +28,12 @@ public class Choice {
         this.index = index;
     }
 
-    public Message getMessage() {
-        return message;
+    public Delta getDelta() {
+        return delta;
     }
 
-    public void setMessage(Message message) {
-        this.message = message;
+    public void setDelta(Delta delta) {
+        this.delta = delta;
     }
 
     public String getFinish_reason() {
@@ -52,11 +44,19 @@ public class Choice {
         this.finish_reason = finish_reason;
     }
 
+    public Boolean getLogprobs() {
+        return logprobs;
+    }
+
+    public void setLogprobs(Boolean logprobs) {
+        this.logprobs = logprobs;
+    }
+
     @Override
     public String toString() {
-        return "Choice{" +
+        return "StreamChoice{" +
                 "index=" + index +
-                ", message=" + message +
+                ", delta=" + delta +
                 ", finish_reason='" + finish_reason + '\'' +
                 ", logprobs=" + logprobs +
                 '}';

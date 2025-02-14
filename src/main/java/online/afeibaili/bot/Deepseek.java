@@ -26,7 +26,7 @@ public class Deepseek implements FeiFeiBot {
         try {
             send("system", "你叫小鲸鱼也叫做Deepseek，是由中国的深度求索（DeepSeek）公司开发的智能助手DeepSeek-V3");
         } catch (IOException | InterruptedException | URISyntaxException e) {
-            throw new RuntimeException(e);
+            online.afeibaili.FeiFeiBot.LOGGER.info("小鲸鱼初始化错误");
         }
     }
 
@@ -35,7 +35,7 @@ public class Deepseek implements FeiFeiBot {
         try {
             send("system", setting);
         } catch (IOException | InterruptedException | URISyntaxException e) {
-            throw new RuntimeException(e);
+            online.afeibaili.FeiFeiBot.LOGGER.info("小鲸鱼初始化错误");
         }
     }
 

@@ -1,14 +1,15 @@
 package online.afeibaili.bot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import online.afeibaili.json.Balance;
-import online.afeibaili.json.Message;
-import online.afeibaili.json.RequestBody;
-import online.afeibaili.json.ResponseBody;
+import net.mamoe.mirai.contact.Group;
+import online.afeibaili.json.*;
 import online.afeibaili.other.Model;
 import online.afeibaili.other.Util;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
@@ -17,14 +18,14 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static online.afeibaili.other.Util.JSON;
 
 public class ChatGPT implements FeiFeiBot {
     public static final List<Model> MODELS = new ArrayList<>();
     private final String KEY = Util.getProperty("ChatGPTKey");
-    private final RequestBody BODY = new RequestBody(Model.N.getModel(), new ArrayList<Message>());
-
+    private final RequestBody BODY = new RequestBody(Model.N.getModel(), new ArrayList<>());
     private boolean isModelExist = false;
 
     @Override
@@ -69,12 +70,54 @@ public class ChatGPT implements FeiFeiBot {
                 .POST(HttpRequest.BodyPublishers.ofString(msg)).build();
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        ResponseBody responseBody = JSON.readValue(new String(response.body().getBytes(StandardCharsets.UTF_8)), ResponseBody.class);
-        Message responseMessage = responseBody.getChoices().get(responseBody.getChoices().size() - 1).getMessage();
+        ResponseBody responseBody = JSON.readValue(response.body(), ResponseBody.class);
+        if (responseBody.getChoices().get(0).getMessage().getContent() == null) {
+            return "菲菲不能回答喵~！服务器过滤了喵！";
+        }
+        Message responseMessage = responseBody.getChoices().get(0).getMessage();
         BODY.getMessages().add(responseMessage);
 
         return responseMessage.getContent();
+    }
 
+    public void sendAsStream(String role, String message, Group send) throws IOException, URISyntaxException, InterruptedException {
+        HttpClient httpClient = HttpClient.newHttpClient();
+        BODY.getMessages().add(new Message(role, message));
+        String msg = JSON.writeValueAsString(BODY);
+
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI("https://api.chatanywhere.tech/v1/chat/completions"))
+                .setHeader("Authorization", "Bearer " + KEY)
+                .setHeader("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(msg)).build();
+
+        HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        try (
+                InputStream body = response.body();
+                InputStreamReader inputStreamReader = new InputStreamReader(body);
+                BufferedReader reader = new BufferedReader(inputStreamReader);
+        ) {
+            StringBuffer sb = new StringBuffer();
+            String s;
+            while ((s = reader.readLine()) != null) {
+                if (s.equals("")) continue;
+                try {
+                    Stream stream = JSON.readValue(s.substring(6), Stream.class);
+                    Optional<String> content = Optional.ofNullable(stream.getChoices().get(0).getDelta().getContent());
+                    content.ifPresent(value -> {
+                        sb.append(value);
+                        if (value.contains("！")) {
+                            send.sendMessage(sb.toString());
+                            sb.delete(0, sb.length());
+                        }
+                        if (value.contains("？")) {
+                            send.sendMessage(sb.toString());
+                            sb.delete(0, sb.length());
+                        }
+                    });
+                } catch (IOException ignored) {
+                }
+            }
+        }
     }
 
     public String getHistory() {
@@ -90,7 +133,7 @@ public class ChatGPT implements FeiFeiBot {
                     .setHeader("authorization", KEY)
                     .setHeader("Content-Type", "application/json").build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            Balance balance = new ObjectMapper().readValue(new String(response.body().getBytes()), Balance.class);
+            Balance balance = new ObjectMapper().readValue(new String(response.body().getBytes(StandardCharsets.UTF_8)), Balance.class);
             return balance.toString();
         } catch (URISyntaxException | IOException | InterruptedException e) {
             return e.getMessage();
@@ -110,5 +153,13 @@ public class ChatGPT implements FeiFeiBot {
 
     public String getModel() {
         return BODY.getModel();
+    }
+
+    public Boolean getStream() {
+        return BODY.getStream();
+    }
+
+    public void setSteam(Boolean isStream) {
+        BODY.setStream(isStream);
     }
 }

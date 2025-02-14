@@ -9,7 +9,7 @@ public final class FeiFeiBot extends JavaPlugin {
     public static MiraiLogger LOGGER;
 
     private FeiFeiBot() {
-        super(new JvmPluginDescriptionBuilder("online.afeibaili.feifeibot", "2.1.1")
+        super(new JvmPluginDescriptionBuilder("online.afeibaili.feifeibot", "2.2.0")
                 .name("FeiFeiBot")
                 .author("AfeiBaili")
                 .build());
