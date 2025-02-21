@@ -1,12 +1,29 @@
 package online.afeibaili.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
     String role;
     String content;
 
+    public String getReasoningContent() {
+        return reasoningContent;
+    }
+
+    public void setReasoningContent(String reasoningContent) {
+        this.reasoningContent = reasoningContent;
+    }
+
+    public Message(String role, String content, String reasoningContent) {
+        this.role = role;
+        this.content = content;
+        this.reasoningContent = reasoningContent;
+    }
+
+    @JsonProperty("reasoning_content")
+    String reasoningContent;
     public Message() {
     }
 

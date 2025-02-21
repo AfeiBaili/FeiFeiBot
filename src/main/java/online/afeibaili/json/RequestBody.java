@@ -11,6 +11,13 @@ public class RequestBody {
     public RequestBody() {
     }
 
+    public RequestBody(String model, List<Message> messages, Double temperature, Boolean stream) {
+        this.model = model;
+        this.messages = messages;
+        this.temperature = temperature;
+        this.stream = stream;
+    }
+
     public RequestBody(String model, List<Message> messages, Boolean stream) {
         this.model = model;
         this.messages = messages;
