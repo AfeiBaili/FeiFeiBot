@@ -142,7 +142,6 @@ public class Deepseek implements FeiFeiBot {
             if (!sb.toString().equals("")) {
                 send.sendMessage(sb.toString());
             }
-            send.sendMessage(sb.toString());
             BODY.getMessages().add(new Message("assistant", contentMessage.toString()));
             isRunning = false;
         }
