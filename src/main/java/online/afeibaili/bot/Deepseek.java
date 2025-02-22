@@ -99,51 +99,66 @@ public class Deepseek implements FeiFeiBot {
                 InputStreamReader inputStreamReader = new InputStreamReader(body);
                 BufferedReader reader = new BufferedReader(inputStreamReader);
         ) {
-            StringBuilder sb = new StringBuilder();
-            StringBuilder contentMessage = new StringBuilder();
-            String s;
-            int once = 0;
-            while ((s = reader.readLine()) != null) {
-                if (s.equals("")) continue;
-                if (s.equals("\n")) continue;
-                if (s.equals("data: [DONE]")) continue;
-                if (s.equals(": keep-alive")) if (once == 0) {
-                    send.sendMessage("思考中.");
-                    once++;
-                    continue;
-                } else {
-                    send.sendMessage(". ".repeat(once));
-                    once++;
+            StringBuilder reasoningContentSB = new StringBuilder();
+            StringBuilder contentSB = new StringBuilder();
+            int reasoningContentLength = 0;
+            int contentLength = 0;
+            String valueLine;
+            while ((valueLine = reader.readLine()) != null) {
+                if (valueLine.equals("")) continue;
+                if (valueLine.equals("\n")) continue;
+                if (valueLine.equals("data: [DONE]")) continue;
+                if (valueLine.equals(": keep-alive")) {
+                    send.sendMessage("思索中...");
                     continue;
                 }
                 try {
-                    Stream stream = JSON.readValue(s.substring(6), Stream.class);
+                    Stream stream = JSON.readValue(valueLine.substring(6), Stream.class);
+
                     String reasoningContent;
                     if ((reasoningContent = stream.getChoices().get(0).getDelta().getReasoningContent()) != null) {
-                        sb.append(reasoningContent);
+                        reasoningContentSB.append(reasoningContent);
                         if (reasoningContent.contains("。")) {
-                            send.sendMessage(sb.toString().trim());
-                            sb.delete(0, sb.length());
+                            send.sendMessage(reasoningContentSB
+                                    .substring(reasoningContentLength,
+                                            reasoningContentSB.length())
+                                    .trim());
+                            reasoningContentLength = reasoningContentSB.length();
                         }
                     }
+
                     String content;
                     if ((content = stream.getChoices().get(0).getDelta().getContent()) != null) {
-                        sb.append(content);
-                        if (content.contains("🐋")) {
-                            send.sendMessage(sb.toString().trim());
-                            sb.delete(0, sb.length());
+
+                        try {
+                            if (!reasoningContentSB.substring(reasoningContentLength, reasoningContentSB.length()).trim().equals("")) {
+                                send.sendMessage(reasoningContentSB
+                                        .substring(reasoningContentLength,
+                                                reasoningContentSB.length()));
+                                reasoningContentLength = reasoningContentSB.length();
+                            }
+                        } catch (StringIndexOutOfBoundsException ignored) {
                         }
-                        contentMessage.append(content);
+
+                        contentSB.append(content);
+                        if (content.contains("🐋")) {
+                            send.sendMessage(contentSB.substring(contentLength, contentSB.length()).trim());
+                            contentLength = contentSB.length();
+                        }
                     }
                 } catch (IOException e) {
                     BODY.getMessages().remove(BODY.getMessages().size() - 1);
-                    send.sendMessage("错误解析:" + e.getMessage() + "\n\n" + s + "\n\n" + msg);
+                    send.sendMessage("错误解析:" + e.getMessage() + "\n\n" + valueLine + "\n\n" + msg);
                 }
             }
-            if (!sb.toString().equals("")) {
-                send.sendMessage(sb.toString());
+
+            try {
+                if (!contentSB.substring(contentLength, contentSB.length()).trim().equals("")) {
+                    send.sendMessage(contentSB.substring(contentLength, contentSB.length()));
+                }
+            } catch (StringIndexOutOfBoundsException ignored) {
             }
-            BODY.getMessages().add(new Message("assistant", contentMessage.toString()));
+            BODY.getMessages().add(new Message("assistant", contentSB.toString()));
             isRunning = false;
         }
     }
@@ -154,5 +169,23 @@ public class Deepseek implements FeiFeiBot {
 
     public void setSteam(Boolean isStream) {
         BODY.setStream(isStream);
+    }
+
+    public String getModel() {
+        return BODY.getModel();
+    }
+
+    public String setModel(String model) {
+        switch (model) {
+            case "2":
+            case "deepseek-reasoner":
+                BODY.setModel("deepseek-reasoner");
+                return "设置推理模型成功！";
+            case "1":
+            case "deepseek-chat":
+                BODY.setModel("deepseek-chat");
+                return "设置聊天模型成功！";
+        }
+        return "请输入正确的模型！[deepseek-chat | deepseek-reasoner]";
     }
 }

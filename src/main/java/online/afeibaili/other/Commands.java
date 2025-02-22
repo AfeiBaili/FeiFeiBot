@@ -186,6 +186,13 @@ public class Commands {
             IMMERSIVES.remove(event.getSender().getId());
             return event.getSender().getNick() + "已关闭沉浸式对话！";
         });
+        COMMANDS.put("查看小鲸鱼模型", (param, event) -> DEEPSEEK.getModel());
+        COMMANDS.put("切换小鲸鱼模型", (param, event) -> {
+            if (param.length == 1) {
+                return "切换小鲸鱼模型 [deepseek-chat | deepseek-reasoner]";
+            }
+            return DEEPSEEK.setModel(param[1]);
+        });
     }
 
     /**
