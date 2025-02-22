@@ -51,8 +51,8 @@ public class MessageHandler {
     /**
      * 解析命令，包含消息事件
      *
-     * @param message      传入进来的消息
-     * @param event 群聊消息事件
+     * @param message 传入进来的消息
+     * @param event   群聊消息事件
      * @return 返回命令集中处理的结果
      */
     public static String parsingMessage(String message, GroupMessageEvent event) {
@@ -89,7 +89,8 @@ public class MessageHandler {
                     }
                 } else if (message.contains("小鲸鱼")) {
                     try {
-                        send.sendMessage(DEEPSEEK.send("user", message));
+                        if (DEEPSEEK.getStream()) DEEPSEEK.sendAsStream("user", message, send);
+                        else send.sendMessage(DEEPSEEK.send("user", message));
                     } catch (Exception ex) {
                         send.sendMessage("向Deepseek发送请求时出错\n" + "错误原因：" + ex.getMessage());
                         ex.printStackTrace();

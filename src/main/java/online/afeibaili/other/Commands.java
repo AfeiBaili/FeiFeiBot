@@ -27,12 +27,18 @@ public class Commands {
             return "重置好了喵~";
         });
         COMMANDS.put("重置kimi", (param, event) -> {
-            CHATGPT.reload();
+            KIMI.reload();
             return "已创建新的的Kimi";
         });
         COMMANDS.put("重置小鲸鱼", (param, event) -> {
-            CHATGPT.reload();
+            DEEPSEEK.reload();
             return "小鲸鱼🐋已重置好啦~";
+        });
+        COMMANDS.put("重置所有", (param, event) -> {
+            CHATGPT.reload();
+            DEEPSEEK.reload();
+            KIMI.reload();
+            return "菲菲、小鲸鱼、Kimi已重置好啦~";
         });
         COMMANDS.put("开启聊天", (param, event) -> {
             isAlive = true;
@@ -145,12 +151,32 @@ public class Commands {
             return BUFFER.toString();
         });
         COMMANDS.put("开启流", (param, event) -> {
-            CHATGPT.setSteam(true);
-            return "已开启流式传输！";
+            if (param.length != 2) {
+                return "开启流 [菲菲|小鲸鱼]";
+            }
+            switch (param[1]) {
+                case "菲菲":
+                    CHATGPT.setSteam(true);
+                    return "菲菲已开启流式传输";
+                case "小鲸鱼":
+                    DEEPSEEK.setSteam(true);
+                    return "小鲸鱼已开启流式传输";
+            }
+            return "没有此机器人!";
         });
         COMMANDS.put("关闭流", (param, event) -> {
-            CHATGPT.setSteam(false);
-            return "已关闭流式传输！";
+            if (param.length != 2) {
+                return "关闭流 [菲菲|小鲸鱼]";
+            }
+            switch (param[1]) {
+                case "菲菲":
+                    CHATGPT.setSteam(false);
+                    return "菲菲已关闭流式传输";
+                case "小鲸鱼":
+                    DEEPSEEK.setSteam(false);
+                    return "小鲸鱼已关闭流式传输";
+            }
+            return "没有此机器人!";
         });
         COMMANDS.put("开启沉浸式对话", (param, event) -> {
             IMMERSIVES.add(event.getSender().getId());

@@ -1,11 +1,15 @@
 package online.afeibaili.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Delta {
     String role;
     String content;
+
+    @JsonProperty("reasoning_content")
+    String reasoningContent;
 
     public Delta() {
     }
@@ -13,6 +17,20 @@ public class Delta {
     public Delta(String role, String content) {
         this.role = role;
         this.content = content;
+    }
+
+    public Delta(String role, String content, String reasoningContent) {
+        this.role = role;
+        this.content = content;
+        this.reasoningContent = reasoningContent;
+    }
+
+    public String getReasoningContent() {
+        return reasoningContent;
+    }
+
+    public void setReasoningContent(String reasoningContent) {
+        this.reasoningContent = reasoningContent;
     }
 
     public String getRole() {

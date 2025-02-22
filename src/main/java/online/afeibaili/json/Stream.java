@@ -1,7 +1,10 @@
 package online.afeibaili.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Stream {
     String id;
     List<StreamChoice> choices;

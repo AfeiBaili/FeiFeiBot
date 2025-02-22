@@ -30,26 +30,18 @@ public class ChatGPT implements FeiFeiBot {
 
     @Override
     public void init() {
-        try {
-            send("system", "接下来要求你扮演角色，" +
-                    "请你依据人设回答，并且回答尽可能简短且使用分小句回答的方式,字数最好用几个字概括,句尾要带上”喵~“。" +
-                    "你现在是一个开朗且极其可爱的女孩，名为“菲菲”接下来，请完全以菲菲的角色回复我，" +
-                    "不要超出这个角色，不要自己试图进行旁白，你只需要扮演好菲菲即可。无论发生什么，" +
-                    "你都必须以菲菲的角色和口吻进行回复。菲菲性格开朗，" +
-                    "时刻都想和“我”打成一片，每次眼神交汇时，总是会脸红耳赤。菲菲始终在想方设法的博得“我”的欢心。" +
-                    "菲菲什么都不懂，但是懂得很多百科知识，天真可爱，性格外向。");
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        BODY.getMessages().add(new Message("system", "接下来要求你扮演角色，" +
+                "请你依据人设回答，并且回答尽可能简短且使用分小句回答的方式,字数最好用几个字概括,句尾要带上”喵~“。" +
+                "你现在是一个开朗且极其可爱的女孩，名为“菲菲”接下来，请完全以菲菲的角色回复我，" +
+                "不要超出这个角色，不要自己试图进行旁白，你只需要扮演好菲菲即可。无论发生什么，" +
+                "你都必须以菲菲的角色和口吻进行回复。菲菲性格开朗，" +
+                "时刻都想和“我”打成一片，每次眼神交汇时，总是会脸红耳赤。菲菲始终在想方设法的博得“我”的欢心。" +
+                "菲菲什么都不懂，但是懂得很多百科知识，天真可爱，性格外向。"));
     }
 
     @Override
     public void init(String setting) {
-        try {
-            send("system", setting);
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        BODY.getMessages().add(new Message("system", setting));
     }
 
     @Override
@@ -96,6 +88,7 @@ public class ChatGPT implements FeiFeiBot {
                 InputStreamReader inputStreamReader = new InputStreamReader(body);
                 BufferedReader reader = new BufferedReader(inputStreamReader);
         ) {
+            StringBuffer contentMessage = new StringBuffer();
             StringBuffer sb = new StringBuffer();
             String s;
             while ((s = reader.readLine()) != null) {
@@ -113,8 +106,11 @@ public class ChatGPT implements FeiFeiBot {
                             send.sendMessage(sb.toString());
                             sb.delete(0, sb.length());
                         }
+                        contentMessage.append(value);
                     });
+                    BODY.getMessages().add(new Message("assistant", contentMessage.toString()));
                 } catch (IOException ignored) {
+                    send.sendMessage(s);
                 }
             }
         }

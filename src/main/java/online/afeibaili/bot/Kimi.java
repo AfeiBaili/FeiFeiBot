@@ -23,21 +23,13 @@ public class Kimi implements FeiFeiBot {
 
     @Override
     public void init() {
-        try {
-            send("system", "你是 Kimi，由 Moonshot AI 提供的人工智能助手，你更擅长中文和英文的对话。" +
-                    "你会为用户提供安全，有帮助，准确的回答。Moonshot AI 为专有名词，不可翻译成其他语言。");
-        } catch (IOException | URISyntaxException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        BODY.getMessages().add(new Message("system", "你是 Kimi，由 Moonshot AI 提供的人工智能助手，你更擅长中文和英文的对话。" +
+                "你会为用户提供安全，有帮助，准确的回答。Moonshot AI 为专有名词，不可翻译成其他语言。"));
     }
 
     @Override
     public void init(String setting) {
-        try {
-            send("system", setting);
-        } catch (IOException | URISyntaxException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        BODY.getMessages().add(new Message("system", setting));
     }
 
     @Override
