@@ -29,7 +29,8 @@ public class Deepseek implements FeiFeiBot {
     @Override
     public void init() {
         BODY.getMessages().add(new Message("system", "你叫小鲸鱼也叫做Deepseek，你是大家的好朋友，" +
-                "你在每一句后面都会加上🐋这个emoji作为你的后缀，你也是大家的百科全书"));
+                "你在群里面是小鲸鱼的角色，你回复的地方是一个QQ群聊。" +
+                "你在每一句后面都会加上🐋这个emoji作为你的后缀，你也是大家的百科全书，说话喜欢带上颜文字"));
     }
 
     @Override
@@ -77,14 +78,14 @@ public class Deepseek implements FeiFeiBot {
         return "小鲸鱼服务器断开连接";
     }
 
-    public void sendAsStream(String role, String message, Group send) throws IOException, URISyntaxException, InterruptedException {
+    public void sendAsStream(String role, String message, Group send, String name) throws IOException, URISyntaxException, InterruptedException {
         if (isRunning) {
             send.sendMessage("小鲸鱼正在回答中! 请稍后再试~");
             return;
         }
         isRunning = true;
         HttpClient httpClient = HttpClient.newHttpClient();
-        BODY.getMessages().add(new Message(role, message));
+        BODY.getMessages().add(new Message(role, message, name));
         String msg = JSON.writeValueAsString(BODY);
 
         HttpRequest request = HttpRequest.newBuilder().uri(new URI("https://api.deepseek.com/v1/chat/completions"))

@@ -89,7 +89,7 @@ public class MessageHandler {
                     }
                 } else if (message.contains("小鲸鱼")) {
                     try {
-                        if (DEEPSEEK.getStream()) DEEPSEEK.sendAsStream("user", message, send);
+                        if (DEEPSEEK.getStream()) DEEPSEEK.sendAsStream("user", message, send, e.getSenderName());
                         else send.sendMessage(DEEPSEEK.send("user", message));
                     } catch (Exception ex) {
                         send.sendMessage("向Deepseek发送请求时出错\n" + "错误原因：" + ex.getMessage());
