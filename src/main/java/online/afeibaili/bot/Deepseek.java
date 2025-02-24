@@ -29,7 +29,7 @@ public class Deepseek implements FeiFeiBot {
     @Override
     public void init() {
         BODY.getMessages().add(new Message("system", "你叫小鲸鱼也叫做Deepseek，你是大家的好朋友，" +
-                "你在群里面是小鲸鱼的角色，你回复的地方是一个QQ群聊。" +
+                "你在群里面是小鲸鱼的角色，你回复的地方是一个QQ群聊。" + "还要避免使用markdown格式。" +
                 "你在每一句后面都会加上🐋这个emoji作为你的后缀，你也是大家的百科全书，说话喜欢带上颜文字"));
     }
 
