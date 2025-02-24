@@ -17,15 +17,15 @@ public class Test {
 
         Elements item = document.getElementsByClass("result-item");
 
-        StringBuffer message = new StringBuffer();
 
         item.forEach(element -> {
+            StringBuilder message = new StringBuilder();
             Element aTag = element.getElementsByClass("head").get(0).lastElementChild();
             message.append("📌").append(aTag.text()).append('\n')
                     .append("🔗").append(aTag.attr("href")).append('\n')
-                    .append("📜").append(element.getElementsByClass("body").text()).append('\n').append('\n');
+                    .append("📜").append(element.getElementsByClass("body").text());
+            System.out.println(message.toString()+"="+item.size());
         });
 
-        System.out.println(message);
     }
 }
