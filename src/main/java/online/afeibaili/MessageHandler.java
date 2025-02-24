@@ -9,6 +9,7 @@ import online.afeibaili.bot.Bot;
 import online.afeibaili.bot.ChatGPT;
 import online.afeibaili.bot.Deepseek;
 import online.afeibaili.bot.Kimi;
+import online.afeibaili.mc.MCModSearch;
 import online.afeibaili.other.Commands;
 import online.afeibaili.other.Memory;
 import online.afeibaili.other.Method;
@@ -44,6 +45,7 @@ public class MessageHandler {
      */
     public static void load() {
         Commands.setCommands();
+        MCModSearch.load();
         groupListener();
         onlineListener();
     }

@@ -1,43 +1,31 @@
 package online.afeibaili;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import online.afeibaili.json.Message;
-import online.afeibaili.json.RequestBody;
-import online.afeibaili.other.Util;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class Test {
-    private static final String KEY = Util.getProperty("DeepseekKey");
-    private static final RequestBody BODY = new RequestBody("deepseek-reasoner", new ArrayList<Message>(), true);
+    public static void main(String[] args) throws IOException {
+        Document document = Jsoup.connect("https://search.mcmod.cn/s?key=" +
+                URLEncoder.encode("冰与火", StandardCharsets.UTF_8) +
+                "&site=&filter=0&mold=0").get();
 
-    public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
+        Elements item = document.getElementsByClass("result-item");
 
-        BODY.getMessages().add(new Message("system", "在吗"));
-        BODY.getMessages().add(new Message("user", "你好呀"));
+        StringBuffer message = new StringBuffer();
 
-        HttpRequest request = HttpRequest.newBuilder().uri(new URI("https://api.deepseek.com/chat/completions"))
-                .setHeader("Content-Type", "application/json")
-                .setHeader("Authorization", "Bearer " + KEY)
-                .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(BODY)))
-                .build();
-        HttpResponse<InputStream> inputStreamHttpResponse = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+        item.forEach(element -> {
+            Element aTag = element.getElementsByClass("head").get(0).lastElementChild();
+            message.append("📌").append(aTag.text()).append('\n')
+                    .append("🔗").append(aTag.attr("href")).append('\n')
+                    .append("📜").append(element.getElementsByClass("body").text()).append('\n').append('\n');
+        });
 
-        InputStreamReader inputStreamReader = new InputStreamReader(inputStreamHttpResponse.body());
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-        String message;
-        while ((message = bufferedReader.readLine()) != null) {
-            System.out.println(message);
-        }
+        System.out.println(message);
     }
 }
