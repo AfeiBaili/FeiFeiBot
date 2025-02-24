@@ -9,10 +9,10 @@ import online.afeibaili.bot.Bot;
 import online.afeibaili.bot.ChatGPT;
 import online.afeibaili.bot.Deepseek;
 import online.afeibaili.bot.Kimi;
+import online.afeibaili.command.Command;
+import online.afeibaili.command.Commands;
 import online.afeibaili.mc.MCModSearch;
-import online.afeibaili.other.Commands;
 import online.afeibaili.other.Memory;
-import online.afeibaili.other.Method;
 import online.afeibaili.other.Util;
 
 import java.io.IOException;
@@ -20,24 +20,24 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 public class MessageHandler {
-    public static final HashMap<String, Method> COMMANDS = new HashMap<>();
-    public static final List<Long> MASTERS = new ArrayList<>();
+    public static final HashMap<String, Command> COMMANDS = new HashMap<>();
     public static final List<Long> GROUPS = new ArrayList<>();
     public static final Set<Long> IMMERSIVES = new HashSet<>();
     public static final StringBuffer BUFFER = new StringBuffer();
     public static final ChatGPT CHATGPT = FeiFeiFactory.createChatGPT();
     public static final Kimi KIMI = FeiFeiFactory.createKimi();
     public static final Deepseek DEEPSEEK = FeiFeiFactory.createDeepseek();
+    public static final HashMap<Long, Integer> LEVEL_MAP = Util.getLevelMap();
     public static Bot bot;
     public static Long master;
     public static Long group;
     public static Boolean isAlive = true;
     public static Boolean isImmersive = false;
-    public static Integer LEVEL = 2; // 1 普通等级, 2管理等级
 
     static {
         GROUPS.add(group = Long.parseLong(Util.getProperty("Group")));
-        MASTERS.add(master = Long.parseLong(Util.getProperty("Master")));
+        master = Long.parseLong(Util.getProperty("Master"));
+        Util.setLevelMap(master, 999);
     }
 
     /**
@@ -60,9 +60,14 @@ public class MessageHandler {
     public static String parsingMessage(String message, GroupMessageEvent event) {
         String msg = new StringBuffer(message).deleteCharAt(0).toString();
         String[] param = msg.split(" +");
-        Method method = COMMANDS.get(param[0]);
-        if (method != null) return method.get(param, event);
-        else return "找不到命令喵~";
+        Integer level = LEVEL_MAP.get(event.getSender().getId());
+        Command command = COMMANDS.get(param[0]);
+        if (command == null) return "找不到命令喵~";
+        if (command.getLevel() <= (level == null ? 0 : level)) {
+            return command.getMethod().get(param, event);
+        } else {
+            return "您的等级是 " + (level == null ? 0 : level) + " 喵~但是您的指令等级为 " + command.getLevel() + " 喵~";
+        }
     }
 
     /**
@@ -78,7 +83,7 @@ public class MessageHandler {
         }).subscribeAlways(GroupMessageEvent.class, e -> {
             String message = e.getMessage().contentToString();
             Group send = e.getSubject();
-            if ((MASTERS.contains(e.getSender().getId()) || LEVEL == 1) && message.charAt(0) == '/') {
+            if (message.charAt(0) == '/') {
                 send.sendMessage(parsingMessage(message, e));
             } else if (isAlive) {
                 if (message.contains("菲菲") || message.contains("@2664306741") || IMMERSIVES.contains(e.getSender().getId())) {

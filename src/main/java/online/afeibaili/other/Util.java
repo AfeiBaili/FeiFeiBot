@@ -1,28 +1,28 @@
 package online.afeibaili.other;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import online.afeibaili.FeiFeiBot;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Properties;
 
 public class Util {
     public static final ObjectMapper JSON = new ObjectMapper();
-
-    /**
-     * 获取配置文件的属性
-     */
+    public static final HashMap<Long, Integer> LEVEL_MAP = new HashMap<>();
+    private static final Properties levelMap = new Properties();
     private static final Properties properties = new Properties();
 
     static {
-        File file = new File(System.getProperty("user.dir") + "/config/feifei.properties");
+        File file = new File(System.getProperty("user.dir") + "/config/feifei/feifei.properties");
         try (FileReader fileReader = new FileReader(file)) {
             properties.load(fileReader);
         } catch (IOException e) {
             try {
-                if (file.createNewFile()) {
+                if (file.getParentFile().mkdirs()) if (file.createNewFile()) {
                     Properties p = new Properties();
                     p.put("ChatGPTKey", "");
                     p.put("KimiKey", "");
@@ -44,6 +44,10 @@ public class Util {
         }
     }
 
+    static {
+        refresh();
+    }
+
     /**
      * 获取配置文件的属性
      *
@@ -52,5 +56,63 @@ public class Util {
      */
     public static String getProperty(String name) {
         return properties.getProperty(name);
+    }
+
+    /**
+     * 获取等级映射文件
+     *
+     * @return 返回一个HashMap
+     */
+    public static HashMap<Long, Integer> getLevelMap() {
+        return LEVEL_MAP;
+    }
+
+    /**
+     * 添加等级映射到等级映射文件中
+     *
+     * @param qq    QQ号
+     * @param level 等级
+     * @return 是否添加成功
+     */
+    public static boolean setLevelMap(Long qq, Integer level) {
+        File file = new File(System.getProperty("user.dir") + "/config/feifei/level-map.properties");
+        levelMap.remove(qq);
+        levelMap.put(Long.toString(qq), Long.toString(level));
+        try (FileWriter writer = new FileWriter(file)) {
+            levelMap.store(writer, "");
+            refresh();
+            return true;
+        } catch (IOException e) {
+            refresh();
+            return false;
+        }
+    }
+
+    /**
+     * 私有方法用于刷新和获取等级表格
+     */
+    private static void refresh() {
+        File file = new File(System.getProperty("user.dir") + "/config/feifei/level-map.properties");
+        try (FileReader fileReader = new FileReader(file)) {
+            levelMap.load(fileReader);
+            levelMap.forEach((qq, level) -> {
+                try {
+                    LEVEL_MAP.put(Long.parseLong(qq.toString()), Integer.parseInt(level.toString()));
+                } catch (NumberFormatException e) {
+                    throw new RuntimeException("请检查level-map.properties配置文件是否包含数字以外的符号", e);
+                }
+            });
+        } catch (IOException e) {
+            try {
+                if (file.getParentFile().mkdirs()) {
+                    FeiFeiBot.LOGGER.info("已创建等级映射路径");
+                }
+                if (file.createNewFile()) {
+                    FeiFeiBot.LOGGER.info("已创建等级映射文件");
+                }
+            } catch (IOException ex) {
+                throw new RuntimeException("无法创建等级映射文件，可能是权限不足");
+            }
+        }
     }
 }

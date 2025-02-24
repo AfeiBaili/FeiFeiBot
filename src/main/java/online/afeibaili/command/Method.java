@@ -1,4 +1,4 @@
-package online.afeibaili.other;
+package online.afeibaili.command;
 
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 
