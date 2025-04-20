@@ -27,12 +27,18 @@ public class MCModSearch {
                         item.forEach(element -> {
                             StringBuilder message = new StringBuilder();
                             Element aTag = element.getElementsByClass("head").get(0).lastElementChild();
-                            message.append("📌").append(aTag.text()).append('\n')
-                                    .append("🔗").append(aTag.attr("href")).append('\n')
-                                    .append("📜").append(element.getElementsByClass("body").text());
+                            if (aTag != null) {
+                                message.append("📌").append(aTag.text()).append('\n')
+                                        .append("🔗").append(aTag.attr("href")).append('\n')
+                                        .append("📜").append(element.getElementsByClass("body").text());
+                            }
                             event.getSubject().sendMessage(message.toString());
                         });
-                        return "从MC百科查找到" + item.size() + "条结果；" + takeTime.toString().substring(startTakeChar + 1, endTakeChar);
+                        try {
+                            return "从MC百科查找到" + item.size() + "条结果；" + takeTime.toString().substring(startTakeChar + 1, endTakeChar);
+                        } catch (StringIndexOutOfBoundsException e) {
+                            return "搜不到任何信息";
+                        }
                     } catch (IOException e) {
                         return "无法访问MC百科！";
                     }

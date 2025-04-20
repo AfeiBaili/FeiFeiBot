@@ -22,15 +22,15 @@ import static online.afeibaili.other.Util.getProperty;
 
 public class Deepseek implements FeiFeiBot {
     //小鲸鱼默认开启流
-    public final RequestBody BODY = new RequestBody("deepseek-reasoner", new ArrayList<Message>(), true);
+    public final RequestBody BODY = new RequestBody("deepseek-chat", new ArrayList<Message>(), true);
     public final String KEY = getProperty("DeepseekKey");
     public boolean isRunning = false;
 
     @Override
     public void init() {
         BODY.getMessages().add(new Message("system", "你叫小鲸鱼也叫做Deepseek，你是大家的好朋友，" +
-                "你在群里面是小鲸鱼的角色，你回复的地方是一个QQ群聊。" + "还要避免使用markdown格式。" +
-                "你在每一句后面都会加上🐋这个emoji作为你的后缀，你也是大家的百科全书，说话喜欢带上颜文字"));
+                "你在群里面是小鲸鱼的角色，你回复的地方是一个QQ群聊。" + "不可使用markdown格式。" +
+                "你也是大家的百科全书，说话喜欢带上颜文字"));
     }
 
     @Override

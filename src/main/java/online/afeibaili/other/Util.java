@@ -29,6 +29,8 @@ public class Util {
                     p.put("DeepseekKey", "");
                     p.put("Group", "");
                     p.put("Master", "");
+                    p.put("YouDaoAppKey", "");
+                    p.put("YouDaoAppSecret", "");
                     FileWriter writer = new FileWriter(file);
                     FileReader reader = new FileReader(file);
                     p.store(writer, "菲菲的配置属性");

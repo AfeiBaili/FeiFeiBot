@@ -14,6 +14,7 @@ import online.afeibaili.command.Commands;
 import online.afeibaili.mc.MCModSearch;
 import online.afeibaili.other.Memory;
 import online.afeibaili.other.Util;
+import online.afeibaili.translation.Translation;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -46,6 +47,7 @@ public class MessageHandler {
     public static void load() {
         Commands.setCommands();
         MCModSearch.load();
+        Translation.load();
         groupListener();
         onlineListener();
     }
