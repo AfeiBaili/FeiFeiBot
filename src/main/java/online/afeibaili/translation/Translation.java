@@ -52,6 +52,7 @@ public class Translation {
             result.getTranslation().forEach(translation -> {
                 sb.append(translation).append("\n");
             });
+            sb.deleteCharAt(sb.length() - 1);
             return sb.toString();
         } catch (JsonProcessingException e) {
             LOGGER.info(e);
