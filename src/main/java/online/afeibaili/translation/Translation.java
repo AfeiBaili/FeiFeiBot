@@ -1,12 +1,18 @@
 package online.afeibaili.translation;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import online.afeibaili.command.Command;
 import online.afeibaili.other.Util;
 import online.afeibaili.translation.util.AuthV3Util;
 import online.afeibaili.translation.util.HttpUtil;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -23,6 +29,7 @@ import static online.afeibaili.other.Util.JSON;
 public class Translation {
     private static final String APP_KEY = Util.getProperty("YouDaoAppKey");
     private static final String APP_SECRET = Util.getProperty("YouDaoAppSecret");
+    private static final HttpClient CLIENT = HttpClient.newBuilder().build();
 
     public static void load() {
         COMMANDS.put("翻译", new Command.Builder()
@@ -50,11 +57,36 @@ public class Translation {
             Result result = JSON.readValue(body, Result.class);
             StringBuilder sb = new StringBuilder();
             result.getTranslation().forEach(translation -> {
-                sb.append(translation).append("\n");
+                sb.append("释义：").append(translation).append("\n");
             });
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(result.getWebdict().getUrl()))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
+            Element main = Jsoup.parse(response.body()).getElementById("ec");
+
+            if (main != null) {
+                sb.append("\n");
+                main.getElementsByTag("h2").get(0)
+                        .getElementsByTag("div").get(0).getElementsByTag("span")
+                        .forEach(it -> {
+                            if (!it.attr("class").equals("phonetic")) sb.append(it.text()).append("\n");
+                        });
+
+                main.getElementsByTag("li").forEach(it -> {
+                    sb.append(it.text()).append("\n");
+                });
+                main.getElementsByTag("p").forEach(it -> {
+                    sb.append(it.text()).append("\n");
+                });
+            }
+
             sb.deleteCharAt(sb.length() - 1);
             return sb.toString();
-        } catch (JsonProcessingException e) {
+        } catch (IOException | InterruptedException e) {
             LOGGER.info(e);
             return "无法映射：" + e.getMessage();
         }
