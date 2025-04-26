@@ -21,19 +21,19 @@ import java.net.URISyntaxException;
 import java.util.*;
 
 public class MessageHandler {
-    public static final HashMap<String, Command> COMMANDS = new HashMap<>();
-    public static final List<Long> GROUPS = new ArrayList<>();
-    public static final Set<Long> IMMERSIVES = new HashSet<>();
-    public static final StringBuffer BUFFER = new StringBuffer();
-    public static final ChatGPT CHATGPT = FeiFeiFactory.createChatGPT();
-    public static final Kimi KIMI = FeiFeiFactory.createKimi();
-    public static final Deepseek DEEPSEEK = FeiFeiFactory.createDeepseek();
-    public static final HashMap<Long, Integer> LEVEL_MAP = Util.getLevelMap();
-    public static Bot bot;
-    public static Long master;
-    public static Long group;
-    public static Boolean isAlive = true;
-    public static Boolean isImmersive = false;
+    public static final HashMap<String, Command> COMMANDS = new HashMap<>();        //命令集
+    public static final List<Long> GROUPS = new ArrayList<>();                      //群
+    public static final Set<Long> IMMERSIVES = new HashSet<>();                     //沉浸式对话集
+    public static final StringBuffer BUFFER = new StringBuffer();                   //StringBuffer
+    public static final ChatGPT CHATGPT = FeiFeiFactory.createChatGPT();            //菲菲实现类
+    public static final Kimi KIMI = FeiFeiFactory.createKimi();                     //Kimi实现类
+    public static final Deepseek DEEPSEEK = FeiFeiFactory.createDeepseek();         //小鲸鱼实现类
+    public static final HashMap<Long, Integer> LEVEL_MAP = Util.getLevelMap();      //等级系统
+    public static Bot bot;                                                          //机器人的实例
+    public static Long master;                                                      //主人
+    public static Long group;                                                       //主群
+    public static Boolean isAlive = true;                                           //是否存活
+    public static Boolean isImmersive = false;                                      //是否沉浸式
 
     static {
         GROUPS.add(group = Long.parseLong(Util.getProperty("Group")));

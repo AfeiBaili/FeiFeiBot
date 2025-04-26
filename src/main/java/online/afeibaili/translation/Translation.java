@@ -1,6 +1,5 @@
 package online.afeibaili.translation;
 
-
 import online.afeibaili.command.Command;
 import online.afeibaili.other.Util;
 import online.afeibaili.translation.util.AuthV3Util;
