@@ -26,10 +26,9 @@ class LevelMapFile {
 
     fun setLevelMap(qq: Long, level: Int) {
         levelMapProperties.remove(qq.toString())
-        levelMapProperties[qq.toString()] = level
-        FileWriter(file).use {
-            levelMapProperties.store(it, null)
-        }
+        levelMapProperties[qq.toString()] = level.toString()
+        val writer = FileWriter(file)
+        levelMapProperties.store(writer, null)
         refresh()
     }
 

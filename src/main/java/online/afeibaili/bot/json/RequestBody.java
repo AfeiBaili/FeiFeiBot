@@ -1,4 +1,4 @@
-package online.afeibaili.json;
+package online.afeibaili.bot.json;
 
 import java.util.List;
 

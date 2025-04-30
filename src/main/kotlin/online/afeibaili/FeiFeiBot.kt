@@ -23,13 +23,25 @@ object FeiFeiBot : KotlinPlugin(
     }
 
     fun loadingModule() {
+        loadFile()
+        loadCommand()
+        Listener.loadingListener()
+    }
+
+    fun reloadConfigFile() {
+        loadFile()
+        loadCommand()
+    }
+
+    fun loadFile() {
         configObject = ConfigFile()
         config = configObject.config
         levelObject = LevelMapFile()
         levelMap = levelObject.levelMap
-        Commands.loadCommands()
+    }
 
+    fun loadCommand() {
+        Commands.loadCommands()
         commandsMap = Commands.commandsMap
-        Listener.loadingListener()
     }
 }

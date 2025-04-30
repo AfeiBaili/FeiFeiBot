@@ -3,9 +3,9 @@ package online.afeibaili.bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
 import online.afeibaili.config
-import online.afeibaili.json.Message
-import online.afeibaili.json.RequestBody
-import online.afeibaili.json.ResponseBody
+import online.afeibaili.bot.json.Message
+import online.afeibaili.bot.json.RequestBody
+import online.afeibaili.bot.json.ResponseBody
 import java.io.BufferedReader
 import java.io.InputStream
 import java.net.http.HttpResponse
@@ -49,11 +49,11 @@ class ChatGPT : AbstractBot(), Stream, Customizable {
         val responseInputStream: HttpResponse<InputStream> = sendRequestAsStream(requestBody, message, role, url, key)
         val inputStream: BufferedReader = responseInputStream.body().bufferedReader()
         val contentSb: StringBuilder = StringBuilder()
-        var line: String
+        var line: String?
         while (inputStream.readLine().also { line = it } != null) {
-            if (line.isEmpty()) continue
+            if (line!!.isEmpty()) continue
             val stream: StreamJson = jsonMapper.readValue(line, StreamJson::class.java)
-            var content: String
+            var content: String?
             if (stream.choices[0].delta.content.also { content = it } != null) {
                 contentSb.append(content)
             }

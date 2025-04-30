@@ -1,6 +1,6 @@
 package online.afeibaili.bot
 
-import online.afeibaili.json.RequestBody
+import online.afeibaili.bot.json.RequestBody
 
 abstract class AbstractBot {
     abstract val url: String

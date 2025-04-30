@@ -1,9 +1,9 @@
 package online.afeibaili.bot
 
 import online.afeibaili.config
-import online.afeibaili.json.Message
-import online.afeibaili.json.RequestBody
-import online.afeibaili.json.ResponseBody
+import online.afeibaili.bot.json.Message
+import online.afeibaili.bot.json.RequestBody
+import online.afeibaili.bot.json.ResponseBody
 
 class Kimi : AbstractBot() {
     override val url: String = "https://api.moonshot.cn/v1/chat/completions"

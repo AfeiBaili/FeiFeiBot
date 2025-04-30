@@ -1,9 +1,11 @@
-package online.afeibaili.json;
+package online.afeibaili.bot.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.text.DecimalFormat;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Balance {
+public class ChatGPTBalance {
 
     Integer id;
     String apiKey;
@@ -11,6 +13,18 @@ public class Balance {
     Double balanceTotal;
     Double balanceUsed;
     Integer status;
+
+    public ChatGPTBalance() {
+    }
+
+    public ChatGPTBalance(Integer id, String apiKey, Integer adminKeyId, Double balanceTotal, Double balanceUsed, Integer status) {
+        this.id = id;
+        this.apiKey = apiKey;
+        this.adminKeyId = adminKeyId;
+        this.balanceTotal = balanceTotal;
+        this.balanceUsed = balanceUsed;
+        this.status = status;
+    }
 
     public Integer getId() {
         return id;
@@ -60,24 +74,16 @@ public class Balance {
         this.status = status;
     }
 
-    public Balance() {
-    }
-
-    public Balance(Integer id, String apiKey, Integer adminKeyId, Double balanceTotal, Double balanceUsed, Integer status) {
-        this.id = id;
-        this.apiKey = apiKey;
-        this.adminKeyId = adminKeyId;
-        this.balanceTotal = balanceTotal;
-        this.balanceUsed = balanceUsed;
-        this.status = status;
-    }
-
-
     @Override
     public String toString() {
-        return "当前额度：" + (this.balanceTotal - this.balanceUsed) + "\n" +
-                "使用额度：" + this.balanceUsed + "\n" +
+        return "当前额度：" + decimalFormat((this.balanceTotal - this.balanceUsed)) + "\n" +
+                "使用额度：" + decimalFormat(this.balanceUsed) + "\n" +
                 "总共额度：" + this.balanceTotal + "\n" +
                 "Key: " + this.apiKey.substring(this.apiKey.length() - 10);
+    }
+
+    public String decimalFormat(Double value) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        return df.format(value);
     }
 }

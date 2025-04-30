@@ -1,4 +1,4 @@
-package online.afeibaili.json;
+package online.afeibaili.bot.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

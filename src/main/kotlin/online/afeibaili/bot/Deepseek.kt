@@ -3,9 +3,9 @@ package online.afeibaili.bot
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
 import online.afeibaili.config
-import online.afeibaili.json.Message
-import online.afeibaili.json.RequestBody
-import online.afeibaili.json.ResponseBody
+import online.afeibaili.bot.json.Message
+import online.afeibaili.bot.json.RequestBody
+import online.afeibaili.bot.json.ResponseBody
 import java.io.BufferedReader
 import java.io.InputStream
 import java.net.http.HttpResponse
@@ -55,7 +55,7 @@ class Deepseek : AbstractBot(), Stream, Customizable {
         val inputStream: BufferedReader = responseInputStream.body().bufferedReader()
         val contentSb: StringBuilder = StringBuilder()
         val reasoningSb: StringBuilder = StringBuilder()
-        var line: String
+        var line: String?
         val send: Contact = event.subject
 
         while (inputStream.readLine().also { line = it } != null) {
@@ -67,12 +67,12 @@ class Deepseek : AbstractBot(), Stream, Customizable {
                 continue
             }
 
-            val stream = jsonMapper.readValue(line.substring(6), StreamJson::class.java)
-            var reasoningContent: String
+            val stream = jsonMapper.readValue(line!!.substring(6), StreamJson::class.java)
+            var reasoningContent: String?
             if (stream.choices[0].delta.reasoningContent.also { reasoningContent = it } != null) {
                 reasoningSb.append(reasoningContent)
             }
-            var content: String
+            var content: String?
             if (stream.choices[0].delta.content.also { content = it } != null) {
                 contentSb.append(content)
             }

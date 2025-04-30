@@ -18,12 +18,12 @@ object Manager {
         val message = event.message.contentToString()
         val contact: Contact = event.subject
 
-        if (message.startsWith("/")) contact.sendMessage(commandParsing(event))
+        if (message.startsWith(config.setting.commandPrefix)) contact.sendMessage(commandParsing(event))
         else if (isBotAlive) botProcess(event)
     }
 
     private suspend fun commandParsing(event: MessageEvent): String {
-        val message = event.message.contentToString().removePrefix("/")
+        val message = event.message.contentToString().removePrefix(config.setting.commandPrefix)
         val param: Array<String> = message.split("\\s+".toRegex()).toTypedArray()
         val level: Int? = levelMap[event.sender.id]
         val command: Command? = commandsMap[param.first()]
@@ -38,35 +38,44 @@ object Manager {
         val contact: Contact = event.subject
 
         with(message) {
-            when {
-                contains("@${config.bot.qq}") -> {
-                    when (atByTargetBot) {
-                        is Deepseek -> {
-                            val atDeepseek: Deepseek = atByTargetBot as Deepseek
-                            if (atDeepseek.getStream()) atDeepseek.sendAsStream(message, event)
-                            else contact.sendMessage(atDeepseek.send(message))
-                        }
+            try {
+                when {
+                    contains("@${config.bot.qq}") -> {
+                        when (atByTargetBot) {
+                            is Deepseek -> {
+                                val atDeepseek: Deepseek = atByTargetBot as Deepseek
+                                if (atDeepseek.getStream()) atDeepseek.sendAsStream(message, event)
+                                else contact.sendMessage(atDeepseek.send(message))
+                            }
 
-                        is ChatGPT -> {
-                            val atChatGPT: ChatGPT = atByTargetBot as ChatGPT
-                            if (atChatGPT.getStream()) atChatGPT.sendAsStream(message, event)
-                            else contact.sendMessage(atChatGPT.send(message))
-                        }
+                            is ChatGPT -> {
+                                val atChatGPT: ChatGPT = atByTargetBot as ChatGPT
+                                if (atChatGPT.getStream()) atChatGPT.sendAsStream(message, event)
+                                else contact.sendMessage(atChatGPT.send(message))
+                            }
 
-                        else -> {}
+                            else -> {}
+                        }
                     }
+
+                    contains(config.chatgpt.name) -> if (chatgpt.getStream()) chatgpt.sendAsStream(message, event)
+                    else contact.sendMessage(chatgpt.send(message))
+
+                    contains(config.deepseek.name) -> if (deepseek.getStream()) deepseek.sendAsStream(message, event)
+                    else contact.sendMessage(deepseek.send(message))
+
+                    customized != null && contains(customized!!.name) -> contact.sendMessage(
+                        customized!!.bot.send(
+                            message
+                        )
+                    )
+
+                    contains("kimi") || contains("Kimi") || contains("KIMI") -> contact.sendMessage(kimi.send(message))
+
+                    else -> {}
                 }
-
-                contains(config.chatgpt.name) -> if (chatgpt.getStream()) chatgpt.sendAsStream(message, event)
-                else contact.sendMessage(chatgpt.send(message))
-
-                contains(config.deepseek.name) -> if (deepseek.getStream()) deepseek.sendAsStream(message, event)
-                else contact.sendMessage(deepseek.send(message))
-
-                customized != null && contains(customized!!.name) -> contact.sendMessage(customized!!.bot.send(message))
-                contains("kimi") || contains("Kimi") || contains("KIMI") -> contact.sendMessage(kimi.send(message))
-
-                else -> {}
+            } catch (e: Exception) {
+                contact.sendMessage("消息异常，请检查配置文件或信息：${contact.sendMessage(e.message!!)}")
             }
         }
     }

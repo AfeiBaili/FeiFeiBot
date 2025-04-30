@@ -1,16 +1,17 @@
 package online.afeibaili.bot
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import online.afeibaili.json.Message
-import online.afeibaili.json.RequestBody
-import online.afeibaili.json.ResponseBody
+import online.afeibaili.bot.json.Message
+import online.afeibaili.bot.json.RequestBody
+import online.afeibaili.bot.json.ResponseBody
+import online.afeibaili.bot.json.Stream
 import java.io.InputStream
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
-typealias StreamJson = online.afeibaili.json.Stream
+typealias StreamJson = Stream
 
 val httpClient: HttpClient = HttpClient.newHttpClient()
 
