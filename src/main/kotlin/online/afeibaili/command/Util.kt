@@ -57,14 +57,21 @@ fun getDeepseekModuleAsString(): String {
 suspend fun uploadChatHistory(bot: AbstractBot, event: MessageEvent) {
     val contact: Contact = event.subject
 
-    val forwardMessageBuilder = ForwardMessageBuilder(contact)
-    bot.requestBody.messages.forEach { message ->
+    var forwardMessageBuilder = ForwardMessageBuilder(contact)
+    var index = 1
+    for (message in bot.requestBody.messages) {
+        if (index == 100) {
+            contact.sendMessage(forwardMessageBuilder.build())
+            forwardMessageBuilder = ForwardMessageBuilder(contact)
+            index = 1
+        }
         val qq: Long = when (message.role) {
             "assistant" -> contact.bot.id
             "user" -> event.sender.id
             else -> event.sender.id
         }
-        forwardMessageBuilder.add(qq, "记录", PlainText(message.content))
+        forwardMessageBuilder.add(qq, "聊天记录", PlainText(message.content))
+        index++
     }
     contact.sendMessage(forwardMessageBuilder.build())
 }

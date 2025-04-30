@@ -5,14 +5,6 @@ public class Setting {
     String startMessage;
     String commandPrefix;
 
-    @Override
-    public String toString() {
-        return "Setting{" +
-                "atByTargetBot='" + atByTargetBot + '\'' +
-                ", startMessage='" + startMessage + '\'' +
-                '}';
-    }
-
     public String getCommandPrefix() {
         return commandPrefix;
     }

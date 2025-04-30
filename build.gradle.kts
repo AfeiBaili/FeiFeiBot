@@ -10,7 +10,9 @@ plugins {
 }
 
 dependencies {
+    implementation("org.jsoup:jsoup:1.19.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.10")
 }
 

@@ -38,10 +38,13 @@ class ConfigFile(val path: String) {
                                 "name": "机器人名字"
                               },
                               "module": {
-                                "openMemoryName": true
+                                "openMemoryName": true,
+                                "mcModSearch": true,
+                                "translation": true
                               },
                               "setting": {
                                 "atByTargetBot": "<chatgpt | deepseek>",
+                                "immersiveByTargetBot": "<chatgpt | deepseek>",
                                 "startMessage": "加载群后发送的提示消息",
                                 "commandPrefix": "/"
                               },

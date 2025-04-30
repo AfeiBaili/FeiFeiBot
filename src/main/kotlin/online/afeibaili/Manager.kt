@@ -13,6 +13,7 @@ import online.afeibaili.command.Command
 
 object Manager {
     var isBotAlive = true
+    val immersiveMap = HashMap<Long, String>()
 
     suspend fun process(event: MessageEvent) {
         val message = event.message.contentToString()
@@ -40,29 +41,29 @@ object Manager {
         with(message) {
             try {
                 when {
-                    contains("@${config.bot.qq}") -> {
-                        when (atByTargetBot) {
-                            is Deepseek -> {
-                                val atDeepseek: Deepseek = atByTargetBot as Deepseek
-                                if (atDeepseek.getStream()) atDeepseek.sendAsStream(message, event)
-                                else contact.sendMessage(atDeepseek.send(message))
-                            }
-
-                            is ChatGPT -> {
-                                val atChatGPT: ChatGPT = atByTargetBot as ChatGPT
-                                if (atChatGPT.getStream()) atChatGPT.sendAsStream(message, event)
-                                else contact.sendMessage(atChatGPT.send(message))
-                            }
-
-                            else -> {}
-                        }
+                    immersiveMap.contains(event.sender.id) -> when (immersiveMap[event.sender.id]) {
+                        "deepseek" -> sendByDeepseek(contact, deepseek, event)
+                        "chatgpt" -> sendByChatGPT(contact, chatgpt, event)
+                        else -> {}
                     }
 
-                    contains(config.chatgpt.name) -> if (chatgpt.getStream()) chatgpt.sendAsStream(message, event)
-                    else contact.sendMessage(chatgpt.send(message))
+                    contains("@${config.bot.qq}") -> when (atByTargetBot) {
+                        is Deepseek -> {
+                            val atDeepseek: Deepseek = atByTargetBot as Deepseek
+                            sendByDeepseek(contact, atDeepseek, event)
+                        }
 
-                    contains(config.deepseek.name) -> if (deepseek.getStream()) deepseek.sendAsStream(message, event)
-                    else contact.sendMessage(deepseek.send(message))
+                        is ChatGPT -> {
+                            val atChatGPT: ChatGPT = atByTargetBot as ChatGPT
+                            sendByChatGPT(contact, atChatGPT, event)
+                        }
+
+                        else -> {}
+                    }
+
+                    contains(config.chatgpt.name) -> sendByChatGPT(contact, chatgpt, event)
+
+                    contains(config.deepseek.name) -> sendByDeepseek(contact, deepseek, event)
 
                     customized != null && contains(customized!!.name) -> contact.sendMessage(
                         customized!!.bot.send(
@@ -78,5 +79,17 @@ object Manager {
                 contact.sendMessage("消息异常，请检查配置文件或信息：${contact.sendMessage(e.message!!)}")
             }
         }
+    }
+
+    private suspend fun sendByChatGPT(contact: Contact, chatgpt: ChatGPT, event: MessageEvent) {
+        val message: String = event.message.contentToString()
+        if (chatgpt.getStream()) chatgpt.sendAsStream(message, event)
+        else contact.sendMessage(chatgpt.send(message))
+    }
+
+    private suspend fun sendByDeepseek(contact: Contact, deepseek: Deepseek, event: MessageEvent) {
+        val message: String = event.message.contentToString()
+        if (deepseek.getStream()) deepseek.sendAsStream(message, event)
+        else contact.sendMessage(deepseek.send(message))
     }
 }

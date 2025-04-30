@@ -231,11 +231,26 @@ object Commands {
                 else -> "无法关闭的机器人"
             }
         }, level = 1))
-        register("开启沉浸式对话", Command({ p, e ->
-            "0"
+        register("开启沉浸式对话", Command({ param, event ->
+            if (param.size != 2) return@Command "开启沉浸式对话 <${chatgptName} | ${deepseekName}>"
+            val qq: Long = event.sender.id
+            if (Manager.immersiveMap.contains(qq)) return@Command "${event.sender.nick}已经是沉浸式对话了"
+
+
+            when (param[1]) {
+                chatgptName -> Manager.immersiveMap.put(qq, "chatgpt")
+                deepseekName -> Manager.immersiveMap.put(qq, "deepseek")
+                else -> return@Command "未知的机器人"
+            }
+
+            "${event.sender.nick}开启了沉浸式对话"
         }))
-        register("关闭沉浸式对话", Command({ p, e ->
-            "0"
+        register("关闭沉浸式对话", Command({ param, event ->
+            val qq: Long = event.sender.id
+
+            if (!Manager.immersiveMap.contains(qq)) return@Command "并不在沉浸式列表"
+            Manager.immersiveMap.remove(qq)
+            "${event.sender.nick}关闭了沉浸式对话"
         }))
         register("设置命令前缀", Command({ param, e ->
             if (param.size != 2) return@Command "设置命令前缀 <命令前缀>"

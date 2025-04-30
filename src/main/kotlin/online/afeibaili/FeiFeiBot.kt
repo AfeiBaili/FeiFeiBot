@@ -5,6 +5,8 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import online.afeibaili.command.Commands
 import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
+import online.afeibaili.module.McModSearch
+import online.afeibaili.module.Translation
 
 object FeiFeiBot : KotlinPlugin(
     JvmPluginDescription(
@@ -25,6 +27,8 @@ object FeiFeiBot : KotlinPlugin(
     fun loadingModule() {
         loadFile()
         loadCommand()
+        loadMcModSearch()
+        loadTranslation()
         Listener.loadingListener()
     }
 
@@ -43,5 +47,13 @@ object FeiFeiBot : KotlinPlugin(
     fun loadCommand() {
         Commands.loadCommands()
         commandsMap = Commands.commandsMap
+    }
+
+    fun loadMcModSearch() {
+        if (config.module.isMcModSearch) McModSearch.load()
+    }
+
+    fun loadTranslation() {
+        if (config.module.isTranslation) Translation.load()
     }
 }
