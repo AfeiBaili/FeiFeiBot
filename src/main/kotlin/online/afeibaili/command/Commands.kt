@@ -1,5 +1,6 @@
 package online.afeibaili.command
 
+import net.mamoe.mirai.event.events.GroupMessageEvent
 import online.afeibaili.*
 import online.afeibaili.bot.AbstractBot
 import online.afeibaili.bot.ChatGPT
@@ -58,7 +59,8 @@ object Commands {
         register("设置等级", Command({ param, e ->
             if (param.size != 3) return@Command "设置等级 <QQ> <等级>"
             try {
-                val qq: Long = if (param[1].startsWith("@")) param[1].removePrefix("@").toLong() else param[1].toLong()
+                val qq: Long = if (param[1].startsWith("@")) param[1].removePrefix("@").toLong()
+                else param[1].toLong()
                 val level: Int = param[2].toInt()
                 levelObject.setLevelMap(qq, level)
                 "设置等级成功"
@@ -260,6 +262,83 @@ object Commands {
         register("重载配置文件", Command({ p, e ->
             FeiFeiBot.reloadConfigFile()
             "重载配置文件成功"
+        }, level = 4))
+        register("禁言", Command({ param, event ->
+            if (param.size !in 2..3) return@Command "禁言 <QQ> [秒]\n不写秒默认禁言十分钟"
+            val seconds = if (param.size == 3) {
+                try {
+                    param[2].toLong()
+                } catch (e: NumberFormatException) {
+                    return@Command "秒参数错误，包含字母"
+                }
+            } else {
+                600
+            }
+
+            try {
+                val qq: Long = if (param[1].startsWith("@")) param[1].removePrefix("@").toLong()
+                else param[1].toLong()
+
+                if (event is GroupMessageEvent) {
+                    try {
+                        event.subject.members[qq]?.run {
+                            mute(seconds.toInt())
+                            return@Command "已禁言${event.subject.members[qq]?.nick}${seconds}秒"
+                        }
+                    } catch (e: Exception) {
+                        return@Command "请检查机器人是否有权限，且返回是否正确0-30天"
+                    }
+                } else return@Command "你不在群聊里"
+            } catch (e: NumberFormatException) {
+                return@Command "QQ参数包含字母"
+            }
+            "群里是否包含此人？"
+        }, level = 3))
+        register("解除禁言", Command({ param, event ->
+            if (param.size != 2) return@Command "解除禁言 <QQ>"
+
+            try {
+                val qq: Long = if (param[1].startsWith("@")) param[1].removePrefix("@").toLong()
+                else param[1].toLong()
+
+                if (event is GroupMessageEvent) {
+                    try {
+                        event.subject.members[qq]?.run {
+                            if (isMuted) unmute()
+                            else return@Command "并未禁言"
+                            return@Command "已解除${event.subject.members[qq]?.nick}禁言"
+                        }
+                    } catch (e: Exception) {
+                        return@Command "请检查机器人是否有权限"
+                    }
+                } else return@Command "你不在群聊里"
+            } catch (e: NumberFormatException) {
+                return@Command "QQ参数包含字母"
+            }
+            "群里是否包含此人？"
+        }, level = 3))
+        register("踢出", Command({ param, event ->
+            if (param.size != 2) return@Command "踢出 <QQ>"
+
+            try {
+                val qq: Long = if (param[1].startsWith("@")) param[1].removePrefix("@").toLong()
+                else param[1].toLong()
+
+                if (event is GroupMessageEvent) {
+                    try {
+                        event.subject.members[qq]?.run {
+                            val name: String? = event.subject.members[qq]?.nick
+                            kick("你被踢出去了")
+                            return@Command "${name}已被踢出群聊"
+                        }
+                    } catch (e: Exception) {
+                        return@Command "请检查机器人是否有权限"
+                    }
+                } else return@Command "你不在群聊里"
+            } catch (e: NumberFormatException) {
+                return@Command "QQ参数包含字母"
+            }
+            "群里是否包含此人？"
         }, level = 4))
     }
 
