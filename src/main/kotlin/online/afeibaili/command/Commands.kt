@@ -111,7 +111,7 @@ object Commands {
             }
 
         }, level = 2))
-        register("查看机器人API余额", Command({ param, event ->
+        register("查看机器人API余额", Command({ param, e ->
             if (param.size != 2) return@Command "查看机器人API余额 <${chatgptName} | ${deepseekName}>"
             return@Command when (param[1]) {
                 chatgptName -> getChatgptBalance(chatgpt)
@@ -247,7 +247,7 @@ object Commands {
 
             "${event.sender.nick}开启了沉浸式对话"
         }))
-        register("关闭沉浸式对话", Command({ param, event ->
+        register("关闭沉浸式对话", Command({ p, event ->
             val qq: Long = event.sender.id
 
             if (!Manager.immersiveMap.contains(qq)) return@Command "并不在沉浸式列表"
