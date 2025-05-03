@@ -362,7 +362,7 @@ object Commands {
                         event.subject.sendImage(it)
                     }
                 } catch (e: Exception) {
-                    event.subject.sendMessage("无法下载图片：${e.message}\n${image.url}")
+                    logger("无法下载图片：${e.message}\n${image.url}")
                 }
             }
 
