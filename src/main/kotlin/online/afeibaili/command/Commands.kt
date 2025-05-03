@@ -361,6 +361,7 @@ object Commands {
                 try {
                     URL(image.url).openConnection().inputStream.use {
                         event.subject.sendImage(it.toExternalResource())
+                        it.close()
                     }
                 } catch (e: Exception) {
                     event.subject.sendMessage("无法下载图片：${e.message}\n${image.url}")
