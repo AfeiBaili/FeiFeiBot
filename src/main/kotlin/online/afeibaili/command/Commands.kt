@@ -2,7 +2,6 @@ package online.afeibaili.command
 
 import net.mamoe.mirai.contact.Contact.Companion.sendImage
 import net.mamoe.mirai.event.events.GroupMessageEvent
-import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import online.afeibaili.*
 import online.afeibaili.bot.AbstractBot
 import online.afeibaili.bot.ChatGPT
@@ -360,8 +359,7 @@ object Commands {
             suspend fun downloadAndSendImage(image: ImageResponse.Image) {
                 try {
                     URL(image.url).openConnection().inputStream.use {
-                        event.subject.sendImage(it.toExternalResource())
-                        it.close()
+                        event.subject.sendImage(it)
                     }
                 } catch (e: Exception) {
                     event.subject.sendMessage("无法下载图片：${e.message}\n${image.url}")

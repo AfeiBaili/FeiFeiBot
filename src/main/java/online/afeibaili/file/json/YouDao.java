@@ -1,25 +1,22 @@
 package online.afeibaili.file.json;
 
 public class YouDao {
-    String key;
-    String appId;
+    String appKey;
+    String appSecret;
 
-    public YouDao() {
+    public String getAppKey() {
+        return appKey;
     }
 
-    public String getKey() {
-        return key;
+    public void setAppKey(String appKey) {
+        this.appKey = appKey;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public String getAppSecret() {
+        return appSecret;
     }
 
-    public String getAppId() {
-        return appId;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
+    public void setAppSecret(String appSecret) {
+        this.appSecret = appSecret;
     }
 }

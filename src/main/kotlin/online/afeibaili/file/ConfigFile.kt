@@ -63,8 +63,8 @@ class ConfigFile(val path: String) {
                                 "setting": "机器人设定"
                               },
                               "youDao": {
-                                "key": "有道云翻译Key",
-                                "appId": "有道云翻译应用Id"
+                                "appKey": "有道云翻译应用Id",
+                                "appSecret": "有道云翻译Key"
                               },
                               "kolors": {
                                 "key": "kolors key"

@@ -85,7 +85,7 @@ public class Translation {
     public static String translate(String q, String from, String to) {
         Map<String, String[]> params = createRequestParams(q, from, to);
         try {
-            AuthV3Util.addAuthParams(UtilKt.config.getYouDao().getAppId(), UtilKt.config.getYouDao().getKey(), params);
+            AuthV3Util.addAuthParams(UtilKt.config.getYouDao().getAppKey(), UtilKt.config.getYouDao().getAppSecret(), params);
         } catch (NoSuchAlgorithmException ignored) {
         }
         byte[] result = HttpUtil.doPost("https://openapi.youdao.com/api", null, params, "application/json");
