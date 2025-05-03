@@ -1,6 +1,8 @@
 package online.afeibaili.command
 
+import net.mamoe.mirai.contact.Contact.Companion.sendImage
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import online.afeibaili.*
 import online.afeibaili.bot.AbstractBot
 import online.afeibaili.bot.ChatGPT
@@ -10,6 +12,9 @@ import online.afeibaili.bot.Robots.chatgpt
 import online.afeibaili.bot.Robots.customized
 import online.afeibaili.bot.Robots.deepseek
 import online.afeibaili.bot.Robots.kimi
+import online.afeibaili.bot.Robots.kolors
+import online.afeibaili.bot.json.ImageResponse
+import java.net.URL
 
 object Commands {
     val commands = ArrayList<Pair<String, Command>>()
@@ -179,6 +184,7 @@ object Commands {
             if (param.size == 1) return@Command "添加群 <群号> [群号..]"
             for (i in 1..param.size - 1) {
                 try {
+                    if (config.groups.contains(param[i].toLong())) continue
                     config.groups = config.groups.plus(param[i].toLong())
                 } catch (e: NumberFormatException) {
                     return@Command "无法转换的群号${param[i]}：${e.message}"
@@ -340,6 +346,40 @@ object Commands {
             }
             "群里是否包含此人？"
         }, level = 4))
+        register("创建图片", Command({ param, event ->
+            if (param.size < 2) return@Command "创建图片 [1-4图片数量] <描述词>"
+
+            fun getPrompt(): String {
+                val sb = StringBuilder()
+                for (i in 1 until param.size) {
+                    sb.append(param[i]).append(" ")
+                }
+                return sb.removeSuffix(" ").toString()
+            }
+
+            suspend fun downloadAndSendImage(image: ImageResponse.Image) {
+                try {
+                    URL(image.url).openConnection().inputStream.use {
+                        event.subject.sendImage(it.toExternalResource())
+                    }
+                } catch (e: Exception) {
+                    event.subject.sendMessage("无法下载图片：${e.message}\n${image.url}")
+                }
+            }
+
+            if (param.size == 2) {
+                val image: ImageResponse.Image = kolors.send(getPrompt()).images[0]
+                downloadAndSendImage(image)
+                return@Command "已生成图片"
+            }
+
+            val result: Result<Int> = runCatching {
+                param[1].toInt()
+            }
+            val count: Int = result.getOrElse { return@Command "请传入图片数量 1-4 不要传入其他字符" }
+            kolors.send(getPrompt(), count).images.forEach { downloadAndSendImage(it) }
+            "已生成图片"
+        }))
     }
 
     fun register(name: String, command: Command) {

@@ -12,8 +12,17 @@ public class JsonConfigMap {
     Deepseek deepseek;
     Kimi kimi;
     YouDao youDao;
+    Kolors kolors;
 
     public JsonConfigMap() {
+    }
+
+    public Kolors getKolors() {
+        return kolors;
+    }
+
+    public void setKolors(Kolors kolors) {
+        this.kolors = kolors;
     }
 
     @Override

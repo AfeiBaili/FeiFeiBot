@@ -15,4 +15,5 @@ object Robots {
                 else -> chatgpt
             }
         }
+    val kolors = Kolors()
 }

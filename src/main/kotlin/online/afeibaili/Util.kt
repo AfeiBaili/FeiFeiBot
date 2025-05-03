@@ -6,7 +6,7 @@ import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
 import online.afeibaili.file.json.JsonConfigMap
 
-private const val isLoggerPrint = true
+private const val isLoggerPrint = false
 
 lateinit var config: JsonConfigMap
 lateinit var configObject: ConfigFile

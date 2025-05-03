@@ -65,6 +65,9 @@ class ConfigFile(val path: String) {
                               "youDao": {
                                 "key": "有道云翻译Key",
                                 "appId": "有道云翻译应用Id"
+                              },
+                              "kolors": {
+                                "key": "kolors key"
                               }
                             }
                     """.trimIndent()
