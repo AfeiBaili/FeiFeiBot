@@ -76,6 +76,7 @@ object Manager {
                     else -> {}
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 contact.sendMessage("消息异常，请检查配置文件或信息：${contact.sendMessage(e.message!!)}")
             }
         }

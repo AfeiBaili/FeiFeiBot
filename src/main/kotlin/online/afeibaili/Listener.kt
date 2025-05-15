@@ -6,6 +6,7 @@ import net.mamoe.mirai.event.Listener
 import net.mamoe.mirai.event.events.BotOnlineEvent
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MemberJoinEvent
 import online.afeibaili.module.BotNameMemoryRemind
 
 object Listener {
@@ -52,6 +53,12 @@ object Listener {
                 botNameMemoryRemind = BotNameMemoryRemind()
                 botNameMemoryRemind.startTimer(event)
             }
+        }
+    }
+
+    fun loadingMemberJoinListener() {
+        GlobalEventChannel.subscribeAlways<MemberJoinEvent> { event ->
+            event.group.sendMessage("")
         }
     }
 

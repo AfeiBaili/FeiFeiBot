@@ -60,7 +60,7 @@ suspend fun uploadChatHistory(bot: AbstractBot, event: MessageEvent) {
     var forwardMessageBuilder = ForwardMessageBuilder(contact)
     var index = 1
     for (message in bot.requestBody.messages) {
-        if (index == 100) {
+        if (index == 50) {
             contact.sendMessage(forwardMessageBuilder.build())
             forwardMessageBuilder = ForwardMessageBuilder(contact)
             index = 1

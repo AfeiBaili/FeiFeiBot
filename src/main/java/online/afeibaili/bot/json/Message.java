@@ -8,7 +8,7 @@ public class Message {
     String role;
     String content;
     String name;
-    @JsonProperty("reasoning_content")
+    @JsonProperty(value = "reasoning_content", access = JsonProperty.Access.WRITE_ONLY)
     String reasoningContent;
 
     public Message(String role, String content, String name) {

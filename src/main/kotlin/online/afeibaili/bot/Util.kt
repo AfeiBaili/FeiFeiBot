@@ -1,5 +1,6 @@
 package online.afeibaili.bot
 
+import Markdown
 import com.fasterxml.jackson.databind.ObjectMapper
 import online.afeibaili.bot.json.Message
 import online.afeibaili.bot.json.RequestBody
@@ -17,12 +18,11 @@ val httpClient: HttpClient = HttpClient.newHttpClient()
 
 val jsonMapper = ObjectMapper()
 
+val markdown = Markdown()
+
 fun builderRequest(url: String, key: String, message: String): HttpRequest {
-    return HttpRequest.newBuilder(URI(url))
-        .setHeader("Authorization", "Bearer $key")
-        .setHeader("Content-Type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofString(message))
-        .build()
+    return HttpRequest.newBuilder(URI(url)).setHeader("Authorization", "Bearer $key")
+        .setHeader("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(message)).build()
 }
 
 fun sendRequest(requestBody: RequestBody, message: String, role: String, url: String, key: String): ResponseBody {
@@ -42,7 +42,18 @@ fun sendRequestAsStream(
     val requestString: String = messageProcessing(requestBody, message, role)
     val request: HttpRequest = builderRequest(url, key, requestString)
     return httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream())
+}
 
+fun parsingLine(sb: StringBuilder): String? {
+    if (sb.trim().isEmpty()) return null
+    val indexOf: Int = sb.toString().indexOf('\n')
+    return if (indexOf != -1) {
+        val substring = sb.substring(0, indexOf)
+        sb.delete(0, indexOf + 1)
+        val parsing = markdown.parsing(substring)
+        if (parsing.trim().isEmpty()) null
+        else parsing
+    } else null
 }
 
 private fun messageProcessing(requestBody: RequestBody, message: String, role: String): String {
