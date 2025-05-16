@@ -5,7 +5,8 @@
 ## 基础介绍
 
 使用 [Mirai（github）](https://github.com/mamoe/mirai)
-框架的QQ群智能机器人插件，接入Deepseek、ChatGPT、Kimi，多种命令且包含等级系统
+框架的QQ群智能机器人插件，接入Deepseek、ChatGPT、Kimi，多种命令且包含等级系统，
+Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项目[SimpleParsingMarkdown](https://github.com/AfeiBaili/simpleparsingmarkdown)
 
 ## 命令列表
 
