@@ -64,7 +64,8 @@ class ChatGPT : AbstractBot(), Stream, Customizable {
                     val line = parsingLine(mergedSb)
                     if (line != null) contact.sendMessage(line)
                 }
-            } catch (ignore: Exception) {}
+            } catch (ignore: Exception) {
+            }
         }
         if (message.isNotEmpty()) contact.sendMessage(mergedSb.toString())
         requestBody.messages.add(Message("assistant", contentSb.toString()))
