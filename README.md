@@ -75,7 +75,6 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
   },
   "setting": {
     "atByTargetBot": "<chatgpt | deepseek>",
-    "immersiveByTargetBot": "<chatgpt | deepseek>",
     "startMessage": "加载群后发送的提示消息",
     "commandPrefix": "/"
   },
@@ -123,11 +122,8 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 **setting**: 对象型 机器人设定
 
 - **atByTargetBot**: 字符串 @at机器人时回应的机器人
-- **immersiveByTargetBot**: 字符串 开启沉浸式对话时回应的机器人
 - **startMessage**: 字符串 插件加载成功后往群里发送的消息
 - **commandPrefix**: 字符串 命令前缀（/command中的"/"）
-
-> 沉浸式对话指的是，不喊机器人名字也会出来机器人
 
 **chatgpt**: 对象型 ChatGPT机器人，默认模型为gpt-4o-mini，可用命令配置模型
 

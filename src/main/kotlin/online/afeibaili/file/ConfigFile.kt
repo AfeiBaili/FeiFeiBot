@@ -44,7 +44,6 @@ class ConfigFile(val path: String) {
                               },
                               "setting": {
                                 "atByTargetBot": "<chatgpt | deepseek>",
-                                "immersiveByTargetBot": "<chatgpt | deepseek>",
                                 "startMessage": "加载群后发送的提示消息",
                                 "commandPrefix": "/"
                               },
