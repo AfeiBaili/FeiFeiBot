@@ -19,6 +19,7 @@ import online.afeibaili.bot.Robots.deepseek
 import online.afeibaili.bot.Robots.kimi
 import online.afeibaili.bot.Robots.kolors
 import online.afeibaili.bot.json.ImageResponse
+import online.afeibaili.module.todo.Todo
 import online.afeibaili.module.todo.TodoTimer
 import java.net.URL
 import java.time.LocalDateTime
@@ -426,7 +427,7 @@ object Commands {
                 formatter("yyyy-MM-dd/HH:mm")?.let { localDateTime = it }
                 formatter("yyyy-MM-dd/HH:mm:ss")?.let { localDateTime = it }
                 val localDT = localDateTime!!
-                if (localDT.isBefore(LocalDateTime.now())) return@Command "设置的时间已过"
+                if (localDT.isBefore(LocalDateTime.now().minusSeconds(1))) return@Command "设置的时间已过"
                 TodoTimer.createTask(localDT) {
                     val messages: MessageChain = MessageChainBuilder()
                         .append(At(event.sender.id))
@@ -439,12 +440,28 @@ object Commands {
                     }
                 }
             }.onFailure {
-                if (!canBeFormatted) return@Command "日期无法被格式化，请检查格式：${it.message}"
+                if (!canBeFormatted) return@Command "日期无法被格式化，请检查格式"
             }
-
-            val text: String = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localDateTime)
+            val localDT = localDateTime!!
+            val todo = Todo(event.sender.id, param[2].ifEmpty { "null" }, localDT)
+            TodoTimer.list.add(todo)
+            val text: String = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localDT)
             return@Command "已创建定时任务：$text"
         }))
+        register("定时任务列表", Command({ p, e ->
+            val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss")
+            val sb = StringBuilder()
+            TodoTimer.list.forEach {
+                sb.append(it.at)
+                sb.append(" ")
+                sb.append(it.message)
+                sb.append(" ")
+                sb.append(it.dateTime.format(formatter))
+                sb.append("\n-\n")
+            }
+            sb.delete(sb.length - 3, sb.length)
+            return@Command sb.toString()
+        }, level = 1))
     }
 
     fun register(name: String, command: Command) {

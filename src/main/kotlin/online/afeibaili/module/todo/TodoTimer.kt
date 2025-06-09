@@ -9,6 +9,7 @@ import kotlin.concurrent.schedule
 
 object TodoTimer {
     val todoTimer = Timer()
+    val list = ArrayList<Todo>()
 
     fun createTask(dateTime: LocalDateTime, action: TimerTask.() -> Unit) {
         val date: Date = Date.from(dateTime.toInstant(ZoneOffset.ofHours(8)))
