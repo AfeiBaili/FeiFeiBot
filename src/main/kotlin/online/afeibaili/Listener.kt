@@ -8,6 +8,7 @@ import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MemberJoinEvent
 import online.afeibaili.module.BotNameMemoryRemind
+import online.afeibaili.module.todo.TodoTimer
 
 object Listener {
     lateinit var groupMessageEvent: Listener<GroupMessageEvent>
@@ -25,6 +26,7 @@ object Listener {
         groupMessageEvent.cancel()
         friendMessageEvent.cancel()
         botOnlineEvent.cancel()
+        TodoTimer.cancelTimer()
         if (::botNameMemoryRemind.isInitialized) {
             botNameMemoryRemind.cancelTimer()
         }

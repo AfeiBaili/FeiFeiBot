@@ -1,7 +1,13 @@
 package online.afeibaili.command
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.mamoe.mirai.contact.Contact.Companion.sendImage
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.message.data.At
+import net.mamoe.mirai.message.data.MessageChain
+import net.mamoe.mirai.message.data.MessageChainBuilder
 import online.afeibaili.*
 import online.afeibaili.bot.AbstractBot
 import online.afeibaili.bot.ChatGPT
@@ -13,7 +19,13 @@ import online.afeibaili.bot.Robots.deepseek
 import online.afeibaili.bot.Robots.kimi
 import online.afeibaili.bot.Robots.kolors
 import online.afeibaili.bot.json.ImageResponse
+import online.afeibaili.module.todo.TodoTimer
 import java.net.URL
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAccessor
+import kotlin.coroutines.Continuation
 
 object Commands {
     val commands = ArrayList<Pair<String, Command>>()
@@ -378,6 +390,60 @@ object Commands {
             val count: Int = result.getOrElse { return@Command "请传入图片数量 1-4 不要传入其他字符" }
             kolors.send(getPrompt(), count).images.forEach { downloadAndSendImage(it) }
             "已生成图片"
+        }))
+        register("定时任务", Command({ param, event ->
+            if (param.size != 3) return@Command """
+                定时任务 <时间日期> 打印消息
+                时间日期格式：
+                20:00
+                20:00:00
+                2005-05-16/20:00
+                2005-05-16/20:00:00
+            """.trimIndent()
+            val dateTimeText: String = param[1]
+            var canBeFormatted = false
+            fun formatter(patten: String): LocalDateTime? {
+                if (patten.length == dateTimeText.length) {
+                    val temporalAccessor: TemporalAccessor = DateTimeFormatter.ofPattern(patten).parse(dateTimeText)
+                    canBeFormatted = true
+                    var localDateTime: LocalDateTime?
+                    if (patten.length == 5 || patten.length == 8) {
+                        val localTime: LocalTime = LocalTime.from(temporalAccessor)
+                        localDateTime = LocalDateTime.now().withHour(localTime.hour).withMinute(localTime.minute)
+                            .withSecond(localTime.second)
+                    } else {
+                        localDateTime = LocalDateTime.from(temporalAccessor)
+                    }
+                    return localDateTime
+                }
+                return null
+            }
+
+            var localDateTime: LocalDateTime? = null
+            runCatching {
+                formatter("HH:mm")?.let { localDateTime = it }
+                formatter("HH:mm:ss")?.let { localDateTime = it }
+                formatter("yyyy-MM-dd/HH:mm")?.let { localDateTime = it }
+                formatter("yyyy-MM-dd/HH:mm:ss")?.let { localDateTime = it }
+                val localDT = localDateTime!!
+                if (localDT.isBefore(LocalDateTime.now())) return@Command "设置的时间已过"
+                TodoTimer.createTask(localDT) {
+                    val messages: MessageChain = MessageChainBuilder()
+                        .append(At(event.sender.id))
+                        .append(" ")
+                        .append(param[2].ifEmpty { "null" })
+                        .build()
+
+                    CoroutineScope(Dispatchers.Default).launch {
+                        event.subject.sendMessage(messages)
+                    }
+                }
+            }.onFailure {
+                if (!canBeFormatted) return@Command "日期无法被格式化，请检查格式：${it.message}"
+            }
+
+            val text: String = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localDateTime)
+            return@Command "已创建定时任务：$text"
         }))
     }
 
