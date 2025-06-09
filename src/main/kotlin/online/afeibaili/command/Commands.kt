@@ -451,6 +451,7 @@ object Commands {
         register("定时任务列表", Command({ p, e ->
             val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss")
             val sb = StringBuilder()
+            if (TodoTimer.list.isEmpty()) return@Command "暂无定时任务"
             TodoTimer.list.forEach {
                 sb.append(it.at)
                 sb.append(" ")
