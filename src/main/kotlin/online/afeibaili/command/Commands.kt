@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAccessor
-import kotlin.coroutines.Continuation
+import java.util.UUID
 
 object Commands {
     val commands = ArrayList<Pair<String, Command>>()
@@ -421,6 +421,7 @@ object Commands {
             }
 
             var localDateTime: LocalDateTime? = null
+            val uuid: String = UUID.randomUUID().toString()
             runCatching {
                 formatter("HH:mm")?.let { localDateTime = it }
                 formatter("HH:mm:ss")?.let { localDateTime = it }
@@ -429,35 +430,36 @@ object Commands {
                 val localDT = localDateTime!!
                 if (localDT.isBefore(LocalDateTime.now().minusSeconds(1))) return@Command "设置的时间已过"
                 TodoTimer.createTask(localDT) {
+                    val key = uuid
                     val messages: MessageChain = MessageChainBuilder()
                         .append(At(event.sender.id))
                         .append(" ")
                         .append(param[2].ifEmpty { "null" })
                         .build()
-
                     CoroutineScope(Dispatchers.Default).launch {
                         event.subject.sendMessage(messages)
                     }
+                    TodoTimer.map.remove(key)
                 }
             }.onFailure {
                 if (!canBeFormatted) return@Command "日期无法被格式化，请检查格式"
             }
             val localDT = localDateTime!!
             val todo = Todo(event.sender.id, param[2].ifEmpty { "null" }, localDT)
-            TodoTimer.list.add(todo)
+            TodoTimer.map.put(uuid, todo)
             val text: String = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localDT)
             return@Command "已创建定时任务：$text"
         }))
         register("定时任务列表", Command({ p, e ->
             val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss")
             val sb = StringBuilder()
-            if (TodoTimer.list.isEmpty()) return@Command "暂无定时任务"
-            TodoTimer.list.forEach {
-                sb.append(it.at)
+            if (TodoTimer.map.isEmpty()) return@Command "暂无定时任务"
+            TodoTimer.map.forEach { k, v ->
+                sb.append(v.at)
                 sb.append(" ")
-                sb.append(it.message)
+                sb.append(v.message)
                 sb.append(" ")
-                sb.append(it.dateTime.format(formatter))
+                sb.append(v.dateTime.format(formatter))
                 sb.append("\n-\n")
             }
             sb.delete(sb.length - 3, sb.length)
