@@ -12,12 +12,14 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.10")
+    implementation("com.github.oshi:oshi-core:6.8.2")
+
     //本地库
     implementation(fileTree("lib"))
 }
 
 group = "online.afeibaili"
-version = "3.6.2"
+version = "3.6.3"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")

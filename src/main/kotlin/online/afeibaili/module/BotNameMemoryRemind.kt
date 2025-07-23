@@ -1,13 +1,13 @@
 package online.afeibaili.module
 
-import com.sun.management.OperatingSystemMXBean
 import net.mamoe.mirai.event.events.BotOnlineEvent
 import online.afeibaili.config
-import java.lang.management.ManagementFactory
+import oshi.SystemInfo
 import java.text.DecimalFormat
 import java.util.*
 
 class BotNameMemoryRemind {
+    val systemInfo = SystemInfo()
     val timer = Timer()
     lateinit var timerTask: TimerTask
     fun startTimer(bot: BotOnlineEvent) {
@@ -29,9 +29,8 @@ class BotNameMemoryRemind {
     }
 
     fun getMemory(): String {
-        val bean = ManagementFactory.getOperatingSystemMXBean() as OperatingSystemMXBean
-        val totalMemorySize = bean.totalMemorySize
-        val freeMemorySize = bean.freeMemorySize
-        return DecimalFormat("0.00").format(((freeMemorySize.toFloat() / totalMemorySize) * 100).toDouble())
+        val totalMemorySize = systemInfo.hardware.memory.total
+        val freeMemorySize = systemInfo.hardware.memory.available
+        return DecimalFormat("0.00").format(100.0 - (freeMemorySize * 100) / totalMemorySize)
     }
 }
