@@ -1,5 +1,6 @@
 package online.afeibaili
 
+import net.mamoe.mirai.Bot
 import online.afeibaili.LoggerLevel.*
 import online.afeibaili.command.Command
 import online.afeibaili.file.ConfigFile
@@ -13,6 +14,7 @@ lateinit var configObject: ConfigFile
 lateinit var levelMap: MutableMap<Long, Int>
 lateinit var commandsMap: MutableMap<String, Command>
 lateinit var levelObject: LevelMapFile
+lateinit var bot: Bot
 
 fun logger(message: Any, level: LoggerLevel = INFO) {
     if (isLoggerPrint) {

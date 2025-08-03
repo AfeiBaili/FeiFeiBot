@@ -14,7 +14,7 @@ class BotNameMemoryRemind {
         timerTask = object : TimerTask() {
             override fun run() {
                 config.groups.forEach { group ->
-                    bot.bot.getGroup(group)?.botAsMember?.nameCard = "${config.bot.name} | Memory：${getMemory()}%"
+                    bot.bot.getGroup(group)?.botAsMember?.nameCard = "${config.bot.name} | 内存占用比：${getMemory()}%"
                 }
             }
         }

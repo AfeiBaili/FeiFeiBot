@@ -40,7 +40,11 @@ class ConfigFile(val path: String) {
                               "module": {
                                 "openMemoryName": true,
                                 "mcModSearch": true,
-                                "translation": true
+                                "translation": true,
+                                "passwordBreakGame": {
+                                        "isOpen": true,
+                                        "fontPath": "字体相对于mirai主目录的相对路径"
+                                    }
                               },
                               "setting": {
                                 "atByTargetBot": "<chatgpt | deepseek>",

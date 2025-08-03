@@ -45,12 +45,11 @@ object Listener {
     }
 
     fun loadingOnlineListener() {
-        //test 测试startMessage
         botOnlineEvent = GlobalEventChannel.subscribeOnce<BotOnlineEvent> { event ->
+            online.afeibaili.bot = event.bot
             if (config.setting.startMessage != null) {
                 config.groups.forEach { group -> event.bot.getGroup(group)?.sendMessage(config.setting.startMessage) }
             }
-            //test 测试openMemoryName是否可用
             if (config.module.isOpenMemoryName) {
                 botNameMemoryRemind = BotNameMemoryRemind()
                 botNameMemoryRemind.startTimer(event)

@@ -43,6 +43,9 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 | 创建图片       | 0  |
 | 搜词条        | 0  |
 | 翻译         | 0  |
+| 密文破译       | 0  |
+| 破译认输       | 0  |
+| 密文录入       | 0  |
 
 > 查看命令基础使用可用参数，请直接输入  
 > 例如：/开启流 此命令需要两个参数，直接输入命令会打印出"开启流 <机器人1 | 机器人2>"
@@ -71,7 +74,11 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
   "module": {
     "openMemoryName": true,
     "mcModSearch": true,
-    "translation": true
+    "translation": true,
+    "passwordBreakGame": {
+      "isOpen": true,
+      "fontPath": "字体相对于mirai主目录的相对路径"
+    }
   },
   "setting": {
     "atByTargetBot": "<chatgpt | deepseek>",
@@ -113,11 +120,16 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 - **qq**: 数值型 机器人QQ号
 - **name**: 字符串 机器人名称
 
-**module**: 对象型 全部为布尔型（可选择的功能）
+**module**: 对象型 大部分为布尔型（可选择的功能）
 
 - **openMemoryName**: 是否开启内存监控并映射在机器人名字上
 - **mcModSearch**: 是否开启MC百科搜索功能（搜词条命令功能）
 - **translation**: 是否开启翻译功能
+- **passwordBreakGame**: 对象型 密文破译小游戏配置
+    - **isOpen**: 布尔型 是否开启密文破译小游戏
+    - **fontPath**: 字符串 相对于Mirai主目录的相对路径
+
+> fontPath使用例如：“data/feifei/字体.otf”。密文需要的句子可以手动添加，在“data/feifei/sentence.txt”文件中
 
 **setting**: 对象型 机器人设定
 

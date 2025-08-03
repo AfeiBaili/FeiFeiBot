@@ -7,6 +7,7 @@ import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
 import online.afeibaili.module.McModSearch
 import online.afeibaili.module.Translation
+import online.afeibaili.module.password.game.PasswordBreak
 
 object FeiFeiBot : KotlinPlugin(
     JvmPluginDescription(
@@ -29,6 +30,7 @@ object FeiFeiBot : KotlinPlugin(
         loadCommand()
         loadMcModSearch()
         loadTranslation()
+        loadPasswordBreakGame()
         Listener.loadingListener()
     }
 
@@ -55,5 +57,9 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadTranslation() {
         if (config.module.isTranslation) Translation.load()
+    }
+
+    fun loadPasswordBreakGame() {
+        if (config.module.passwordBreakGame.isOpen) PasswordBreak.load()
     }
 }

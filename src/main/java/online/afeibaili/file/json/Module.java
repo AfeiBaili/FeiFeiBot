@@ -4,6 +4,15 @@ public class Module {
     boolean openMemoryName;
     boolean mcModSearch;
     boolean translation;
+    PasswordBreak passwordBreakGame;
+
+    public PasswordBreak getPasswordBreakGame() {
+        return passwordBreakGame;
+    }
+
+    public void setPasswordBreakGame(PasswordBreak passwordBreakGame) {
+        this.passwordBreakGame = passwordBreakGame;
+    }
 
     public boolean isMcModSearch() {
         return mcModSearch;
@@ -27,12 +36,5 @@ public class Module {
 
     public void setOpenMemoryName(boolean openMemoryName) {
         this.openMemoryName = openMemoryName;
-    }
-
-    @Override
-    public String toString() {
-        return "Module{" +
-                "openMemoryName=" + openMemoryName +
-                '}';
     }
 }
