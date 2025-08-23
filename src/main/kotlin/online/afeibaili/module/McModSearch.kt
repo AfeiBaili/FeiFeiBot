@@ -30,7 +30,7 @@ object McModSearch {
                 val forwardMessageBuilder = ForwardMessageBuilder(event.subject)
                 item.forEach(Consumer { element: Element? ->
                     val message = StringBuilder()
-                    val aTag = element!!.getElementsByClass("head").get(0).lastElementChild()
+                    val aTag = element!!.getElementsByClass("head")[0].lastElementChild()
                     if (aTag != null) {
                         message.append("📌").append(aTag.text()).append('\n')
                             .append("🔗").append(aTag.attr("href")).append('\n')
@@ -38,7 +38,9 @@ object McModSearch {
                     }
                     forwardMessageBuilder.add(event.subject.bot.id, "查询结果", PlainText(message.toString()))
                 })
-                event.subject.sendMessage(forwardMessageBuilder.build())
+                if (forwardMessageBuilder.isEmpty()) {
+                    return@Command "搜不到任何信息"
+                } else event.subject.sendMessage(forwardMessageBuilder.build())
 
                 try {
                     return@Command "从MC百科查找到" + item.size + "条结果；" + takeTime.toString()
