@@ -41,6 +41,7 @@ class ConfigFile(val path: String) {
                                 "openMemoryName": true,
                                 "mcModSearch": true,
                                 "translation": true,
+                                "echoCave": true,
                                 "passwordBreakGame": {
                                         "isOpen": true,
                                         "fontPath": "字体相对于mirai主目录的相对路径"

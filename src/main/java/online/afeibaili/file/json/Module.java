@@ -5,6 +5,15 @@ public class Module {
     boolean mcModSearch;
     boolean translation;
     PasswordBreak passwordBreakGame;
+    boolean echoCave;
+
+    public boolean isEchoCave() {
+        return echoCave;
+    }
+
+    public void setEchoCave(boolean echoCave) {
+        this.echoCave = echoCave;
+    }
 
     public PasswordBreak getPasswordBreakGame() {
         return passwordBreakGame;

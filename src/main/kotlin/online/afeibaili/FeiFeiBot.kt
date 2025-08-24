@@ -5,6 +5,7 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import online.afeibaili.command.Commands
 import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
+import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.McModSearch
 import online.afeibaili.module.Translation
 import online.afeibaili.module.password.game.PasswordBreak
@@ -31,6 +32,7 @@ object FeiFeiBot : KotlinPlugin(
         loadMcModSearch()
         loadTranslation()
         loadPasswordBreakGame()
+        loadEchoCave()
         Listener.loadingListener()
     }
 
@@ -61,5 +63,9 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadPasswordBreakGame() {
         if (config.module.passwordBreakGame.isOpen) PasswordBreak.load()
+    }
+
+    fun loadEchoCave() {
+        if (config.module.isEchoCave) EchoCave.load()
     }
 }

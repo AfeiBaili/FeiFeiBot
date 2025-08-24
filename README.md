@@ -46,9 +46,14 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 | 密文破译       | 0  |
 | 破译认输       | 0  |
 | 密文录入       | 0  |
+| 回声洞        | 0  |
+| 回声录入       | 0  |
+| 显示回声ID     | 1  |
+| 隐藏回声ID     | 1  |
+| 当前回声数      | 0  |
 
 > 查看命令基础使用可用参数，请直接输入  
-> 例如：/开启流 此命令需要两个参数，直接输入命令会打印出"开启流 <机器人1 | 机器人2>"
+> 例如：/开启流 此命令需要两个参数，直接输入命令"/开启流"会打印出"开启流 <机器人1 | 机器人2>"
 
 ## 机器人配置
 
@@ -75,6 +80,7 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
     "openMemoryName": true,
     "mcModSearch": true,
     "translation": true,
+    "echoCave": true,
     "passwordBreakGame": {
       "isOpen": true,
       "fontPath": "字体相对于mirai主目录的相对路径"
@@ -125,6 +131,7 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 - **openMemoryName**: 是否开启内存监控并映射在机器人名字上
 - **mcModSearch**: 是否开启MC百科搜索功能（搜词条命令功能）
 - **translation**: 是否开启翻译功能
+- **echoCave**: 是否开启回声洞
 - **passwordBreakGame**: 对象型 密文破译小游戏配置
     - **isOpen**: 布尔型 是否开启密文破译小游戏
     - **fontPath**: 字符串 相对于Mirai主目录的相对路径
@@ -175,24 +182,30 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 
 在菜单中还有一些其它定制功能分别为**创建图片、搜词条、翻译...**：
 
-创建图片，使用 [Kwai-Kolors](https://cloud.siliconflow.cn/models) 模型，可在 [硅基流动](https://www.siliconflow.cn/)
+## 创建图片
+
+使用 [Kwai-Kolors](https://cloud.siliconflow.cn/models) 模型，可在 [硅基流动](https://www.siliconflow.cn/)
 官网注册key及免费使用
 
 效果：
 ![img.png](image/img.png)
 
-搜词条，指的是搜索 [MC百科](https://www.mcmod.cn/) 中存在的我的世界（Minecraft）Mod物品
+## 搜词条
+
+指的是搜索 [MC百科](https://www.mcmod.cn/) 中存在的我的世界（Minecraft）Mod物品
 
 效果：
 ![img_1.png](image/img_1.png)
 
-翻译，使用 [有道翻译](https://fanyi.youdao.com/)
+## 翻译
+
+使用 [有道翻译](https://fanyi.youdao.com/)
 需要注册并配置key，自动根据中/英翻译为中/英，根据a-Z字母存在判断数量是否大于中文
 
 效果：
 ![img_2.png](image/img_2.png)
 
-### 密文破译小游戏
+## 密文破译小游戏
 
 填入全部正确的字母游戏即胜利
 
@@ -206,6 +219,14 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 字符机制：在每局中所有出现过相同的字母都会随机获得一个**字符下标**。相同的字符下标一致，其字母也将是一致的
 
 效果：
-![img.png](image/img_3.png)
+![img_3.png](image/img_3.png)
+
+## 回声洞
+
+你的留言，可以在此机器人中一直存在  
+在群1留下的信息，在群2可以接收
+
+效果：
+![img_4.png](image/img_4.png)
 
 ## 欢迎提交建议和BUG
