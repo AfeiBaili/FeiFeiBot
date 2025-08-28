@@ -35,6 +35,8 @@ object Commands {
     val deepseekName: String? = config.deepseek.name
 
     fun loadCommands() {
+        commands.clear()
+        commandsMap.clear()
         register("菜单", Command({ p, event ->
             val sb = StringBuilder()
             val level: Int = levelMap[event.sender.id] ?: 0
