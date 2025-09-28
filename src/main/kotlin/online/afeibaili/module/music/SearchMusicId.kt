@@ -68,10 +68,10 @@ object SearchMusicId {
                     song.name,
                     PlainText(
                         """
-                        id：${song.id}
+                        ID：${song.id}
                         
-                        歌名：${song.name}
-                        艺术家：${if (isEmpty) "无" else sb.deleteCharAt(sb.length - 1).toString()}
+                        🎵：${song.name}
+                        作家‍️：${if (isEmpty) "无" else sb.deleteCharAt(sb.length - 1).toString()}
                     """.trimIndent()
                     )
                 )
