@@ -5,9 +5,10 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import online.afeibaili.command.Commands
 import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
-import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.McModSearch
+import online.afeibaili.module.music.SearchMusicId
 import online.afeibaili.module.Translation
+import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.password.game.PasswordBreak
 
 object FeiFeiBot : KotlinPlugin(
@@ -34,6 +35,7 @@ object FeiFeiBot : KotlinPlugin(
         loadPasswordBreakGame()
         loadEchoCave()
         Listener.loadingListener()
+        loadSearchMusicId()
     }
 
     fun reloadConfigFile() {
@@ -67,5 +69,9 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadEchoCave() {
         if (config.module.isEchoCave) EchoCave.load()
+    }
+
+    fun loadSearchMusicId() {
+        SearchMusicId.load()
     }
 }
