@@ -1,11 +1,15 @@
 package online.afeibaili.file.json;
 
-public class ChatGPT {
+/**
+ * 千问配置
+ *
+ * @author AfeiBaili
+ * @version 2025/10/12 15:31
+ */
+
+public class Qwen {
     String key;
     String setting;
-
-    public ChatGPT() {
-    }
 
     public String getKey() {
         return key;

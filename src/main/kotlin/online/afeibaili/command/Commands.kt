@@ -9,15 +9,13 @@ import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.message.data.MessageChainBuilder
 import online.afeibaili.*
-import online.afeibaili.bot.AbstractBot
-import online.afeibaili.bot.ChatGPT
-import online.afeibaili.bot.CustomizedBot
-import online.afeibaili.bot.Deepseek
+import online.afeibaili.bot.*
 import online.afeibaili.bot.Robots.chatgpt
 import online.afeibaili.bot.Robots.customized
 import online.afeibaili.bot.Robots.deepseek
 import online.afeibaili.bot.Robots.kimi
 import online.afeibaili.bot.Robots.kolors
+import online.afeibaili.bot.Robots.qwen
 import online.afeibaili.bot.json.ImageResponse
 import online.afeibaili.module.todo.Todo
 import online.afeibaili.module.todo.TodoTimer
@@ -26,13 +24,12 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAccessor
-import java.util.UUID
+import java.util.*
 
 object Commands {
     val commands = ArrayList<Pair<String, Command>>()
     val commandsMap: MutableMap<String, Command> = HashMap()
-    val chatgptName: String? = config.chatgpt.name
-    val deepseekName: String? = config.deepseek.name
+    val botName: String? = config.bot.name
 
     fun loadCommands() {
         commands.clear()
@@ -87,42 +84,43 @@ object Commands {
                 return@Command "参数中包含字母：${e.message}"
             }
         }, level = 4))
-        register("查看所有人等级", Command({ p, e ->
+        register("所有人等级", Command({ p, e ->
             val sb = StringBuilder()
             levelMap.forEach { sb.append(it.component1()).append("=").append(it.component2()).append("\n") }
             sb.removeSuffix("\n").toString()
         }))
-        register("查看机器人当前模型", Command({ param, e ->
-            if (param.size != 2) return@Command "查看机器人当前模型 <${chatgptName} | $deepseekName | kimi>"
+        register("机器人当前模型", Command({ param, e ->
+            if (param.size != 2) return@Command "机器人当前模型 <chatgpt | deepseek | kimi | qwen>"
             return@Command "模型为：" + when (param[1]) {
-                chatgptName -> getModel(chatgpt)
-                deepseekName -> getModel(deepseek)
+                "chatgpt" -> getModel(chatgpt)
+                "deepseek" -> getModel(deepseek)
                 "kimi" -> getModel(kimi)
+                "qwen" -> getModel(qwen)
                 else -> return@Command "未知机器人"
             }
         }))
-        register("查看机器人所有模型", Command({ param, e ->
-            if (param.size != 2) return@Command "查看机器人所有模型 <${chatgptName} | $deepseekName>"
+        register("机器人所有模型", Command({ param, e ->
+            if (param.size != 2) return@Command "机器人所有模型 <chatgpt | deepseek>"
             return@Command when (param[1]) {
-                chatgptName -> getChatGPTModuleAsString()
-                deepseekName -> getDeepseekModuleAsString()
+                "chatgpt" -> getChatGPTModuleAsString()
+                "deepseek" -> getDeepseekModuleAsString()
                 "kimi" -> "不支持Kimi模型"
                 else -> "未知机器人"
             }
         }))
         register("切换机器人模型", Command({ param, e ->
-            if (param.size != 3) return@Command "/切换机器人模型 <${chatgptName} | $deepseekName> <模型>"
+            if (param.size != 3) return@Command "切换机器人模型 <chatgpt | deepseek> <模型>"
             val model = param[2]
 
             return@Command when (param[1]) {
-                chatgptName -> {
+                "chatgpt" -> {
                     setModel(chatgpt, model)
-                    "设置${chatgptName}模型成功！"
+                    "设置chatgpt模型成功！"
                 }
 
-                deepseekName -> {
+                "deepseek" -> {
                     setModel(deepseek, model)
-                    "设置${deepseekName}模型成功！"
+                    "设置deepseek模型成功！"
                 }
 
                 "kimi" -> "不支持Kimi模型"
@@ -130,43 +128,63 @@ object Commands {
             }
 
         }, level = 2))
-        register("查看机器人API余额", Command({ param, e ->
-            if (param.size != 2) return@Command "查看机器人API余额 <${chatgptName} | ${deepseekName}>"
+        register("机器人模型余额", Command({ param, e ->
+            if (param.size != 2) return@Command "机器人模型余额 <chatgpt | deepseek>"
             return@Command when (param[1]) {
-                chatgptName -> getChatgptBalance(chatgpt)
-                deepseekName -> getDeepseekBalance(deepseek)
+                "chatgpt" -> getChatgptBalance(chatgpt)
+                "deepseek" -> getDeepseekBalance(deepseek)
                 else -> "未知的机器人"
             }
         }))
-        register("重置$chatgptName", Command({ p, e ->
+        register("重置chatgpt", Command({ p, e ->
             chatgpt.reset()
-            "${chatgptName}已经重置好了哦"
+            "chatgpt已经重置好了哦"
         }, level = 2))
-        register("重置$deepseekName", Command({ p, e ->
+        register("重置deepseek", Command({ p, e ->
             deepseek.reset()
-            "${deepseekName}已经重置好啦"
+            "deepseek已经重置好啦"
         }, level = 2))
         register("重置kimi", Command({ p, e ->
             kimi.reset()
-            "Kimi已经重置好了惹"
+            "kimi已经重置好了惹"
+        }, level = 2))
+        register("重置qwen", Command({ p, e ->
+            qwen.reset()
+            "kimi已经重置好了惹"
         }, level = 2))
         register("重置所有", Command({ p, e ->
             chatgpt.reset()
             deepseek.reset()
             kimi.reset()
-            "${chatgptName}、${deepseekName}、Kimi都重置好啦"
+            qwen.reset()
+            "chatgpt、deepseek、kimi都重置好啦"
         }, level = 3))
-        register("获取机器人聊天记录", Command({ param, event ->
-            if (param.size != 2) return@Command "获取机器人聊天记录 <${chatgptName} | ${deepseekName}>"
+        /*        register("获取聊天记录", Command({ param, event ->
+                    if (param.size != 2) return@Command "（暂时弃用）获取聊天记录 <chatgpt | deepseek>"
+                    when (param[1]) {
+                        "chatgpt" -> uploadChatHistory(chatgpt, event)
+                        "deepseek" -> uploadChatHistory(deepseek, event)
+                        else -> return@Command "未知的机器人"
+                    }
+                    "已发送聊天记录"
+                }, level = 1))*/
+        register("切换模型", Command({ param, e ->
+            if (param.size != 2) return@Command "切换模型 <chatgpt | deepseek | kimi>"
             when (param[1]) {
-                chatgptName -> uploadChatHistory(chatgpt, event)
-                deepseekName -> uploadChatHistory(deepseek, event)
-                else -> return@Command "未知的机器人"
+                "chatgpt" -> config.setting.currentBot = "chatgpt"
+                "deepseek" -> config.setting.currentBot = "deepseek"
+                "kimi" -> config.setting.currentBot = "kimi"
+                "qwen" -> config.setting.currentBot = "qwen"
+                else -> return@Command "未知模型"
             }
-            "已发送聊天记录"
-        }, level = 1))
+            configObject.store()
+            "已切换模型${param[1]}"
+        }))
+        register("查看模型", Command({ p, e ->
+            "当前模型为：${config.setting.currentBot}"
+        }))
         register("新设定", Command({ param, e ->
-            if (param.size < 4) return@Command "新设定 <chatgpt | deepseek> <机器人名称> <setting>"
+            if (param.size < 4) return@Command "新设定 <chatgpt | deepseek | qwen> <setting>"
             val botName = param[2]
             val setting = StringBuilder().apply {
                 for (i in 3..param.size - 1) append(param[i])
@@ -180,6 +198,11 @@ object Commands {
                 "deepseek" -> {
                     customized = CustomizedBot(Deepseek().customize(setting.toString()) as AbstractBot, botName)
                     "新deepseek机器人设定成功"
+                }
+
+                "qwen" -> {
+                    customized = CustomizedBot(Qwen().customize(setting.toString()) as AbstractBot, botName)
+                    "新qwen机器人设定成功"
                 }
 
                 else -> {
@@ -209,7 +232,7 @@ object Commands {
         }, level = 2))
         register("删除群", Command({ param, e ->
             if (param.size == 1) return@Command "删除群 <群号> [群号..]"
-            var filtered: List<Long> = listOf()
+            var filtered: List<Long>
             for (i in 1..param.size - 1) {
                 try {
                     filtered = config.groups.filter { it != param[i].toLong() }
@@ -222,46 +245,46 @@ object Commands {
             "删除群成功"
         }, level = 3))
         register("开启流", Command({ param, e ->
-            if (param.size == 1) return@Command "开启流 <${chatgptName} | ${deepseekName}>"
+            if (param.size == 1) return@Command "开启流 <chatgpt | deepseek>"
             return@Command when (param[1]) {
-                config.chatgpt.name -> {
+                "chatgpt" -> {
                     chatgpt.requestBody.stream = true
-                    "${config.chatgpt.name}开启成功"
+                    "chatgpt开启成功"
                 }
 
-                config.deepseek.name -> {
+                "deepseek" -> {
                     deepseek.requestBody.stream = true
-                    "${config.deepseek.name}开启成功"
+                    "deepseek开启成功"
                 }
 
                 else -> "无法开启的机器人"
             }
         }, level = 1))
         register("关闭流", Command({ param, e ->
-            if (param.size == 1) return@Command "关闭流 <${chatgptName} | ${deepseekName}>"
+            if (param.size == 1) return@Command "关闭流 <chatgpt | deepseek>"
             return@Command when (param[1]) {
-                config.chatgpt.name -> {
+                "chatgpt" -> {
                     chatgpt.requestBody.stream = false
-                    "${config.chatgpt.name}关闭成功"
+                    "chatgpt关闭成功"
                 }
 
-                config.deepseek.name -> {
+                "deepseek" -> {
                     deepseek.requestBody.stream = false
-                    "${config.deepseek.name}关闭成功"
+                    "deepseek关闭成功"
                 }
 
                 else -> "无法关闭的机器人"
             }
         }, level = 1))
         register("开启沉浸式对话", Command({ param, event ->
-            if (param.size != 2) return@Command "开启沉浸式对话 <${chatgptName} | ${deepseekName}>"
+            if (param.size != 2) return@Command "开启沉浸式对话 <chatgpt | deepseek>"
             val qq: Long = event.sender.id
             if (Manager.immersiveMap.contains(qq)) return@Command "${event.sender.nick}已经是沉浸式对话了"
 
-
             when (param[1]) {
-                chatgptName -> Manager.immersiveMap.put(qq, "chatgpt")
-                deepseekName -> Manager.immersiveMap.put(qq, "deepseek")
+                "chatgpt" -> Manager.immersiveMap.put(qq, "chatgpt")
+                "deepseek" -> Manager.immersiveMap.put(qq, "deepseek")
+                "qwen" -> Manager.immersiveMap.put(qq, "qwen")
                 else -> return@Command "未知的机器人"
             }
 

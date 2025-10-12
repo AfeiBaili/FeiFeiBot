@@ -1,19 +1,10 @@
 package online.afeibaili.file.json;
 
 public class Deepseek {
-    String name;
     String key;
     String setting;
 
     public Deepseek() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getKey() {
@@ -30,14 +21,5 @@ public class Deepseek {
 
     public void setSetting(String setting) {
         this.setting = setting;
-    }
-
-    @Override
-    public String toString() {
-        return "Deepseek{" +
-                "name='" + name + '\'' +
-                ", key='" + key + '\'' +
-                ", setting='" + setting + '\'' +
-                '}';
     }
 }

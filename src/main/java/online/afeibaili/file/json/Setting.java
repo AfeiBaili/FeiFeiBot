@@ -1,7 +1,7 @@
 package online.afeibaili.file.json;
 
 public class Setting {
-    String atByTargetBot;
+    String currentBot;
     String startMessage;
     String commandPrefix;
 
@@ -21,11 +21,11 @@ public class Setting {
         this.startMessage = startMessage;
     }
 
-    public String getAtByTargetBot() {
-        return atByTargetBot;
+    public String getCurrentBot() {
+        return currentBot;
     }
 
-    public void setAtByTargetBot(String atByTargetBot) {
-        this.atByTargetBot = atByTargetBot;
+    public void setCurrentBot(String currentBot) {
+        this.currentBot = currentBot;
     }
 }

@@ -34,7 +34,7 @@ class ChatGPT : AbstractBot(), Stream, Customizable {
         val responseBody: ResponseBody = sendRequest(requestBody, message, role, url, key)
         val responseMessage: Message = responseBody.choices[0].message
         if (responseMessage.content == null) {
-            return "${config.chatgpt.name}不能回答~，服务器过滤了惹！"
+            return "${config.bot.name}不能回答~，服务器过滤了惹！"
         }
         requestBody.messages.add(responseMessage)
         return markdown.parsingText(responseMessage.content)

@@ -48,17 +48,15 @@ class ConfigFile(val path: String) {
                                     }
                               },
                               "setting": {
-                                "atByTargetBot": "<chatgpt | deepseek>",
+                                "currentBot": "deepseek",
                                 "startMessage": "加载群后发送的提示消息",
                                 "commandPrefix": "/"
                               },
                               "chatgpt": {
-                                "name": "chatgpt 称呼",
                                 "key": "chatgpt key",
                                 "setting": "机器人设定"
                               },
                               "deepseek": {
-                                "name": "deepseek 称呼",
                                 "key": "deepseek key",
                                 "setting": "机器人设定"
                               },
@@ -66,6 +64,10 @@ class ConfigFile(val path: String) {
                                 "key": "kimi key",
                                 "setting": "机器人设定"
                               },
+                              "qwen": {
+                                "key": "qwen key",
+                                "setting": "机器人设定"
+                              }
                               "youDao": {
                                 "appKey": "有道云翻译应用Id",
                                 "appSecret": "有道云翻译Key"

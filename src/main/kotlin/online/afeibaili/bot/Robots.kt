@@ -6,13 +6,16 @@ object Robots {
     val deepseek = Deepseek().init()
     val kimi = Kimi().init()
     val chatgpt = ChatGPT().init()
+    val qwen = Qwen().init()
     var customized: CustomizedBot? = null
-    val atByTargetBot: AbstractBot
+    val currentBot: AbstractBot
         get() {
-            return when (config.setting.atByTargetBot) {
+            return when (config.setting.currentBot) {
                 "deepseek" -> deepseek
                 "chatgpt" -> chatgpt
-                else -> chatgpt
+                "qwen" -> qwen
+                "kimi" -> kimi
+                else -> deepseek
             }
         }
     val kolors = Kolors()

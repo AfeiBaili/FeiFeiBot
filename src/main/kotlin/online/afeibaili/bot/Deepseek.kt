@@ -54,7 +54,7 @@ class Deepseek : AbstractBot(), Stream, Customizable {
     ) {
         val contact: Contact = event.subject
         if (isRunning) {
-            contact.sendMessage("${config.deepseek.name}正在回答中！请稍后再试~")
+            contact.sendMessage("${config.bot.name}正在回答中！请稍后再试~")
             return
         }
         isRunning = true

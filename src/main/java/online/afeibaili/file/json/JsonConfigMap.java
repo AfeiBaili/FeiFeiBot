@@ -1,7 +1,5 @@
 package online.afeibaili.file.json;
 
-import java.util.Arrays;
-
 public class JsonConfigMap {
     long master;
     long[] groups;
@@ -10,11 +8,20 @@ public class JsonConfigMap {
     Setting setting;
     ChatGPT chatgpt;
     Deepseek deepseek;
+    Qwen qwen;
     Kimi kimi;
     YouDao youDao;
     Kolors kolors;
 
     public JsonConfigMap() {
+    }
+
+    public Qwen getQwen() {
+        return qwen;
+    }
+
+    public void setQwen(Qwen qwen) {
+        this.qwen = qwen;
     }
 
     public Kolors getKolors() {
@@ -23,21 +30,6 @@ public class JsonConfigMap {
 
     public void setKolors(Kolors kolors) {
         this.kolors = kolors;
-    }
-
-    @Override
-    public String toString() {
-        return "JsonConfigMap{" +
-                "master=" + master +
-                ", groups=" + Arrays.toString(groups) +
-                ", bot=" + bot +
-                ", module=" + module +
-                ", setting=" + setting +
-                ", chatgpt=" + chatgpt +
-                ", deepseek=" + deepseek +
-                ", kimi=" + kimi +
-                ", youDao=" + youDao +
-                '}';
     }
 
     public long getMaster() {
