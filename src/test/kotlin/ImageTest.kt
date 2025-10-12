@@ -14,4 +14,13 @@ class ImageTest {
         val response: ImageResponse = kolors.send("猫", 4)
         response.images.forEach { println(it) }
     }
+    @Test
+    fun test2(){
+        println(
+            listOf(
+                "1",
+                "2",
+                "3",
+            ).drop(1).joinToString(" "))
+    }
 }

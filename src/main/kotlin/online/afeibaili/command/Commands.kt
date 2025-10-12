@@ -5,9 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mamoe.mirai.contact.Contact.Companion.sendImage
 import net.mamoe.mirai.event.events.GroupMessageEvent
-import net.mamoe.mirai.message.data.At
-import net.mamoe.mirai.message.data.MessageChain
-import net.mamoe.mirai.message.data.MessageChainBuilder
+import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.message.data.*
 import online.afeibaili.*
 import online.afeibaili.bot.*
 import online.afeibaili.bot.Robots.chatgpt
@@ -180,7 +179,7 @@ object Commands {
             configObject.store()
             "已切换模型${param[1]}"
         }))
-        register("查看模型", Command({ p, e ->
+        register("当前模型", Command({ p, e ->
             "当前模型为：${config.setting.currentBot}"
         }))
         register("新设定", Command({ param, e ->
@@ -394,19 +393,9 @@ object Commands {
                 return sb.removeSuffix(" ").toString()
             }
 
-            suspend fun downloadAndSendImage(image: ImageResponse.Image) {
-                try {
-                    URL(image.url).openConnection().inputStream.use {
-                        event.subject.sendImage(it)
-                    }
-                } catch (e: Exception) {
-                    logger("无法下载图片：${e.message}\n${image.url}")
-                }
-            }
-
             if (param.size == 2) {
                 val image: ImageResponse.Image = kolors.send(getPrompt()).images[0]
-                downloadAndSendImage(image)
+                downloadAndSendImage(image.url, event)
                 return@Command "已生成图片"
             }
 
@@ -414,9 +403,33 @@ object Commands {
                 param[1].toInt()
             }
             val count: Int = result.getOrElse { return@Command "请传入图片数量 1-4 不要传入其他字符" }
-            kolors.send(getPrompt(), count).images.forEach { downloadAndSendImage(it) }
+            kolors.send(getPrompt(), count).images.forEach { downloadAndSendImage(it.url, event) }
             "已生成图片"
         }))
+        register("千问文生图", Command({ p, event ->
+            val dropList = p.drop(1)
+            val url: String = qwen.sendGenerateImageRequest(dropList.joinToString(" "))
+            downloadAndSendImage(url, event)
+            "图片的提示词：${dropList.joinToString(" ")}"
+        }, 1))
+        register("千问图生图", Command({ p, event ->
+            val dropList: List<String> = p.drop(1)
+            val mutableListOf = mutableListOf<String>()
+            event.message.forEach { message ->
+                if (message is QuoteReply) {
+                    message.source.originalMessage.forEach { it ->
+                        if (it is Image) mutableListOf.add(it.imageId)
+                    }
+                }
+            }
+            val url: String = qwen.sendGenerateImageRequest(
+                dropList.joinToString(" "),
+                *mutableListOf.toTypedArray(),
+            )
+            downloadAndSendImage(url, event)
+            "提示词：${dropList.joinToString(" ")}" + "\n图片数量：${mutableListOf.size}"
+        }, 1))
+
         register("定时任务", Command({ param, event ->
             if (param.size != 3) return@Command """
                 定时任务 <时间日期> 打印消息
@@ -495,5 +508,15 @@ object Commands {
     fun register(name: String, command: Command) {
         commands.add(name to command)
         commandsMap.putAll(commands.toMap())
+    }
+
+    suspend fun downloadAndSendImage(imageUrl: String, event: MessageEvent) {
+        try {
+            URL(imageUrl).openConnection().inputStream.use {
+                event.subject.sendImage(it)
+            }
+        } catch (e: Exception) {
+            logger("无法下载图片：${e.message}\n${imageUrl}")
+        }
     }
 }
