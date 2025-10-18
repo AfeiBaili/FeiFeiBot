@@ -32,4 +32,8 @@ class TestOther {
 
         println(ObjectMapper().writeValueAsString(data))
     }
+    @Test
+    fun test3(){
+        println(LocalDateTime.now())
+    }
 }

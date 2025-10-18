@@ -50,16 +50,19 @@ object Manager {
                     is Deepseek -> {
                         val deepseek: Deepseek = currentBot as Deepseek
                         sendByDeepseek(contact, deepseek, event)
+                        return
                     }
 
                     is ChatGPT -> {
                         val chatgpt: ChatGPT = currentBot as ChatGPT
                         sendByChatGPT(contact, chatgpt, event)
+                        return
                     }
 
                     is Qwen -> {
                         val qwen: Qwen = currentBot as Qwen
                         sendByQwen(contact, qwen, event)
+                        return
                     }
 
                     else -> {}

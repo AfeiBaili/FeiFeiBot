@@ -434,6 +434,9 @@ object Commands {
             if (param.size != 3) return@Command """
                 定时任务 <时间日期> 打印消息
                 时间日期格式：
+                +12h
+                +30m
+                +10s
                 20:00
                 20:00:00
                 2005-05-16/20:00
@@ -461,6 +464,18 @@ object Commands {
             var localDateTime: LocalDateTime? = null
             val uuid: String = UUID.randomUUID().toString()
             runCatching {
+                if (dateTimeText.startsWith("+")) {
+                    runCatching {
+                        val timeText = dateTimeText.removePrefix("+").dropLast(1)
+                        val addTime: Long = timeText.toLong()
+                        when (dateTimeText.last()) {
+                            'h' -> localDateTime = LocalDateTime.now().plusHours(addTime)
+                            'm' -> localDateTime = LocalDateTime.now().plusMinutes(addTime)
+                            's' -> localDateTime = LocalDateTime.now().plusSeconds(addTime)
+                            else -> return@Command "未知的后缀"
+                        }
+                    }
+                }
                 formatter("HH:mm")?.let { localDateTime = it }
                 formatter("HH:mm:ss")?.let { localDateTime = it }
                 formatter("yyyy-MM-dd/HH:mm")?.let { localDateTime = it }
