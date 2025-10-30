@@ -475,11 +475,12 @@ object Commands {
                             else -> return@Command "未知的后缀"
                         }
                     }
+                } else {
+                    formatter("HH:mm")?.let { localDateTime = it }
+                    formatter("HH:mm:ss")?.let { localDateTime = it }
+                    formatter("yyyy-MM-dd/HH:mm")?.let { localDateTime = it }
+                    formatter("yyyy-MM-dd/HH:mm:ss")?.let { localDateTime = it }
                 }
-                formatter("HH:mm")?.let { localDateTime = it }
-                formatter("HH:mm:ss")?.let { localDateTime = it }
-                formatter("yyyy-MM-dd/HH:mm")?.let { localDateTime = it }
-                formatter("yyyy-MM-dd/HH:mm:ss")?.let { localDateTime = it }
                 val localDT = localDateTime!!
                 if (localDT.isBefore(LocalDateTime.now().minusSeconds(1))) return@Command "设置的时间已过"
                 TodoTimer.createTask(localDT) {
