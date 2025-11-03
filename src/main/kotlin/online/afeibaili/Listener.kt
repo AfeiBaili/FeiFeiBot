@@ -40,7 +40,7 @@ object Listener {
 
     fun loadingFriendListener() {
         friendMessageEvent = GlobalEventChannel.subscribeAlways<FriendMessageEvent> { event ->
-            Manager.process(event)
+            Manager.process(event, true)
         }
     }
 

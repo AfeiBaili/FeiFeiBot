@@ -21,12 +21,12 @@ object Manager {
     var isBotAlive = true
     val immersiveMap = HashMap<Long, String>()
 
-    suspend fun process(event: MessageEvent) {
+    suspend fun process(event: MessageEvent, isFriend: Boolean = false) {
         val message = event.message.contentToString()
         val contact: Contact = event.subject
 
         if (message.startsWith(config.setting.commandPrefix)) contact.sendMessage(commandParsing(event))
-        else if (isBotAlive) botProcess(event)
+        else if (isBotAlive) botProcess(event, isFriend)
     }
 
     private suspend fun commandParsing(event: MessageEvent): String {
@@ -40,12 +40,12 @@ object Manager {
         } else "您的等级是${level ?: "0"}，但是此指令等级为${command.level}级！"
     }
 
-    private suspend fun botProcess(event: MessageEvent) {
+    private suspend fun botProcess(event: MessageEvent, isFriend: Boolean) {
         val singleMessages: MessageChain = event.message
         val contact: Contact = event.subject
 
         for (singleMessage in singleMessages) {
-            if (singleMessage is At && singleMessage.target == config.bot.qq) {
+            if ((singleMessage is At && singleMessage.target == config.bot.qq) || isFriend) {
                 when (currentBot) {
                     is Deepseek -> {
                         val deepseek: Deepseek = currentBot as Deepseek
