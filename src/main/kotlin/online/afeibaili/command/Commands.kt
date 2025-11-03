@@ -168,7 +168,7 @@ object Commands {
                     "已发送聊天记录"
                 }, level = 1))*/
         register("切换模型", Command({ param, e ->
-            if (param.size != 2) return@Command "切换模型 <chatgpt | deepseek | kimi>"
+            if (param.size != 2) return@Command "切换模型 <chatgpt | deepseek | qwen | kimi>"
             when (param[1]) {
                 "chatgpt" -> config.setting.currentBot = "chatgpt"
                 "deepseek" -> config.setting.currentBot = "deepseek"
