@@ -183,7 +183,7 @@ object Commands {
             "当前模型为：${config.setting.currentBot}"
         }))
         register("新设定", Command({ param, e ->
-            if (param.size < 4) return@Command "新设定 <chatgpt | deepseek | qwen> <setting>"
+            if (param.size < 4) return@Command "新设定 <chatgpt | deepseek | qwen> <name> <setting>"
             val botName = param[2]
             val setting = StringBuilder().apply {
                 for (i in 3..param.size - 1) append(param[i])
