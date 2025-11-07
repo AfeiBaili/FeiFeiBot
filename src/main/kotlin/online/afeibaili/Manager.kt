@@ -2,9 +2,8 @@ package online.afeibaili
 
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
-import net.mamoe.mirai.message.data.At
-import net.mamoe.mirai.message.data.MessageChain
-import net.mamoe.mirai.message.data.MessageChainBuilder
+import net.mamoe.mirai.event.events.NudgeEvent
+import net.mamoe.mirai.message.data.*
 import online.afeibaili.bot.ChatGPT
 import online.afeibaili.bot.Deepseek
 import online.afeibaili.bot.Kimi
@@ -21,7 +20,7 @@ object Manager {
     var isBotAlive = true
     val immersiveMap = HashMap<Long, String>()
 
-    suspend fun process(event: MessageEvent, isFriend: Boolean = false) {
+    suspend fun processMessage(event: MessageEvent, isFriend: Boolean = false) {
         val message = event.message.contentToString()
         val contact: Contact = event.subject
 
@@ -40,6 +39,27 @@ object Manager {
         } else "您的等级是${level ?: "0"}，但是此指令等级为${command.level}级！"
     }
 
+    suspend fun processNudge(event: NudgeEvent) {
+        val contact: Contact = event.subject
+        val message: MessageChain = PlainText(event.from.nick + "戳了戳你的脸").toMessageChain()
+        when (currentBot) {
+            is Deepseek -> {
+                val deepseek: Deepseek = currentBot as Deepseek
+                sendByDeepseek(contact, deepseek, message)
+            }
+
+            is ChatGPT -> {
+                val chatgpt: ChatGPT = currentBot as ChatGPT
+                sendByChatGPT(contact, chatgpt, message)
+            }
+
+            is Qwen -> {
+                val qwen: Qwen = currentBot as Qwen
+                sendByQwen(contact, qwen, message)
+            }
+        }
+    }
+
     private suspend fun botProcess(event: MessageEvent, isFriend: Boolean) {
         val singleMessages: MessageChain = event.message
         val contact: Contact = event.subject
@@ -49,19 +69,19 @@ object Manager {
                 when (currentBot) {
                     is Deepseek -> {
                         val deepseek: Deepseek = currentBot as Deepseek
-                        sendByDeepseek(contact, deepseek, event)
+                        sendByDeepseek(contact, deepseek, event.message)
                         return
                     }
 
                     is ChatGPT -> {
                         val chatgpt: ChatGPT = currentBot as ChatGPT
-                        sendByChatGPT(contact, chatgpt, event)
+                        sendByChatGPT(contact, chatgpt, event.message)
                         return
                     }
 
                     is Qwen -> {
                         val qwen: Qwen = currentBot as Qwen
-                        sendByQwen(contact, qwen, event)
+                        sendByQwen(contact, qwen, event.message)
                         return
                     }
 
@@ -77,17 +97,17 @@ object Manager {
             try {
                 when {
                     immersiveMap.contains(event.sender.id) -> when (immersiveMap[event.sender.id]) {
-                        "deepseek" -> sendByDeepseek(contact, deepseek, event)
-                        "chatgpt" -> sendByChatGPT(contact, chatgpt, event)
-                        "qwen" -> sendByQwen(contact, qwen, event)
+                        "deepseek" -> sendByDeepseek(contact, deepseek, event.message)
+                        "chatgpt" -> sendByChatGPT(contact, chatgpt, event.message)
+                        "qwen" -> sendByQwen(contact, qwen, event.message)
                         else -> {}
                     }
 
                     contains(config.bot.name) -> {
                         when (currentBot) {
-                            is Deepseek -> sendByDeepseek(contact, deepseek, event)
-                            is ChatGPT -> sendByChatGPT(contact, chatgpt, event)
-                            is Qwen -> sendByQwen(contact, qwen, event)
+                            is Deepseek -> sendByDeepseek(contact, deepseek, event.message)
+                            is ChatGPT -> sendByChatGPT(contact, chatgpt, event.message)
+                            is Qwen -> sendByQwen(contact, qwen, event.message)
                             is Kimi -> contact.sendMessage(kimi.send(message))
                             else -> {}
                         }
@@ -116,20 +136,20 @@ object Manager {
         return messageChainBuilder.build()
     }
 
-    private suspend fun sendByChatGPT(contact: Contact, chatgpt: ChatGPT, event: MessageEvent) {
-        val message: String = filterAtMessage(event.message).contentToString()
-        if (chatgpt.getStream()) chatgpt.sendAsStream(message, event)
+    private suspend fun sendByChatGPT(contact: Contact, chatgpt: ChatGPT, message: MessageChain) {
+        val message: String = filterAtMessage(message).contentToString()
+        if (chatgpt.getStream()) chatgpt.sendAsStream(message, contact)
         else contact.sendMessage(chatgpt.send(message))
     }
 
-    private suspend fun sendByQwen(contact: Contact, qwen: Qwen, event: MessageEvent) {
-        val message: String = filterAtMessage(event.message).contentToString()
+    private suspend fun sendByQwen(contact: Contact, qwen: Qwen, message: MessageChain) {
+        val message: String = filterAtMessage(message).contentToString()
         contact.sendMessage(qwen.send(message))
     }
 
-    private suspend fun sendByDeepseek(contact: Contact, deepseek: Deepseek, event: MessageEvent) {
-        val message: String = filterAtMessage(event.message).contentToString()
-        if (deepseek.getStream()) deepseek.sendAsStream(message, event)
+    private suspend fun sendByDeepseek(contact: Contact, deepseek: Deepseek, message: MessageChain) {
+        val message: String = filterAtMessage(message).contentToString()
+        if (deepseek.getStream()) deepseek.sendAsStream(message, contact)
         else contact.sendMessage(deepseek.send(message))
     }
 }

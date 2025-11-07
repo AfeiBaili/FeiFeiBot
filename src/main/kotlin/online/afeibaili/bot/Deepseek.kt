@@ -49,10 +49,9 @@ class Deepseek : AbstractBot(), Stream, Customizable {
 
     override suspend fun sendAsStream(
         message: String,
-        event: MessageEvent,
+        contact: Contact,
         role: String,
     ) {
-        val contact: Contact = event.subject
         if (isRunning) {
             contact.sendMessage("${config.bot.name}正在回答中！请稍后再试~")
             return
@@ -63,7 +62,7 @@ class Deepseek : AbstractBot(), Stream, Customizable {
         val contentSb: StringBuilder = StringBuilder()
         val reasoningSb: StringBuilder = StringBuilder()
         var line: String?
-        val send: Contact = event.subject
+        val send: Contact = contact
         val mergedSb = StringBuilder()
         var hasReason = false
         var isChange = false

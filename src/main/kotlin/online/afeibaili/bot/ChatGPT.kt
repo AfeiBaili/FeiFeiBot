@@ -42,10 +42,9 @@ class ChatGPT : AbstractBot(), Stream, Customizable {
 
     override suspend fun sendAsStream(
         message: String,
-        event: MessageEvent,
+        contact: Contact,
         role: String,
     ) {
-        val contact: Contact = event.subject
         val responseInputStream: HttpResponse<InputStream> = sendRequestAsStream(requestBody, message, role, url, key)
         val inputStream: BufferedReader = responseInputStream.body().bufferedReader()
         val contentSb: StringBuilder = StringBuilder()

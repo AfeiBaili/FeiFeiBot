@@ -1,8 +1,7 @@
 import com.fasterxml.jackson.databind.ObjectMapper
-import online.afeibaili.command.Commands
 import online.afeibaili.module.echo.cave.Data
-import online.afeibaili.module.echo.cave.EchoCave
-import java.awt.List
+import java.net.Socket
+import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -10,6 +9,16 @@ import java.time.temporal.TemporalAccessor
 import kotlin.test.Test
 
 class TestOther {
+
+    @Test
+    fun test4() {
+        val host = "mc.hypixel.net"
+        val port = 25565
+
+        println(Socket(host, port).inputStream.reader(Charset.forName("utf-8")).readText())
+
+    }
+
     @Test
     fun test() {
         val text = "20:00"
@@ -32,8 +41,9 @@ class TestOther {
 
         println(ObjectMapper().writeValueAsString(data))
     }
+
     @Test
-    fun test3(){
+    fun test3() {
         println(LocalDateTime.now())
     }
 }
