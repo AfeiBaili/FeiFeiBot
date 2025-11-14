@@ -42,6 +42,7 @@ object Manager {
     suspend fun processNudge(event: NudgeEvent) {
         val contact: Contact = event.subject
         val message: MessageChain = PlainText(event.from.nick + "戳了戳你的脸").toMessageChain()
+        if (event.target.id != config.bot.qq) return
         when (currentBot) {
             is Deepseek -> {
                 val deepseek: Deepseek = currentBot as Deepseek
