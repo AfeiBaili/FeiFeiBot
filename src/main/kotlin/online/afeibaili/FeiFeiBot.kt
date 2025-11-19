@@ -6,9 +6,10 @@ import online.afeibaili.command.Commands
 import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
 import online.afeibaili.module.McModSearch
-import online.afeibaili.module.music.SearchMusicId
 import online.afeibaili.module.Translation
+import online.afeibaili.module.coffee.Coffee
 import online.afeibaili.module.echo.cave.EchoCave
+import online.afeibaili.module.music.SearchMusicId
 import online.afeibaili.module.password.game.PasswordBreak
 
 object FeiFeiBot : KotlinPlugin(
@@ -36,6 +37,7 @@ object FeiFeiBot : KotlinPlugin(
         loadEchoCave()
         Listener.loadingListener()
         loadSearchMusicId()
+        loadCoffee()
     }
 
     fun reloadConfigFile() {
@@ -73,5 +75,9 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadSearchMusicId() {
         SearchMusicId.load()
+    }
+
+    fun loadCoffee() {
+        Coffee.load()
     }
 }
