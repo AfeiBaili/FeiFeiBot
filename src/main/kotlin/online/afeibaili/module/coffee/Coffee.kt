@@ -42,11 +42,21 @@ object Coffee {
                     "提示" -> return@Command String.format(
                         list[random.nextInt(list.size)], dataMap.keys.toList()[random.nextInt(dataMap.keys.size)]
                     )
+
+                    "游戏列表" -> return@Command dataMap.toString()
                 }
                 return@Command "异常咖啡机 [提示]"
             }
 
-            val listener: Listener<GroupMessageEvent> =
+            val game: Game? = groupMap[event.subject.id]
+
+            if (game != null && game.playerIsExists(event.sender.id)) return@Command "当前正在游戏中，请输入结束以结束游戏"
+            if (game != null && !game.playerIsExists(event.sender.id)) {
+                game.addPlayer(event.sender.id)
+                return@Command "已加入游戏"
+            }
+
+            groupMap[event.subject.id] = Game(
                 GlobalEventChannel.filter {
                     it is GroupMessageEvent && it.group.id == event.subject.id
                 }.subscribeAlways<GroupMessageEvent> { e ->
@@ -120,17 +130,7 @@ object Coffee {
                     contact.sendImage(ByteArrayInputStream(arrayOutputStream.toByteArray()))
                     game.currentWord = Pair(true, message)
                     contact.sendMessage("请问你要给谁喝？她or我")
-                }
-
-            val game: Game? = groupMap[event.subject.id]
-
-            if (game != null && game.playerIsExists(event.sender.id)) return@Command "当前正在游戏中，请输入结束以结束游戏"
-            if (game != null && !game.playerIsExists(event.sender.id)) {
-                game.addPlayer(event.sender.id)
-                return@Command "已加入游戏"
-            }
-
-            groupMap[event.subject.id] = Game(listener).apply {
+                }).apply {
                 addPlayer(event.sender.id)
             }
 
