@@ -62,7 +62,7 @@ object Coffee {
 
                     "游戏列表" -> return@Command dataMap.toString()
                 }
-                return@Command "咖啡机 [提示]"
+                return@Command "咖啡机"
             }
 
             val game: Game? = groupMap[event.subject.id]
@@ -195,7 +195,7 @@ object Coffee {
                         BufferedImage(BACKGROUND_WIDTH, BACKGROUND_HEIGHT, BufferedImage.TYPE_INT_ARGB).apply {
                             graphics.drawImage(gameBackground, 0, 0, null)
                             if (girlRoleImage != null) graphics.drawImage(girlRoleImage, -100, 0, null)
-                            graphics.drawImage(ImageIO.read(file), 500, 0, null)
+                            graphics.drawImage(ImageIO.read(file), 600, 0, null)
                             boyRoleImage = ImageIO.read(file)
                             graphics.dispose()
                         }
@@ -206,7 +206,7 @@ object Coffee {
                     val bufferedImage: BufferedImage =
                         BufferedImage(BACKGROUND_WIDTH, BACKGROUND_HEIGHT, BufferedImage.TYPE_INT_ARGB).apply {
                             graphics.drawImage(gameBackground, 0, 0, null)
-                            if (boyRoleImage != null) graphics.drawImage(boyRoleImage, 500, 0, null)
+                            if (boyRoleImage != null) graphics.drawImage(boyRoleImage, 600, 0, null)
                             graphics.drawImage(ImageIO.read(file), -100, 0, null)
                             girlRoleImage = ImageIO.read(file)
                             graphics.dispose()
