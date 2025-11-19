@@ -13,39 +13,56 @@ import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.InputStream
 import java.util.*
 import javax.imageio.ImageIO
 
 object Coffee {
     val data = System.getProperty("user.dir") + "/data/feifei/coffee/forms"
-    val coffeeImage = System.getProperty("user.dir") + "/data/feifei/coffee/coffee.png"
+    val coffeePng = System.getProperty("user.dir") + "/data/feifei/coffee/coffee/coffee.png"
+    val backgroundWellPng = System.getProperty("user.dir") + "/data/feifei/coffee/background/well.png"
+    val backgroundCityPng = System.getProperty("user.dir") + "/data/feifei/coffee/background/morning_bg.png"
+    val backgroundCoffeePng =
+        System.getProperty("user.dir") + "/data/feifei/coffee/background/mainmenu_coffeemachine.png"
+
+    const val BACKGROUND_WIDTH: Int = 1580
+    const val BACKGROUND_HEIGHT: Int = 720
+    var gameBackground = BufferedImage(BACKGROUND_WIDTH, BACKGROUND_HEIGHT, BufferedImage.TYPE_INT_ARGB).apply {
+        graphics.drawImage(ImageIO.read(File(backgroundWellPng)), 196, 0, null)
+        graphics.drawImage(ImageIO.read(File(backgroundCityPng)), 0, 0, null)
+        graphics.drawImage(ImageIO.read(File(backgroundCoffeePng)), 400, 169, null)
+        graphics.dispose()
+    }
+    val drinkFileList = File(System.getProperty("user.dir") + "/data/feifei/coffee/coffee/drink").listFiles()!!.toList()
     val groupMap = mutableMapOf<Long, Game>()
     val random = Random()
+    val tipList: List<String> = listOf(
+        "你为什么不试试%s呢？",
+        "你试试%s怎么样？",
+        "你要不要考虑一下%s？",
+        "我觉得%s可能不错？",
+        "或许可以试试%s？",
+        "我推荐你试试%s",
+        "强烈安利%s给你",
+        "%s这个怎么样",
+    )
+    lateinit var dataMap: Map<String, File>
+
+    fun getTip() =
+        String.format(tipList[random.nextInt(tipList.size)], dataMap.keys.toList()[random.nextInt(dataMap.keys.size)])
 
     fun load() {
         if (!File(data).exists()) return logger("咖啡机数据不存在", LoggerLevel.ERROR)
-        val dataMap: Map<String, File> = File(data).listFiles()!!.toList().associateBy { it.name }
+        dataMap = File(data).listFiles()!!.toList().associateBy { it.name }
 
-        Commands.register("异常咖啡机", Command({ param, event ->
+        Commands.register("咖啡机", Command({ param, event ->
             if (param.size > 1) {
-                val list: List<String> = listOf(
-                    "你为什么不试试%s呢？",
-                    "你试试%s怎么样？",
-                    "你要不要考虑一下%s？",
-                    "我觉得%s可能不错？",
-                    "或许可以试试%s？",
-                    "我推荐你试试%s",
-                    "强烈安利%s给你",
-                    "%s这个怎么样",
-                )
                 when (param[1]) {
-                    "提示" -> return@Command String.format(
-                        list[random.nextInt(list.size)], dataMap.keys.toList()[random.nextInt(dataMap.keys.size)]
-                    )
+                    "提示" -> return@Command getTip()
 
                     "游戏列表" -> return@Command dataMap.toString()
                 }
-                return@Command "异常咖啡机 [提示]"
+                return@Command "咖啡机 [提示]"
             }
 
             val game: Game? = groupMap[event.subject.id]
@@ -60,7 +77,7 @@ object Coffee {
                 GlobalEventChannel.filter {
                     it is GroupMessageEvent && it.group.id == event.subject.id
                 }.subscribeAlways<GroupMessageEvent> { e ->
-                    val message: String = e.message.contentToString()
+                    val message: String = e.message.contentToString().lowercase()
                     val contact = event.subject
                     val game: Game = groupMap[e.subject.id]!!
                     fun getImageFile(gender: String): List<File> {
@@ -90,7 +107,11 @@ object Coffee {
                         "她", "she", "She" -> {
                             if (game.currentWord == null) return@subscribeAlways
                             val list: List<File> = getImageFile("girl")
-                            contact.sendImage(list[random.nextInt(list.size)])
+                            if (list.isEmpty()) {
+                                event.subject.sendMessage("好像没有什么变化？")
+                                return@subscribeAlways
+                            }
+                            contact.sendImage(game.drawGame(list[random.nextInt(list.size)], Gender.Girl))
                             game.currentWord = null
                             return@subscribeAlways
                         }
@@ -98,8 +119,17 @@ object Coffee {
                         "我", "i", "I" -> {
                             if (game.currentWord == null) return@subscribeAlways
                             val list: List<File> = getImageFile("boy")
-                            contact.sendImage(list[random.nextInt(list.size)])
+                            if (list.isEmpty()) {
+                                event.subject.sendMessage("好像没有什么变化？")
+                                return@subscribeAlways
+                            }
+                            contact.sendImage(game.drawGame(list[random.nextInt(list.size)], Gender.Boy))
                             game.currentWord = null
+                            return@subscribeAlways
+                        }
+
+                        "提示" -> {
+                            event.subject.sendMessage(getTip())
                             return@subscribeAlways
                         }
                     }
@@ -112,19 +142,20 @@ object Coffee {
                             "你就不能好好输入？",
                             "你知道该输入什么吗？",
                             "能不能认真点输入？",
-                            "输入前能不能动动脑子？",
                         )
                         contact.sendMessage(messageList[random.nextInt(messageList.size)])
                         return@subscribeAlways
                     }
 
                     contact.sendMessage("...已制取咖啡")
-                    val bufferedImage: BufferedImage = ImageIO.read(File(coffeeImage))
+                    val bufferedImage: BufferedImage = ImageIO.read(File(coffeePng))
                     val graphics2D: Graphics2D = bufferedImage.createGraphics()
-                    val bPng = File(dir.path, "b.png")
+                    var bPng = File(dir.path, "b.png")
+                    if (!bPng.exists()) bPng = drinkFileList[random.nextInt(drinkFileList.size)]
                     val tPng = File(dir.path, "t.png")
                     if (bPng.exists()) graphics2D.drawImage(ImageIO.read(bPng), 0, 0, null)
                     if (tPng.exists()) graphics2D.drawImage(ImageIO.read(tPng), 0, 0, null)
+                    graphics2D.dispose()
                     val arrayOutputStream = ByteArrayOutputStream()
                     ImageIO.write(bufferedImage, "PNG", arrayOutputStream)
                     contact.sendImage(ByteArrayInputStream(arrayOutputStream.toByteArray()))
@@ -143,9 +174,46 @@ object Coffee {
 
         //第一个：是否在回答中；第二个：关键字
         var currentWord: Pair<Boolean, String>? = null
+        var boyRoleImage: BufferedImage? = null
+        var girlRoleImage: BufferedImage? = null
+
         fun stop() {
             listener.cancel()
             players.clear()
+        }
+
+        fun drawGame(file: File, gender: Gender): InputStream {
+            fun imageToStream(image: BufferedImage): InputStream {
+                val arrayOutputStream = ByteArrayOutputStream()
+                ImageIO.write(image, "PNG", arrayOutputStream)
+                return ByteArrayInputStream(arrayOutputStream.toByteArray())
+            }
+
+            when (gender) {
+                Gender.Boy -> {
+                    val bufferedImage: BufferedImage =
+                        BufferedImage(BACKGROUND_WIDTH, BACKGROUND_HEIGHT, BufferedImage.TYPE_INT_ARGB).apply {
+                            graphics.drawImage(gameBackground, 0, 0, null)
+                            if (girlRoleImage != null) graphics.drawImage(girlRoleImage, -100, 0, null)
+                            graphics.drawImage(ImageIO.read(file), 500, 0, null)
+                            boyRoleImage = ImageIO.read(file)
+                            graphics.dispose()
+                        }
+                    return imageToStream(bufferedImage)
+                }
+
+                Gender.Girl -> {
+                    val bufferedImage: BufferedImage =
+                        BufferedImage(BACKGROUND_WIDTH, BACKGROUND_HEIGHT, BufferedImage.TYPE_INT_ARGB).apply {
+                            graphics.drawImage(gameBackground, 0, 0, null)
+                            if (boyRoleImage != null) graphics.drawImage(boyRoleImage, 500, 0, null)
+                            graphics.drawImage(ImageIO.read(file), -100, 0, null)
+                            girlRoleImage = ImageIO.read(file)
+                            graphics.dispose()
+                        }
+                    return imageToStream(bufferedImage)
+                }
+            }
         }
 
         fun playerIsExists(id: Long): Boolean = players.contains(id)
@@ -153,5 +221,10 @@ object Coffee {
         fun addPlayer(id: Long) {
             players.add(id)
         }
+    }
+
+    enum class Gender {
+        Boy,
+        Girl,
     }
 }
