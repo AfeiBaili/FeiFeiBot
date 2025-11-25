@@ -20,7 +20,7 @@ dependencies {
 }
 
 group = "online.afeibaili"
-version = "3.12.0"
+version = "3.13.0"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
