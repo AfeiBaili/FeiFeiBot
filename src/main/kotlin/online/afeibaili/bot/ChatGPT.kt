@@ -1,7 +1,6 @@
 package online.afeibaili.bot
 
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.event.events.MessageEvent
 import online.afeibaili.bot.json.Message
 import online.afeibaili.bot.json.RequestBody
 import online.afeibaili.bot.json.ResponseBody
@@ -13,7 +12,7 @@ import java.net.http.HttpResponse
 class ChatGPT : AbstractBot(), Stream, Customizable {
     override val url: String = "https://api.chatanywhere.tech/v1/chat/completions"
     override val key: String = config.chatgpt.key
-    override val requestBody: RequestBody = RequestBody("gpt-4o-mini", ArrayList<Message>(), false)
+    override val requestBody: RequestBody = RequestBody("gpt-4o-mini", FixedSizeQueue<Message>(pollIndex = 1), false)
 
     override fun init(): ChatGPT {
         requestBody.messages.add(Message("system", config.chatgpt.setting))

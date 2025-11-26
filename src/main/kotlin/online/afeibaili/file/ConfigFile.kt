@@ -2,22 +2,28 @@ package online.afeibaili.file
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import online.afeibaili.LoggerLevel
 import online.afeibaili.file.json.JsonConfigMap
 import online.afeibaili.logger
 import java.io.File
 import java.io.FileWriter
+import java.nio.charset.StandardCharsets
 
 class ConfigFile(val path: String) {
 
     lateinit var config: JsonConfigMap
+    val scopeIo: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     fun store() {
-        val objectMapper: ObjectMapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
-        FileWriter(path).use {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(it, config)
+        scopeIo.launch {
+            val objectMapper: ObjectMapper = ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT)
+            FileWriter(path, StandardCharsets.UTF_8).use {
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(it, config)
+            }
         }
-        config = ObjectMapper().readValue(File(path), JsonConfigMap::class.java)
     }
 
     constructor() : this(System.getProperty("user.dir") + "/config/feifei/config.json") {

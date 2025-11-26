@@ -46,17 +46,17 @@ object Manager {
         when (currentBot) {
             is Deepseek -> {
                 val deepseek: Deepseek = currentBot as Deepseek
-                sendByDeepseek(contact, deepseek, message)
+                sendByDeepseek(contact, deepseek, message, null)
             }
 
             is ChatGPT -> {
                 val chatgpt: ChatGPT = currentBot as ChatGPT
-                sendByChatGPT(contact, chatgpt, message)
+                sendByChatGPT(contact, chatgpt, message, null)
             }
 
             is Qwen -> {
                 val qwen: Qwen = currentBot as Qwen
-                sendByQwen(contact, qwen, message)
+                sendByQwen(contact, qwen, message, null)
             }
         }
     }
@@ -64,25 +64,28 @@ object Manager {
     private suspend fun botProcess(event: MessageEvent, isFriend: Boolean) {
         val singleMessages: MessageChain = event.message
         val contact: Contact = event.subject
+        val senderName: String = event.sender.remark.ifEmpty {
+            event.sender.nick
+        }
 
         for (singleMessage in singleMessages) {
             if ((singleMessage is At && singleMessage.target == config.bot.qq) || isFriend) {
                 when (currentBot) {
                     is Deepseek -> {
                         val deepseek: Deepseek = currentBot as Deepseek
-                        sendByDeepseek(contact, deepseek, event.message)
+                        sendByDeepseek(contact, deepseek, event.message, senderName)
                         return
                     }
 
                     is ChatGPT -> {
                         val chatgpt: ChatGPT = currentBot as ChatGPT
-                        sendByChatGPT(contact, chatgpt, event.message)
+                        sendByChatGPT(contact, chatgpt, event.message, senderName)
                         return
                     }
 
                     is Qwen -> {
                         val qwen: Qwen = currentBot as Qwen
-                        sendByQwen(contact, qwen, event.message)
+                        sendByQwen(contact, qwen, event.message, senderName)
                         return
                     }
 
@@ -91,24 +94,27 @@ object Manager {
             }
         }
 
-        val message: String = filterAtMessage(event.message).contentToString()
-
+        val message: String = MessageProcessor(event.message)
+            .start()
+            .filterAtMessage()
+            .addSenderName(senderName)
+            .endAndToString()
 
         with(message) {
             try {
                 when {
                     immersiveMap.contains(event.sender.id) -> when (immersiveMap[event.sender.id]) {
-                        "deepseek" -> sendByDeepseek(contact, deepseek, event.message)
-                        "chatgpt" -> sendByChatGPT(contact, chatgpt, event.message)
-                        "qwen" -> sendByQwen(contact, qwen, event.message)
+                        "deepseek" -> sendByDeepseek(contact, deepseek, event.message, senderName)
+                        "chatgpt" -> sendByChatGPT(contact, chatgpt, event.message, senderName)
+                        "qwen" -> sendByQwen(contact, qwen, event.message, senderName)
                         else -> {}
                     }
 
                     contains(config.bot.name) -> {
                         when (currentBot) {
-                            is Deepseek -> sendByDeepseek(contact, deepseek, event.message)
-                            is ChatGPT -> sendByChatGPT(contact, chatgpt, event.message)
-                            is Qwen -> sendByQwen(contact, qwen, event.message)
+                            is Deepseek -> sendByDeepseek(contact, deepseek, event.message, senderName)
+                            is ChatGPT -> sendByChatGPT(contact, chatgpt, event.message, senderName)
+                            is Qwen -> sendByQwen(contact, qwen, event.message, senderName)
                             is Kimi -> contact.sendMessage(kimi.send(message))
                             else -> {}
                         }
@@ -124,32 +130,84 @@ object Manager {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                contact.sendMessage("消息异常，请检查配置文件或信息：${contact.sendMessage(e.message!!)}")
+                contact.sendMessage("消息异常：${contact.sendMessage(e.message!!)}")
             }
         }
     }
 
-    private fun filterAtMessage(messages: MessageChain): MessageChain {
-        val messageChainBuilder = MessageChainBuilder()
-        messages.forEach { message ->
-            if (message !is At) messageChainBuilder.add(message)
+    class MessageProcessor(val messageChain: MessageChain) {
+        class Start(var messageChain: MessageChain) {
+            fun filterAtMessage(): Start {
+                val messageChainBuilder = MessageChainBuilder()
+                messageChain.forEach { message ->
+                    if (message !is At) messageChainBuilder.add(message)
+                }
+                messageChain = messageChainBuilder.build()
+                return this
+            }
+
+            fun addSenderName(name: String?, infix: String = "："): Start {
+                name?.let {
+                    messageChain = MessageChainBuilder().apply {
+                        +(name + infix)
+                        +messageChain
+                    }.build()
+                }
+
+                return this
+            }
+
+            fun end() = messageChain
+            fun endAndToString() = messageChain.contentToString()
         }
-        return messageChainBuilder.build()
+
+        fun start() = Start(messageChain)
     }
 
-    private suspend fun sendByChatGPT(contact: Contact, chatgpt: ChatGPT, message: MessageChain) {
-        val message: String = filterAtMessage(message).contentToString()
+
+    private suspend fun sendByChatGPT(
+        contact: Contact,
+        chatgpt: ChatGPT,
+        message: MessageChain,
+        senderName: String?,
+    ) {
+        val message: String = MessageProcessor(message)
+            .start()
+            .filterAtMessage()
+            .addSenderName(senderName)
+            .end()
+            .contentToString()
         if (chatgpt.getStream()) chatgpt.sendAsStream(message, contact)
         else contact.sendMessage(chatgpt.send(message))
     }
 
-    private suspend fun sendByQwen(contact: Contact, qwen: Qwen, message: MessageChain) {
-        val message: String = filterAtMessage(message).contentToString()
+    private suspend fun sendByQwen(
+        contact: Contact,
+        qwen: Qwen,
+        message: MessageChain,
+        senderName: String?,
+    ) {
+        val message: String = MessageProcessor(message)
+            .start()
+            .filterAtMessage()
+            .addSenderName(senderName)
+            .end()
+            .contentToString()
         contact.sendMessage(qwen.send(message))
     }
 
-    private suspend fun sendByDeepseek(contact: Contact, deepseek: Deepseek, message: MessageChain) {
-        val message: String = filterAtMessage(message).contentToString()
+    private suspend fun sendByDeepseek(
+        contact: Contact,
+        deepseek: Deepseek,
+        message: MessageChain,
+        senderName: String?,
+    ) {
+        val message: String = MessageProcessor(message)
+            .start()
+            .filterAtMessage()
+            .addSenderName(senderName)
+            .end()
+            .contentToString()
         if (deepseek.getStream()) deepseek.sendAsStream(message, contact)
         else contact.sendMessage(deepseek.send(message))
     }

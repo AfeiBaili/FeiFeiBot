@@ -1,14 +1,14 @@
 package online.afeibaili.bot
 
-import online.afeibaili.config
 import online.afeibaili.bot.json.Message
 import online.afeibaili.bot.json.RequestBody
 import online.afeibaili.bot.json.ResponseBody
+import online.afeibaili.config
 
 class Kimi : AbstractBot() {
     override val url: String = "https://api.moonshot.cn/v1/chat/completions"
     override val key: String = config.kimi.key
-    override val requestBody: RequestBody = RequestBody("moonshot-v1-8k", ArrayList<Message>())
+    override val requestBody: RequestBody = RequestBody("moonshot-v1-8k", FixedSizeQueue<Message>(pollIndex = 1))
 
     override fun init(): Kimi {
         requestBody.messages.add(Message("system", config.kimi.setting))

@@ -158,15 +158,17 @@ object Commands {
             qwen.reset()
             "chatgpt、deepseek、kimi、qwen都重置好啦"
         }, level = 3))
-        /*        register("获取聊天记录", Command({ param, event ->
-                    if (param.size != 2) return@Command "（暂时弃用）获取聊天记录 <chatgpt | deepseek>"
-                    when (param[1]) {
-                        "chatgpt" -> uploadChatHistory(chatgpt, event)
-                        "deepseek" -> uploadChatHistory(deepseek, event)
-                        else -> return@Command "未知的机器人"
-                    }
-                    "已发送聊天记录"
-                }, level = 1))*/
+        register("聊天记录", Command({ param, event ->
+            if (param.size != 2) return@Command "获取聊天记录 <chatgpt | deepseek>"
+            when (param[1]) {
+                "chatgpt" -> uploadChatHistory(chatgpt, event)
+                "deepseek" -> uploadChatHistory(deepseek, event)
+                "qwen" -> uploadChatHistory(qwen, event)
+                "kimi" -> uploadChatHistory(kimi, event)
+                else -> return@Command "未知或不支持的机器人"
+            }
+            "已发送聊天记录"
+        }, level = 1))
         register("切换模型", Command({ param, e ->
             if (param.size != 2) return@Command "切换模型 <chatgpt | deepseek | qwen | kimi>"
             when (param[1]) {

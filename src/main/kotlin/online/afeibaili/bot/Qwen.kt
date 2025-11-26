@@ -21,7 +21,7 @@ import java.net.http.HttpResponse
 class Qwen : AbstractBot(), Customizable {
     override val url: String = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     override val key: String = config.qwen.key
-    override val requestBody: RequestBody = RequestBody("qwen-plus", ArrayList<Message>(), false)
+    override val requestBody: RequestBody = RequestBody("qwen-plus", FixedSizeQueue<Message>(pollIndex = 1), false)
 
     val generateImagesUrl = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation"
 

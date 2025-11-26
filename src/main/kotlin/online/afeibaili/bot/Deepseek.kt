@@ -1,7 +1,6 @@
 package online.afeibaili.bot
 
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.event.events.MessageEvent
 import online.afeibaili.bot.json.Message
 import online.afeibaili.bot.json.RequestBody
 import online.afeibaili.bot.json.ResponseBody
@@ -14,7 +13,7 @@ import java.net.http.HttpResponse
 class Deepseek : AbstractBot(), Stream, Customizable {
     override val url: String = "https://api.deepseek.com/v1/chat/completions"
     override val key: String = config.deepseek.key
-    override val requestBody: RequestBody = RequestBody("deepseek-chat", ArrayList<Message>(), false)
+    override val requestBody: RequestBody = RequestBody("deepseek-chat", FixedSizeQueue<Message>(pollIndex = 1), false)
 
     var isRunning = false
 
