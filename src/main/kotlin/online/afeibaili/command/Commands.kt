@@ -159,7 +159,7 @@ object Commands {
             "chatgpt、deepseek、kimi、qwen都重置好啦"
         }, level = 3))
         register("聊天记录", Command({ param, event ->
-            if (param.size != 2) return@Command "获取聊天记录 <chatgpt | deepseek>"
+            if (param.size != 2) return@Command "获取聊天记录 <chatgpt | deepseek | qwen | kimi>"
             when (param[1]) {
                 "chatgpt" -> uploadChatHistory(chatgpt, event)
                 "deepseek" -> uploadChatHistory(deepseek, event)
