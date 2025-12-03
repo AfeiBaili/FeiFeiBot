@@ -2,6 +2,7 @@ package online.afeibaili.command
 
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
+import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.ForwardMessageBuilder
 import net.mamoe.mirai.message.data.PlainText
 import online.afeibaili.bot.AbstractBot
@@ -24,12 +25,15 @@ fun setModel(bot: AbstractBot, module: String) {
     bot.requestBody.model = module
 }
 
+fun getAtMessage(event: MessageEvent): List<At> {
+    val list = mutableListOf<At>()
+    event.message.forEach { if (it is At) list.add(it) }
+    return list
+}
+
 fun getChatGPTModule(): String {
-    val request: HttpRequest = HttpRequest.newBuilder()
-        .uri(URI.create("https://api.chatanywhere.tech/v1/models"))
-        .setHeader("Authorization", "Bearer ${config.chatgpt.key}")
-        .GET()
-        .build()
+    val request: HttpRequest = HttpRequest.newBuilder().uri(URI.create("https://api.chatanywhere.tech/v1/models"))
+        .setHeader("Authorization", "Bearer ${config.chatgpt.key}").GET().build()
     val response: HttpResponse<String> = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
     return response.body()
 }
@@ -71,36 +75,25 @@ suspend fun uploadChatHistory(bot: AbstractBot, event: MessageEvent) {
 
 fun getDeepseekBalance(bot: AbstractBot): String {
     runCatching {
-        val request = HttpRequest.newBuilder()
-            .uri(URI("https://api.deepseek.com/user/balance"))
-            .GET()
-            .setHeader("Authorization", "Bearer ${bot.key}")
-            .setHeader("Accept", "application/json")
-            .build()
+        val request = HttpRequest.newBuilder().uri(URI("https://api.deepseek.com/user/balance")).GET()
+            .setHeader("Authorization", "Bearer ${bot.key}").setHeader("Accept", "application/json").build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
         response.body()
         val deepseekBalance: DeepseekBalance = jsonMapper.readValue(response.body(), DeepseekBalance::class.java)
         deepseekBalance.toString()
-    }.fold(
-        onSuccess = { return it },
-        onFailure = { return "接口查询异常请稍后：${it.message}" }
-    )
+    }.fold(onSuccess = { return it }, onFailure = { return "接口查询异常请稍后：${it.message}" })
 }
 
 fun getChatgptBalance(bot: AbstractBot): String {
     runCatching {
-        val request = HttpRequest.newBuilder()
-            .uri(URI("https://api.chatanywhere.org/v1/query/balance"))
-            .POST(HttpRequest.BodyPublishers.ofString(""))
-            .setHeader("Authorization", bot.key)
-            .timeout(Duration.ofSeconds(2))
-            .setHeader("Content-Type", "application/json").build()
+        val request = HttpRequest.newBuilder().uri(URI("https://api.chatanywhere.org/v1/query/balance"))
+            .POST(HttpRequest.BodyPublishers.ofString("")).setHeader("Authorization", bot.key)
+            .timeout(Duration.ofSeconds(2)).setHeader("Content-Type", "application/json").build()
         val future = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
         val response: HttpResponse<String> = future.get()
         val balance: ChatGPTBalance = jsonMapper.readValue(response.body(), ChatGPTBalance::class.java)
         balance.toString()
     }.fold(
         onSuccess = { return it },
-        onFailure = { return "请求被拦截无法访问服务器，请自行访问：https://api.chatanywhere.org/#/" }
-    )
+        onFailure = { return "请求被拦截无法访问服务器，请自行访问：https://api.chatanywhere.org/#/" })
 }

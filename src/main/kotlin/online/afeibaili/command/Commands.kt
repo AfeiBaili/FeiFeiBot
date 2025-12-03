@@ -149,7 +149,7 @@ object Commands {
         }, level = 2))
         register("重置qwen", Command({ p, e ->
             qwen.reset()
-            "kimi已经重置好了惹"
+            "qwen已经重置好了惹"
         }, level = 2))
         register("重置所有", Command({ p, e ->
             chatgpt.reset()
@@ -344,6 +344,7 @@ object Commands {
             try {
                 val qq: Long = if (param[1].startsWith("@")) param[1].removePrefix("@").toLong()
                 else param[1].toLong()
+                println(qq)
 
                 if (event is GroupMessageEvent) {
                     try {

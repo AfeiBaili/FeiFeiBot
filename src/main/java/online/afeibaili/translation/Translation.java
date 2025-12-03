@@ -8,7 +8,6 @@ import online.afeibaili.translation.util.HttpUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -60,9 +59,9 @@ public class Translation {
 
             sb.deleteCharAt(sb.length() - 1);
             return sb.toString();
-        } catch (IOException | InterruptedException e) {
-            UtilKt.logger(e, LoggerLevel.INFO);
-            return "无法映射：" + e.getMessage();
+        } catch (Exception e) {
+            UtilKt.logger(e, LoggerLevel.ERROR);
+            return "无法映射：" + e.getMessage() + "\n值为：" + body;
         }
     }
 
