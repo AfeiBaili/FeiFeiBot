@@ -1,5 +1,8 @@
 package online.afeibaili
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.events.NudgeEvent
@@ -19,8 +22,9 @@ import online.afeibaili.command.Command
 object Manager {
     var isBotAlive = true
     val immersiveMap = HashMap<Long, String>()
+    val messageScope = CoroutineScope(Dispatchers.Default)
 
-    suspend fun processMessage(event: MessageEvent, isFriend: Boolean = false) {
+    fun processMessage(event: MessageEvent, isFriend: Boolean = false) = messageScope.launch {
         val message = event.message.contentToString()
         val contact: Contact = event.subject
 
@@ -94,11 +98,8 @@ object Manager {
             }
         }
 
-        val message: String = MessageProcessor(event.message)
-            .start()
-            .filterAtMessage()
-            .addSenderName(senderName)
-            .endAndToString()
+        val message: String =
+            MessageProcessor(event.message).start().filterAtMessage().addSenderName(senderName).endAndToString()
 
         with(message) {
             try {
@@ -171,12 +172,8 @@ object Manager {
         message: MessageChain,
         senderName: String?,
     ) {
-        val message: String = MessageProcessor(message)
-            .start()
-            .filterAtMessage()
-            .addSenderName(senderName)
-            .end()
-            .contentToString()
+        val message: String =
+            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).end().contentToString()
         if (chatgpt.getStream()) chatgpt.sendAsStream(message, contact)
         else contact.sendMessage(chatgpt.send(message))
     }
@@ -187,12 +184,8 @@ object Manager {
         message: MessageChain,
         senderName: String?,
     ) {
-        val message: String = MessageProcessor(message)
-            .start()
-            .filterAtMessage()
-            .addSenderName(senderName)
-            .end()
-            .contentToString()
+        val message: String =
+            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).end().contentToString()
         contact.sendMessage(qwen.send(message))
     }
 
@@ -202,12 +195,8 @@ object Manager {
         message: MessageChain,
         senderName: String?,
     ) {
-        val message: String = MessageProcessor(message)
-            .start()
-            .filterAtMessage()
-            .addSenderName(senderName)
-            .end()
-            .contentToString()
+        val message: String =
+            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).end().contentToString()
         if (deepseek.getStream()) deepseek.sendAsStream(message, contact)
         else contact.sendMessage(deepseek.send(message))
     }

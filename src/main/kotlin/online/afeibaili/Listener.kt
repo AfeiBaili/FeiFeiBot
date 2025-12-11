@@ -1,9 +1,11 @@
 package online.afeibaili
 
+import kotlinx.coroutines.cancel
 import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.Listener
 import net.mamoe.mirai.event.events.*
+import online.afeibaili.Manager.messageScope
 import online.afeibaili.module.BotNameMemoryRemind
 import online.afeibaili.module.todo.TodoTimer
 
@@ -26,6 +28,7 @@ object Listener {
         botOnlineEvent.cancel()
         nudgeEvent.cancel()
         TodoTimer.cancelTimer()
+        messageScope.cancel()
         if (::botNameMemoryRemind.isInitialized) {
             botNameMemoryRemind.cancelTimer()
         }
