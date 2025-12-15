@@ -119,8 +119,8 @@ object MinecraftServerList {
                 appendLine("  ︱  版本号：${msljm.version.name}")
                 appendLine("  ︱--协议号：${msljm.version.protocol}")
                 appendLine("当前人数${if (isEmptyPlayer) "🔴" else "🟢"}：${msljm.players.online}")
-                append(playerToString(msljm.players.sample))
-                appendLine("最大人数：${msljm.players.max}")
+                appendLine(playerToString(msljm.players.sample))
+                append("最大人数：${msljm.players.max}")
             }
         }))
     }
