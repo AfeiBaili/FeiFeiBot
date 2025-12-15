@@ -1,4 +1,4 @@
-package online.afeibaili.module
+package online.afeibaili.module.minecraft
 
 import net.mamoe.mirai.message.data.ForwardMessageBuilder
 import net.mamoe.mirai.message.data.PlainText
