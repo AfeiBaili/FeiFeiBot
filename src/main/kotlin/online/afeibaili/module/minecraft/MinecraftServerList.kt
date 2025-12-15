@@ -40,22 +40,22 @@ object MinecraftServerList {
             val handshakeBytes = ByteArrayOutputStream()
             val handshake = DataOutputStream(handshakeBytes)
 
-            fun writeVarInt(value: Int) {
+            fun writeVarInt(dataOut: DataOutputStream, value: Int) {
                 var value = value
                 while ((value and -128) != 0) {
-                    handshake.writeByte(value and 127 or 128)
+                    dataOut.writeByte(value and 127 or 128)
                     value = value ushr 7
                 }
-                handshake.writeByte(value)
+                dataOut.writeByte(value)
             }
 
-            fun readVarInt(): Int {
+            fun readVarInt(dataIn: DataInputStream): Int {
                 var numRead = 0
                 var result = 0
                 var read: Byte
 
                 do {
-                    read = dataInputStream.readByte()
+                    read = dataIn.readByte()
                     val value = (read.toInt() and 127)
                     result = result or (value shl (7 * numRead))
                     numRead++
@@ -64,34 +64,34 @@ object MinecraftServerList {
                 return result
             }
 
-            fun writeString(str: String) {
+            fun writeString(dataOut: DataOutputStream, str: String) {
                 val bytes: ByteArray = str.toByteArray()
-                writeVarInt(bytes.size)
-                handshake.write(bytes)
+                writeVarInt(dataOut, bytes.size)
+                dataOut.write(bytes)
             }
 
-            fun readString(): String {
-                val length: Int = readVarInt()
+            fun readString(dataIn: DataInputStream): String {
+                val length: Int = readVarInt(dataIn)
                 val bytes = ByteArray(length)
-                dataInputStream.readFully(bytes)
+                dataIn.readFully(bytes)
                 return String(bytes)
             }
 
-            writeVarInt(0x00)
-            writeVarInt(754)
-            writeString(host)
+            writeVarInt(handshake, 0x00)
+            writeVarInt(handshake, 754)
+            writeString(handshake, host)
             handshake.writeShort(port)
-            writeVarInt(1)
+            writeVarInt(handshake, 1)
 
-            writeVarInt(handshakeBytes.size())
+            writeVarInt(dataOutputStream, handshakeBytes.size())
             dataOutputStream.write(handshakeBytes.toByteArray())
 
             dataOutputStream.write(0x01)
             dataOutputStream.write(0x00)
 
-            readVarInt()
-            readVarInt()
-            val json = readString()
+            readVarInt(dataInputStream)
+            readVarInt(dataInputStream)
+            val json = readString(dataInputStream)
 
             socket.close()
 
