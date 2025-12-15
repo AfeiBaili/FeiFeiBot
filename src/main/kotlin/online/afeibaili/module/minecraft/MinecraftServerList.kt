@@ -104,25 +104,24 @@ object MinecraftServerList {
             fun playerToString(players: List<MinecraftServerListJsonMapper.Players.Player>): String {
                 val builder = StringBuilder()
                 players.dropLast(1).forEach { player ->
-                    builder.appendLine("|  玩家名字：${player.name}")
+                    builder.appendLine("  ︱  玩家名字：${player.name}")
                 }
 
                 val lastPlayer = players.last()
-                builder.append("|--玩家名字：${lastPlayer.name}")
+                builder.append("  ︱--玩家名字：${lastPlayer.name}")
                 return builder.toString()
             }
 
-            """
-                服务器地址💻：${"$host:$port"}
-                服务器信息：
-                  |  描述信息：${msljm.description.text}
-                  |  版本号：${msljm.version.name}
-                  |--协议号：${msljm.version.protocol}
-                
-                最大人数：${msljm.players.max}
-                当前人数${if (isEmptyPlayer) "🔴" else "🟢"}：${msljm.players.online}
-                ${playerToString(msljm.players.sample)}
-            """.trimIndent()
+            buildString {
+                appendLine("服务器地址💻：$host:$port")
+                appendLine("服务器信息：")
+                appendLine("  ︱  描述信息：${msljm.description.text}")
+                appendLine("  ︱  版本号：${msljm.version.name}")
+                appendLine("  ︱--协议号：${msljm.version.protocol}")
+                appendLine("当前人数${if (isEmptyPlayer) "🔴" else "🟢"}：${msljm.players.online}")
+                append(playerToString(msljm.players.sample))
+                appendLine("最大人数：${msljm.players.max}")
+            }
         }))
     }
 }
