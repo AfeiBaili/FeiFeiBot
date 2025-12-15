@@ -104,28 +104,18 @@ object MinecraftServerList {
             fun playerToString(players: List<MinecraftServerListJsonMapper.Players.Player>): String {
                 val builder = StringBuilder()
                 players.dropLast(1).forEach { player ->
-                    builder.append(
-                        """
-                              |  玩家名字：${player.name}
-                              |    |--uuid：${player.id + "\n"}
-                        """.trimIndent()
-                    )
+                    builder.appendLine("|  玩家名字：${player.name}")
                 }
 
                 val lastPlayer = players.last()
-                builder.append(
-                    """
-                          |  玩家名字：${lastPlayer.name}
-                          |----|--uuid：${lastPlayer.id}
-                    """.trimIndent()
-                )
+                builder.append("|--玩家名字：${lastPlayer.name}")
                 return builder.toString()
             }
 
             """
                 服务器地址💻：${"$host:$port"}
                 服务器信息：
-                  |  描述信息：${msljm.description}
+                  |  描述信息：${msljm.description.text}
                   |  版本号：${msljm.version.name}
                   |--协议号：${msljm.version.protocol}
                 
