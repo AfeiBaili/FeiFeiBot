@@ -1,5 +1,6 @@
 package online.afeibaili.module.minecraft
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import online.afeibaili.command.Command
 import online.afeibaili.command.Commands
@@ -136,6 +137,7 @@ object MinecraftServerList {
     }
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 class MinecraftServerListJsonMapper() {
     var favicon: String = ""
     var description: Description = Description()
