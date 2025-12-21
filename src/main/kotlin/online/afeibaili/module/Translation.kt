@@ -19,14 +19,14 @@ object Translation {
             val letterCount = counts[0]
             val nonLetterCount = counts[1]
 
-            if (letterCount > nonLetterCount) return@Command Translation.parseResult(
-                Translation.translate(
-                    q,
-                    "en",
-                    "zh-CHS"
-                )
-            )
-            else return@Command Translation.parseResult(Translation.translate(q, "zh-CHS", "en"))
+            runCatching {
+                if (letterCount > nonLetterCount)
+                    return@Command Translation.parseResult(Translation.translate(q, "en", "zh-CHS"))
+                else
+                    return@Command Translation.parseResult(Translation.translate(q, "zh-CHS", "en"))
+            }
+
+            "翻译服务器故障，请重试"
         }))
     }
 }

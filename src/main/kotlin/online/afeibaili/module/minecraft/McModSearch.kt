@@ -32,9 +32,11 @@ object McModSearch {
                     val message = StringBuilder()
                     val aTag = element!!.getElementsByClass("head")[0].lastElementChild()
                     if (aTag != null) {
+                        val string: String = element.getElementsByClass("body").text()
+                        val take: String = string.take((string.length * 0.7).toInt())
                         message.append("📌").append(aTag.text()).append('\n')
                             .append("🔗").append(aTag.attr("href")).append('\n')
-                            .append("📜").append(element.getElementsByClass("body").text())
+                            .append("📜").append(take).append("...")
                     }
                     forwardMessageBuilder.add(event.subject.bot.id, "查询结果", PlainText(message.toString()))
                 })

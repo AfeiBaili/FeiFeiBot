@@ -7,6 +7,7 @@ import online.afeibaili.command.Commands
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.net.InetSocketAddress
 import java.net.Socket
 
 
@@ -34,94 +35,110 @@ object MinecraftServerList {
                 return@Command "端口错误"
             }
 
-            val socket = Socket(host, port)
-            val dataOutputStream = DataOutputStream(socket.getOutputStream())
-            val dataInputStream = DataInputStream(socket.getInputStream())
+            runCatching {
+                val socket = Socket()
+                socket.soTimeout = 5000
+                socket.connect(InetSocketAddress(host, port), 5000)
+                socket.soTimeout = 5000
+                val dataOutputStream = DataOutputStream(socket.getOutputStream())
+                val dataInputStream = DataInputStream(socket.getInputStream())
 
-            val handshakeBytes = ByteArrayOutputStream()
-            val handshake = DataOutputStream(handshakeBytes)
+                val handshakeBytes = ByteArrayOutputStream()
+                val handshake = DataOutputStream(handshakeBytes)
 
-            fun writeVarInt(dataOut: DataOutputStream, value: Int) {
-                var value = value
-                while ((value and -128) != 0) {
-                    dataOut.writeByte(value and 127 or 128)
-                    value = value ushr 7
-                }
-                dataOut.writeByte(value)
-            }
-
-            fun readVarInt(dataIn: DataInputStream): Int {
-                var numRead = 0
-                var result = 0
-                var read: Byte
-
-                do {
-                    read = dataIn.readByte()
-                    val value = (read.toInt() and 127)
-                    result = result or (value shl (7 * numRead))
-                    numRead++
-                } while ((read.toInt() and 128) != 0)
-
-                return result
-            }
-
-            fun writeString(dataOut: DataOutputStream, str: String) {
-                val bytes: ByteArray = str.toByteArray()
-                writeVarInt(dataOut, bytes.size)
-                dataOut.write(bytes)
-            }
-
-            fun readString(dataIn: DataInputStream): String {
-                val length: Int = readVarInt(dataIn)
-                val bytes = ByteArray(length)
-                dataIn.readFully(bytes)
-                return String(bytes)
-            }
-
-            writeVarInt(handshake, 0x00)
-            writeVarInt(handshake, 754)
-            writeString(handshake, host)
-            handshake.writeShort(port)
-            writeVarInt(handshake, 1)
-
-            writeVarInt(dataOutputStream, handshakeBytes.size())
-            dataOutputStream.write(handshakeBytes.toByteArray())
-
-            dataOutputStream.write(0x01)
-            dataOutputStream.write(0x00)
-
-            readVarInt(dataInputStream)
-            readVarInt(dataInputStream)
-            val json = readString(dataInputStream)
-
-            socket.close()
-
-            val msljm = JSON.readValue(json, MinecraftServerListJsonMapper::class.java)
-
-            var isEmptyPlayer = true
-            if (msljm.players.online != 0) isEmptyPlayer = false
-
-            fun playerToString(players: List<MinecraftServerListJsonMapper.Players.Player>): String {
-                val builder = StringBuilder()
-                players.dropLast(1).forEach { player ->
-                    builder.appendLine("  ︱  玩家名字：${player.name}")
+                fun writeVarInt(dataOut: DataOutputStream, value: Int) {
+                    var value = value
+                    while ((value and -128) != 0) {
+                        dataOut.writeByte(value and 127 or 128)
+                        value = value ushr 7
+                    }
+                    dataOut.writeByte(value)
                 }
 
-                val lastPlayer = players.last()
-                builder.append("  ︱--玩家名字：${lastPlayer.name}")
-                return builder.toString()
-            }
+                fun readVarInt(dataIn: DataInputStream): Int {
+                    var numRead = 0
+                    var result = 0
+                    var read: Byte
 
-            buildString {
-                appendLine("服务器地址${if (isEmptyPlayer) "🔴" else "🟢"}：$host:$port")
-                appendLine("服务器信息：")
-                appendLine("  ︱  描述信息：${msljm.description.text}")
-                appendLine("  ︱  版本号：${msljm.version.name}")
-                appendLine("  ︱--协议号：${msljm.version.protocol}")
-                appendLine("当前人数：${msljm.players.online}")
-                appendLine(playerToString(msljm.players.sample))
-                append("最大人数：${msljm.players.max}")
+                    do {
+                        read = dataIn.readByte()
+                        val value = (read.toInt() and 127)
+                        result = result or (value shl (7 * numRead))
+                        numRead++
+                    } while ((read.toInt() and 128) != 0)
+
+                    return result
+                }
+
+                fun writeString(dataOut: DataOutputStream, str: String) {
+                    val bytes: ByteArray = str.toByteArray()
+                    writeVarInt(dataOut, bytes.size)
+                    dataOut.write(bytes)
+                }
+
+                fun readString(dataIn: DataInputStream): String {
+                    val length: Int = readVarInt(dataIn)
+                    val bytes = ByteArray(length)
+                    dataIn.readFully(bytes)
+                    return String(bytes)
+                }
+
+                writeVarInt(handshake, 0x00)
+                writeVarInt(handshake, 754)
+                writeString(handshake, host)
+                handshake.writeShort(port)
+                writeVarInt(handshake, 1)
+
+                writeVarInt(dataOutputStream, handshakeBytes.size())
+                dataOutputStream.write(handshakeBytes.toByteArray())
+
+                dataOutputStream.write(0x01)
+                dataOutputStream.write(0x00)
+
+                readVarInt(dataInputStream)
+                readVarInt(dataInputStream)
+                val json = readString(dataInputStream)
+
+                socket.close()
+
+                val msljm = JSON.readValue(json, MinecraftServerListJsonMapper::class.java)
+
+                fun playerToString(players: List<MinecraftServerListJsonMapper.Players.Player>): String {
+                    val builder = StringBuilder()
+                    players.dropLast(1).forEach { player ->
+                        builder.appendLine("  ︱  玩家名字：${player.name}")
+                    }
+
+                    val lastPlayer = players.last()
+                    builder.append("  ︱--玩家名字：${lastPlayer.name}")
+                    return builder.toString()
+                }
+
+                if (msljm.players.online == 0) {
+                    return@Command buildString {
+                        appendLine("服务器地址🔴：$host:$port")
+                        appendLine("服务器信息：")
+                        appendLine("  ︱  描述信息：${msljm.description.text}")
+                        appendLine("  ︱  版本号：${msljm.version.name}")
+                        appendLine("  ︱--协议号：${msljm.version.protocol}")
+                        appendLine("当前没有人在线")
+                    }
+                }
+
+                return@Command buildString {
+                    appendLine("服务器地址🟢：$host:$port")
+                    appendLine("服务器信息：")
+                    appendLine("  ︱  描述信息：${msljm.description.text}")
+                    appendLine("  ︱  版本号：${msljm.version.name}")
+                    appendLine("  ︱--协议号：${msljm.version.protocol}")
+                    appendLine("当前人数：${msljm.players.online}")
+                    appendLine(playerToString(msljm.players.sample))
+                    append("最大人数：${msljm.players.max}")
+                }
+            }.onFailure { exception ->
+                return@Command "网络流错误：${exception.message}"
             }
+            "null"
         }))
     }
 }

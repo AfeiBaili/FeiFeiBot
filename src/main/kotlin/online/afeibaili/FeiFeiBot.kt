@@ -16,7 +16,7 @@ object FeiFeiBot : KotlinPlugin(
     JvmPluginDescription(
         id = "online.afeibaili.feifeibot",
         name = "FeiFeiBot",
-        version = "3.14.1",
+        version = "3.14.2",
     ) {
         author("AfeiBaili")
     }) {

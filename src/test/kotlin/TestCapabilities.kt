@@ -20,6 +20,6 @@ class TestCapabilities {
 
     @Test
     fun test1() {
-        println(Translation.parseResult(Translation.translate("啊", "zh-CHS", "en")))
+        println(Translation.parseResult(Translation.translate("thunda", "en", "zh-CHS")))
     }
 }
