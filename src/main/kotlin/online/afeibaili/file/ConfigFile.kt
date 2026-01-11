@@ -56,7 +56,8 @@ class ConfigFile(val path: String) {
                               "setting": {
                                 "currentBot": "deepseek",
                                 "startMessage": "加载群后发送的提示消息",
-                                "commandPrefix": "/"
+                                "commandPrefix": "/",
+                                "maxChatLength": 100,
                               },
                               "chatgpt": {
                                 "key": "chatgpt key",

@@ -4,6 +4,7 @@ public class Setting {
     String currentBot;
     String startMessage;
     String commandPrefix;
+    Integer maxChatLength;
 
     public String getCommandPrefix() {
         return commandPrefix;
@@ -27,5 +28,13 @@ public class Setting {
 
     public void setCurrentBot(String currentBot) {
         this.currentBot = currentBot;
+    }
+
+    public Integer getMaxChatLength() {
+        return maxChatLength;
+    }
+
+    public void setMaxChatLength(Integer maxChatLength) {
+        this.maxChatLength = maxChatLength;
     }
 }

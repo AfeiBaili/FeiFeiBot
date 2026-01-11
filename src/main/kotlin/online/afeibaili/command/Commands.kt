@@ -303,6 +303,21 @@ object Commands {
             config.setting.commandPrefix = param[1]
             "设置${param[1]}前缀成功"
         }, level = 3))
+        register("设置聊天长度", Command({ param, e ->
+            if (param.size != 2) return@Command "设置聊天长度 <长度>"
+            val result: Result<Int> = runCatching {
+                val length: Int = param[1].toInt()
+                length
+            }.onFailure { return@Command "${param[1]}不是数字" }
+            val length: Int = result.getOrThrow()
+            config.setting.maxChatLength = length
+
+            configObject.store()
+            "设置聊天长度成功"
+        }, level = 1))
+        register("查看聊天长度", Command({ p, e ->
+            "当前长度为：${config.setting.maxChatLength}"
+        }))
         register("重载配置文件", Command({ p, e ->
             FeiFeiBot.reloadConfigFile()
             "重载配置文件成功"

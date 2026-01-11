@@ -1,5 +1,6 @@
 package online.afeibaili.bot
 
+import online.afeibaili.config
 import java.util.*
 
 
@@ -10,7 +11,7 @@ import java.util.*
  *@version 2025/11/26 12:49
  */
 
-class FixedSizeQueue<E>(val maxSize: Int = 50, val pollIndex: Int = 0) : LinkedList<E>() {
+class FixedSizeQueue<E>(val maxSize: Int = config.setting.maxChatLength, val pollIndex: Int = 0) : LinkedList<E>() {
     override fun add(e: E): Boolean {
         if (this.size >= maxSize) {
             this.removeAt(pollIndex)
