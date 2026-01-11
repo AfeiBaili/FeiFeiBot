@@ -11,9 +11,9 @@ import java.util.*
  *@version 2025/11/26 12:49
  */
 
-class FixedSizeQueue<E>(val maxSize: Int = config.setting.maxChatLength, val pollIndex: Int = 0) : LinkedList<E>() {
+class FixedSizeQueue<E>(val pollIndex: Int = 1) : LinkedList<E>() {
     override fun add(e: E): Boolean {
-        if (this.size >= maxSize) {
+        if (this.size >= config.setting.maxChatLength) {
             this.removeAt(pollIndex)
         }
         return super.add(e)
