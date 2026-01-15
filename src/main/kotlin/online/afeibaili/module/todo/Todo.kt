@@ -10,6 +10,7 @@ data class Todo(
     val message: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val dateTime: LocalDateTime?,
+    val contact: Long,
 ) {
 
     override fun toString(): String {

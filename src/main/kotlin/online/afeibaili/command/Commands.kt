@@ -567,7 +567,7 @@ object Commands {
                 appendLine("时间：${LocalDateTimeSerializer.formatter.format(todo.dateTime)}")
                 appendLine()
                 appendLine("事件：${todo.message}")
-            }
+            }.removeSuffix("\n")
         },
         Command("删除任务", "delete", 0, ParamType.STRING) { p, _ ->
             val uuid: String = runCatching { p[0] }.getOrElse { return@Command "请传入任务id" }
@@ -580,7 +580,7 @@ object Commands {
                 TodoManager.map.forEach { (k, v) ->
                     append(v.toString())
                 }
-            }.removeSuffix("\n")
+            }.removeSuffix("\n\n")
             if (text.isEmpty()) return@Command "当前列表为空"
             text
         },

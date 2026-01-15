@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.MessageChainBuilder
+import online.afeibaili.bot
 import online.afeibaili.logger
 import java.io.File
 import java.time.LocalDateTime
@@ -38,40 +39,48 @@ object TodoManager {
                 return@forEach
             }
             if (todo.dateTime == null) map.put(todo.uuid, todo)
-            else if (todo.dateTime.isAfter(LocalDateTime.now())) map.put(todo.uuid, todo)
-            else deleteFile(todo.uuid)
+            else if (todo.dateTime.isAfter(LocalDateTime.now())) {
+                startTask(todo)
+                map.put(todo.uuid, todo)
+            } else deleteFile(todo.uuid)
         }
     }
 
     fun createTodo(message: String, event: MessageEvent) {
         val uuid: String = UUID.randomUUID().toString().replace("-", "")
-        val todo = Todo(uuid, event.sender.id, message, null)
+        val todo = Todo(uuid, event.sender.id, message, null, event.subject.id)
         saveFile(todo)
         map.put(todo.uuid, todo)
     }
 
-    fun createTask(dateTime: LocalDateTime, message: String, event: MessageEvent): Todo {
-        val date: Date = Date.from(dateTime.toInstant(ZoneOffset.ofHours(8)))
-        val uuid = UUID.randomUUID().toString().replace("-", "")
-        val todo = Todo(uuid, event.sender.id, message, dateTime)
-        saveFile(todo)
-
+    fun startTask(todo: Todo) {
+        if (todo.dateTime == null) return
+        val date: Date = Date.from(todo.dateTime.toInstant(ZoneOffset.ofHours(8)))
         todoTimer.schedule(date) {
             val messages = MessageChainBuilder()
                 .append("任务时间已到")
-                .append(At(event.sender.id))
+                .append(At(todo.at))
                 .append("\n")
                 .append("任务ID：${todo.uuid}")
                 .append("\n")
                 .append("任务内容：")
-                .append(message)
+                .append(todo.message)
                 .build()
 
             CoroutineScope(Dispatchers.Default).launch {
-                event.subject.sendMessage(messages)
+                bot.getGroup(todo.contact)?.sendMessage(messages)
+                bot.getFriend(todo.contact)?.sendMessage(messages)
             }
-            map.remove(uuid)
+            map.remove(todo.uuid)
         }
+    }
+
+    fun createTask(dateTime: LocalDateTime, message: String, event: MessageEvent): Todo {
+        val uuid = UUID.randomUUID().toString().replace("-", "")
+        val todo = Todo(uuid, event.sender.id, message, dateTime, event.subject.id)
+        saveFile(todo)
+        startTask(todo)
+        map.put(todo.uuid, todo)
         return todo
     }
 
