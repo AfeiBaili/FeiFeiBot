@@ -40,12 +40,11 @@ class ConfigFile(val path: String) {
                                 975709430
                               ],
                               "bot": {
-                                "qq": 2664306741,
                                 "name": "机器人名字"
                               },
                               "module": {
                                 "openMemoryName": true,
-                                "mcModSearch": true,
+                                "enableMinecraft": true,
                                 "translation": true,
                                 "echoCave": true,
                                 "passwordBreakGame": {
@@ -58,6 +57,7 @@ class ConfigFile(val path: String) {
                                 "startMessage": "加载群后发送的提示消息",
                                 "commandPrefix": "/",
                                 "maxChatLength": 100,
+                                "printNotFoundCommand": true
                               },
                               "chatgpt": {
                                 "key": "chatgpt key",

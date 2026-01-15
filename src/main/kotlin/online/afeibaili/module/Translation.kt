@@ -1,19 +1,13 @@
 package online.afeibaili.module
 
-import online.afeibaili.command.Command
-import online.afeibaili.command.Commands
+import online.afeibaili.command.CommandRegistry
+import online.afeibaili.command.ParamType
 import online.afeibaili.translation.Translation
 
 object Translation {
     fun load() {
-        Commands.register("翻译", Command({ param, event ->
-            if (param.size == 1) return@Command "请填写要翻译的内容"
-            val sb = StringBuilder()
-            for (i in 1 until param.size) {
-                sb.append(param[i]).append(" ")
-            }
-            sb.deleteCharAt(sb.length - 1)
-            val q = sb.toString()
+        CommandRegistry.register("翻译", "tran", 0, ParamType.STRING) { p, _ ->
+            val q: String = p.joinToString(" ").also { if (it.isEmpty()) return@register "参数不能为空" }
 
             val counts = Translation.countLettersVsNonLetters(q)
             val letterCount = counts[0]
@@ -21,12 +15,12 @@ object Translation {
 
             runCatching {
                 if (letterCount > nonLetterCount)
-                    return@Command Translation.parseResult(Translation.translate(q, "en", "zh-CHS"))
+                    return@register Translation.parseResult(Translation.translate(q, "en", "zh-CHS"))
                 else
-                    return@Command Translation.parseResult(Translation.translate(q, "zh-CHS", "en"))
+                    return@register Translation.parseResult(Translation.translate(q, "zh-CHS", "en"))
             }
 
             "翻译服务器故障，请重试"
-        }))
+        }
     }
 }

@@ -2,11 +2,11 @@ package online.afeibaili.module.echo.cave
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import online.afeibaili.command.Command
-import online.afeibaili.command.Commands
+import online.afeibaili.command.CommandRegistry
+import online.afeibaili.command.ParamType
 import online.afeibaili.file.register.FileLoader
 import online.afeibaili.file.register.FileWriter
-import java.util.Random
-import java.util.UUID
+import java.util.*
 
 /**
  * 回声洞逻辑
@@ -29,28 +29,19 @@ object EchoCave {
                 jsonMapper.readValue(text, Data::class.java)
             }.toMutableList()
 
-        Commands.register("回声洞", Command({ param, event ->
-            if (dataList.isEmpty()) return@Command "回声洞暂时为空"
+        CommandRegistry.registerWithChild("回声洞", "echo-cave", 0, ParamType.NOTHING, { _, _ ->
+            if (dataList.isEmpty()) return@registerWithChild "回声洞暂时为空"
             val randomData: Data = dataList[random.nextInt(0, dataList.size)]
             val builder: StringBuilder = StringBuilder()
             builder.append(randomData.message).append("\n——").append(randomData.nick)
             if (showQQNumber) builder.append(" ").append(randomData.id)
-            return@Command builder.toString()
-        }))
+            return@registerWithChild builder.toString()
+        }, Command("录入", "write-in", 0, ParamType.STRING) { p, e ->
+            val text: String = p.joinToString(" ").also { if (it.isEmpty()) return@Command "参数不可为空" }
+            val id: Long = e.sender.id
+            val nick: String = e.sender.nick
 
-        Commands.register("回声录入", Command({ param, event ->
-            if (param.size == 1) return@Command "回声录入 <消息>"
-            if (param[1].isEmpty()) return@Command "请输入消息"
-
-            val builder: StringBuilder = StringBuilder()
-            param.drop(1).forEach {
-                builder.append(it).append(" ")
-            }
-            val message = builder.removeSuffix(" ").toString()
-            val id: Long = event.sender.id
-            val nick: String = event.sender.nick
-
-            val data = Data(message, id, nick)
+            val data = Data(text, id, nick)
             dataList.add(data)
             FileWriter.writeAndCreateFile(
                 directory,
@@ -59,24 +50,15 @@ object EchoCave {
             )
 
             "已录入此消息"
-        }))
-
-        Commands.register("显示回声ID", Command({ param, event ->
+        }, Command("显示id", "show-id") { _, _ ->
             if (showQQNumber) return@Command "当前已是显示状态"
             showQQNumber = true
             "接下里的回声将会显示QQ号"
-        }, level = 1))
-
-        Commands.register("隐藏回声ID", Command({ param, event ->
+        }, Command("隐藏id", "hide-id") { _, _ ->
             if (!showQQNumber) return@Command "当前已是隐藏状态"
             showQQNumber = false
             "接下里的回声将会隐藏QQ号"
-        }, level = 1))
-
-        Commands.register("当前回声数", Command({ param, event ->
-            "当前回声数为${dataList.size}句"
-        }))
+        }, Command("当前数量", "current-number") { _, _ -> "当前回声数为${dataList.size}句" }
+        )
     }
-
-
 }

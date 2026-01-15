@@ -1,10 +1,12 @@
 package online.afeibaili.command
 
 import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.contact.Contact.Companion.sendImage
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.ForwardMessageBuilder
 import net.mamoe.mirai.message.data.PlainText
+import net.mamoe.mirai.message.data.SingleMessage
 import online.afeibaili.bot.AbstractBot
 import online.afeibaili.bot.httpClient
 import online.afeibaili.bot.json.ChatGPTBalance
@@ -12,7 +14,9 @@ import online.afeibaili.bot.json.DeepseekBalance
 import online.afeibaili.bot.jsonMapper
 import online.afeibaili.bot.model.json.ModelList
 import online.afeibaili.config
+import online.afeibaili.logger
 import java.net.URI
+import java.net.URL
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Duration
@@ -96,4 +100,19 @@ fun getChatgptBalance(bot: AbstractBot): String {
     }.fold(
         onSuccess = { return it },
         onFailure = { return "请求被拦截无法访问服务器，请自行访问：https://api.chatanywhere.org/#/" })
+}
+
+suspend fun downloadAndSendImage(imageUrl: String, event: MessageEvent) {
+    try {
+        URL(imageUrl).openConnection().inputStream.use {
+            event.subject.sendImage(it)
+        }
+    } catch (e: Exception) {
+        logger("无法下载图片：${e.message}\n${imageUrl}")
+    }
+}
+
+fun getNoAt(no: Int, event: MessageEvent): At {
+    val messages: List<SingleMessage> = event.message.filter { it is At }
+    return messages[no - 1] as At
 }

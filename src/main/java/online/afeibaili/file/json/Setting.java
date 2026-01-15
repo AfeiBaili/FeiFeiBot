@@ -5,6 +5,15 @@ public class Setting {
     String startMessage;
     String commandPrefix;
     Integer maxChatLength;
+    Boolean printNotFoundCommand;
+
+    public Boolean getPrintNotFoundCommand() {
+        return printNotFoundCommand;
+    }
+
+    public void setPrintNotFoundCommand(Boolean printNotFoundCommand) {
+        this.printNotFoundCommand = printNotFoundCommand;
+    }
 
     public String getCommandPrefix() {
         return commandPrefix;

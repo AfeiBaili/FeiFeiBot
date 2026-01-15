@@ -2,13 +2,21 @@ package online.afeibaili.file.json;
 
 public class Module {
     boolean openMemoryName;
-    boolean mcModSearch;
+    boolean enableMinecraft;
     boolean translation;
     PasswordBreak passwordBreakGame;
     boolean echoCave;
 
     public boolean isEchoCave() {
         return echoCave;
+    }
+
+    public boolean isEnableMinecraft() {
+        return enableMinecraft;
+    }
+
+    public void setEnableMinecraft(boolean enableMinecraft) {
+        this.enableMinecraft = enableMinecraft;
     }
 
     public void setEchoCave(boolean echoCave) {
@@ -21,14 +29,6 @@ public class Module {
 
     public void setPasswordBreakGame(PasswordBreak passwordBreakGame) {
         this.passwordBreakGame = passwordBreakGame;
-    }
-
-    public boolean isMcModSearch() {
-        return mcModSearch;
-    }
-
-    public void setMcModSearch(boolean mcModSearch) {
-        this.mcModSearch = mcModSearch;
     }
 
     public boolean isTranslation() {

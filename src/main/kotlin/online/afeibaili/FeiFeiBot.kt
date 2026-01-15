@@ -7,8 +7,7 @@ import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
 import online.afeibaili.module.Translation
 import online.afeibaili.module.echo.cave.EchoCave
-import online.afeibaili.module.minecraft.McModSearch
-import online.afeibaili.module.minecraft.MinecraftServerList
+import online.afeibaili.module.minecraft.Minecraft
 import online.afeibaili.module.music.SearchMusicId
 import online.afeibaili.module.password.game.PasswordBreak
 
@@ -16,7 +15,7 @@ object FeiFeiBot : KotlinPlugin(
     JvmPluginDescription(
         id = "online.afeibaili.feifeibot",
         name = "FeiFeiBot",
-        version = "3.14.3",
+        version = "3.15.0",
     ) {
         author("AfeiBaili")
     }) {
@@ -31,18 +30,16 @@ object FeiFeiBot : KotlinPlugin(
     fun loadingModule() {
         loadFile()
         loadCommand()
-        loadMcModSearch()
+        loadMinecraft()
         loadTranslation()
         loadPasswordBreakGame()
         loadEchoCave()
         Listener.loadingListener()
         loadSearchMusicId()
-        loadMinecraftServerList()
     }
 
     fun reloadConfigFile() {
         loadFile()
-        loadCommand()
     }
 
     fun loadFile() {
@@ -53,12 +50,11 @@ object FeiFeiBot : KotlinPlugin(
     }
 
     fun loadCommand() {
-        Commands.loadCommands()
-        commandsMap = Commands.commandsMap
+        Commands.load()
     }
 
-    fun loadMcModSearch() {
-        if (config.module.isMcModSearch) McModSearch.load()
+    fun loadMinecraft() {
+        if (config.module.isEnableMinecraft) Minecraft.load()
     }
 
     fun loadTranslation() {
@@ -75,9 +71,5 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadSearchMusicId() {
         SearchMusicId.load()
-    }
-
-    fun loadMinecraftServerList() {
-        MinecraftServerList.load()
     }
 }

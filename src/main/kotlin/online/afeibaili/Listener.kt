@@ -7,7 +7,7 @@ import net.mamoe.mirai.event.Listener
 import net.mamoe.mirai.event.events.*
 import online.afeibaili.Manager.messageScope
 import online.afeibaili.module.BotNameMemoryRemind
-import online.afeibaili.module.todo.TodoTimer
+import online.afeibaili.module.todo.TodoManager
 
 object Listener {
     lateinit var groupMessageEvent: Listener<GroupMessageEvent>
@@ -27,7 +27,7 @@ object Listener {
         friendMessageEvent.cancel()
         botOnlineEvent.cancel()
         nudgeEvent.cancel()
-        TodoTimer.cancelTimer()
+        TodoManager.cancelTimer()
         messageScope.cancel()
         if (::botNameMemoryRemind.isInitialized) {
             botNameMemoryRemind.cancelTimer()
@@ -71,8 +71,15 @@ object Listener {
         }
     }
 
-    private fun group(event: Event): Boolean {
+    private suspend fun group(event: Event): Boolean {
         if (event !is GroupMessageEvent) return false
+        else {
+            val message: String = event.message.contentToString()
+            if (event.sender.id == config.master && message.startsWith("@" + config.setting.commandPrefix)) {
+                val string: String? = Manager.commandParsing(event, true)
+                if (string != null) event.subject.sendMessage(string)
+            }
+        }
         return config.groups.contains(event.group.id)
     }
 

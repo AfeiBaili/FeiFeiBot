@@ -1,8 +1,7 @@
 import net.mamoe.mirai.console.gradle.BuildMiraiPluginV2
 
 plugins {
-    val kotlinVersion = "1.8.10"
-
+    val kotlinVersion = "1.9.0"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
     id("net.mamoe.mirai-console") version "2.16.0"
@@ -20,7 +19,7 @@ dependencies {
 }
 
 group = "online.afeibaili"
-version = "3.14.3"
+version = "3.15.0"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")

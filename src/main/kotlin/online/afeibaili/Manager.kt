@@ -18,6 +18,7 @@ import online.afeibaili.bot.Robots.deepseek
 import online.afeibaili.bot.Robots.kimi
 import online.afeibaili.bot.Robots.qwen
 import online.afeibaili.command.Command
+import online.afeibaili.command.CommandRegistry
 
 object Manager {
     var isBotAlive = true
@@ -28,25 +29,47 @@ object Manager {
         val message = event.message.contentToString()
         val contact: Contact = event.subject
 
-        if (message.startsWith(config.setting.commandPrefix)) contact.sendMessage(commandParsing(event))
-        else if (isBotAlive) botProcess(event, isFriend)
+        if (message.startsWith(config.setting.commandPrefix)) {
+            commandParsing(event)?.let {
+                contact.sendMessage(it)
+            }
+        } else if (isBotAlive) botProcess(event, isFriend)
     }
 
-    private suspend fun commandParsing(event: MessageEvent): String {
-        val message = event.message.contentToString().removePrefix(config.setting.commandPrefix)
-        val param: Array<String> = message.split("\\s+".toRegex()).toTypedArray()
+    internal suspend fun commandParsing(event: MessageEvent, isFilter: Boolean = false): String? {
+        val message = if (isFilter) event.message.contentToString().removePrefix("@" + config.setting.commandPrefix)
+        else event.message.contentToString().removePrefix(config.setting.commandPrefix)
+        val split: List<String> = message.split("\\s+".toRegex())
         val level: Int? = levelMap[event.sender.id]
-        val command: Command? = commandsMap[param.first()]
-        if (command == null) return "找不到命令~"
-        return if (command.level <= (level ?: 0)) {
-            command.callback(param, event)
-        } else "您的等级是${level ?: "0"}，但是此指令等级为${command.level}级！"
+        val command: Command? = CommandRegistry.commandCollection[split[0]]
+
+        var params: Array<String> = split.filter { it.isNotEmpty() }.toTypedArray()
+        suspend fun processCommand(command: Command?): String? {
+            params = params.drop(1).toTypedArray()
+            if (command == null) {
+                if (config.setting.printNotFoundCommand) return "找不到命令~"
+                return null
+            }
+
+            return if (command.childCommand == null) {
+                if (command.level <= (level ?: 0)) command.action(command, params, event)
+                else "您的等级是${level ?: "0"}，但是此指令等级为${command.level}级！"
+            } else {
+                val commandName: String = params.getOrElse(0) {
+                    return if (command.level <= (level ?: 0)) command.action(command, params, event)
+                    else "您的等级是${level ?: "0"}，但是此指令等级为${command.level}级！"
+                }
+                processCommand(command.childCommand[commandName])
+            }
+        }
+
+        return processCommand(command)
     }
 
     suspend fun processNudge(event: NudgeEvent) {
         val contact: Contact = event.subject
         val message: MessageChain = PlainText(event.from.nick + "戳了戳你的脸").toMessageChain()
-        if (event.target.id != config.bot.qq) return
+        if (event.target.id != bot.id) return
         when (currentBot) {
             is Deepseek -> {
                 val deepseek: Deepseek = currentBot as Deepseek
@@ -73,7 +96,7 @@ object Manager {
         }
 
         for (singleMessage in singleMessages) {
-            if ((singleMessage is At && singleMessage.target == config.bot.qq) || isFriend) {
+            if ((singleMessage is At && singleMessage.target == bot.id) || isFriend) {
                 when (currentBot) {
                     is Deepseek -> {
                         val deepseek: Deepseek = currentBot as Deepseek

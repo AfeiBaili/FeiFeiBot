@@ -54,6 +54,7 @@ class Qwen : AbstractBot(), Customizable {
     }
 
     override fun customize(setting: String): Customizable {
-        return Qwen()
+        requestBody.messages.add(Message("system", setting))
+        return this
     }
 }

@@ -2,7 +2,6 @@ package online.afeibaili
 
 import net.mamoe.mirai.Bot
 import online.afeibaili.LoggerLevel.*
-import online.afeibaili.command.Command
 import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
 import online.afeibaili.file.json.JsonConfigMap
@@ -12,7 +11,6 @@ private const val isLoggerPrint = false
 lateinit var config: JsonConfigMap
 lateinit var configObject: ConfigFile
 lateinit var levelMap: MutableMap<Long, Int>
-lateinit var commandsMap: MutableMap<String, Command>
 lateinit var levelObject: LevelMapFile
 lateinit var bot: Bot
 
