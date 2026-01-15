@@ -577,8 +577,8 @@ object Commands {
         },
         Command("列表", "list", 0, ParamType.NOTHING) { _, _ ->
             buildString {
-                TodoManager.map.forEach {
-                    append(it.toString())
+                TodoManager.map.forEach { (k, v) ->
+                    append(v.toString())
                 }
             }.removeSuffix("\n")
         },
