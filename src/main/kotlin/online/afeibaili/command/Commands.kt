@@ -576,11 +576,13 @@ object Commands {
             else "已删除任务：\n$todo"
         },
         Command("列表", "list", 0, ParamType.NOTHING) { _, _ ->
-            buildString {
+            val text: String = buildString {
                 TodoManager.map.forEach { (k, v) ->
                     append(v.toString())
                 }
             }.removeSuffix("\n")
+            if (text.isEmpty()) return@Command "当前列表为空"
+            text
         },
     )
 }
