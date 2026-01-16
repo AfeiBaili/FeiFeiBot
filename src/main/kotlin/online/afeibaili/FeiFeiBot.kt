@@ -5,6 +5,7 @@ import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import online.afeibaili.command.Commands
 import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
+import online.afeibaili.module.Otto
 import online.afeibaili.module.Translation
 import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.minecraft.Minecraft
@@ -36,6 +37,7 @@ object FeiFeiBot : KotlinPlugin(
         loadEchoCave()
         Listener.loadingListener()
         loadSearchMusicId()
+        loadOtto()
     }
 
     fun reloadConfigFile() {
@@ -53,6 +55,7 @@ object FeiFeiBot : KotlinPlugin(
         Commands.load()
     }
 
+    //model
     fun loadMinecraft() {
         if (config.module.isEnableMinecraft) Minecraft.load()
     }
@@ -71,5 +74,9 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadSearchMusicId() {
         SearchMusicId.load()
+    }
+
+    fun loadOtto() {
+        Otto.load()
     }
 }

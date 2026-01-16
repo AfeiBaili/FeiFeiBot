@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
 import java.util.function.Consumer
 
 object Minecraft {
-    val JSON = ObjectMapper()
+    private val JSON = ObjectMapper()
 
     fun load() {
         CommandRegistry.registerWithChild(
