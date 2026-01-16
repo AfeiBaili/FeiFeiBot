@@ -28,6 +28,7 @@ object Otto {
         CommandRegistry.register("OTTO", "otto", 0, ParamType.STRING) { p, e ->
             val text: String = runCatching { p[0] }.getOrElse { return@register "请输入要转换的文字" }
             val contactId: Long = runCatching { p[1].toLong() }.getOrElse { e.subject.id }
+            if (text.length > 150) return@register "字数不可超过150个字符"
 
             val form = mapOf<String, Any>(
                 "text" to text,
