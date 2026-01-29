@@ -18,7 +18,7 @@ object Terraria {
         CommandRegistry.registerWithChild(
             "泰拉瑞亚", "terraria", 0, ParamType.NOTHING, { _, _ ->
                 val count: Int = runCatching {
-                    sendCommandStream("/command/count", 1, "afeibaili.cn", 7779)
+                    sendCommandStream("/command/count", 1, "afeibaili.cn", 7778)
                 }.getOrElse { return@registerWithChild "无法连接到目标地址" }
 
                 toCountString(count)
