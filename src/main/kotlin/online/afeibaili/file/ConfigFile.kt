@@ -45,6 +45,7 @@ class ConfigFile(val path: String) {
                               "module": {
                                 "openMemoryName": true,
                                 "enableMinecraft": true,
+                                "enableTerraria": true,
                                 "translation": true,
                                 "echoCave": true,
                                 "passwordBreakGame": {

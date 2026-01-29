@@ -11,12 +11,13 @@ import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.minecraft.Minecraft
 import online.afeibaili.module.music.SearchMusicId
 import online.afeibaili.module.password.game.PasswordBreak
+import online.afeibaili.module.terraria.Terraria
 
 object FeiFeiBot : KotlinPlugin(
     JvmPluginDescription(
         id = "online.afeibaili.feifeibot",
         name = "FeiFeiBot",
-        version = "3.15.0",
+        version = "3.16.0",
     ) {
         author("AfeiBaili")
     }) {
@@ -38,6 +39,7 @@ object FeiFeiBot : KotlinPlugin(
         Listener.loadingListener()
         loadSearchMusicId()
         loadOtto()
+        loadTerraria()
     }
 
     fun reloadConfigFile() {
@@ -58,6 +60,10 @@ object FeiFeiBot : KotlinPlugin(
     //model
     fun loadMinecraft() {
         if (config.module.isEnableMinecraft) Minecraft.load()
+    }
+
+    fun loadTerraria() {
+        if (config.module.isEnableTerraria) Terraria.load()
     }
 
     fun loadTranslation() {

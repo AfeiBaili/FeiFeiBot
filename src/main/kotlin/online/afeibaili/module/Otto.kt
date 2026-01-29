@@ -71,7 +71,7 @@ object Otto {
                 }
             }
 
-            "已发送语音：$text"
+            "已发送OTTO语音"
         }
     }
 }
