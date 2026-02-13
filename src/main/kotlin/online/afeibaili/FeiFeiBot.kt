@@ -11,7 +11,6 @@ import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.minecraft.Minecraft
 import online.afeibaili.module.music.SearchMusicId
 import online.afeibaili.module.password.game.PasswordBreak
-import online.afeibaili.module.terraria.Terraria
 
 object FeiFeiBot : KotlinPlugin(
     JvmPluginDescription(
@@ -63,7 +62,7 @@ object FeiFeiBot : KotlinPlugin(
     }
 
     fun loadTerraria() {
-        if (config.module.isEnableTerraria) Terraria.load()
+//        if (config.module.isEnableTerraria) Terraria.load()
     }
 
     fun loadTranslation() {

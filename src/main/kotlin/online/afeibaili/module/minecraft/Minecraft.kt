@@ -73,9 +73,7 @@ object Minecraft {
 
                 runCatching {
                     val socket = Socket()
-                    socket.soTimeout = 5000
                     socket.connect(InetSocketAddress(host, port), 5000)
-                    socket.soTimeout = 5000
                     val dataOutputStream = DataOutputStream(socket.getOutputStream())
                     val dataInputStream = DataInputStream(socket.getInputStream())
 
@@ -154,7 +152,7 @@ object Minecraft {
                         return@Command buildString {
                             appendLine("服务器地址🔴：$host:$port")
                             appendLine("服务器信息：")
-                            appendLine("  ︱  描述信息：${mcInfo.description.text}")
+                            appendLine("  ︱  描述信息：${mcInfo.description}")
                             appendLine("  ︱  版本号：${mcInfo.version.name}")
                             appendLine("  ︱--协议号：${mcInfo.version.protocol}")
                             appendLine("当前没有人在线")
@@ -164,7 +162,7 @@ object Minecraft {
                     return@Command buildString {
                         appendLine("服务器地址🟢：$host:$port")
                         appendLine("服务器信息：")
-                        appendLine("  ︱  描述信息：${mcInfo.description.text}")
+                        appendLine("  ︱  描述信息：${mcInfo.description}")
                         appendLine("  ︱  版本号：${mcInfo.version.name}")
                         appendLine("  ︱--协议号：${mcInfo.version.protocol}")
                         appendLine("当前人数：${mcInfo.players.online}")

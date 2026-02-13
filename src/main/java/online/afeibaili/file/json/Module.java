@@ -3,18 +3,10 @@ package online.afeibaili.file.json;
 public class Module {
     boolean openMemoryName;
     boolean enableMinecraft;
-    boolean enableTerraria;
+    //    boolean enableTerraria;
     boolean translation;
     PasswordBreak passwordBreakGame;
     boolean echoCave;
-
-    public boolean isEnableTerraria() {
-        return enableTerraria;
-    }
-
-    public void setEnableTerraria(boolean enableTerraria) {
-        this.enableTerraria = enableTerraria;
-    }
 
     public boolean isEchoCave() {
         return echoCave;

@@ -5,10 +5,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 class MinecraftServerListJsonMapper() {
     var favicon: String = ""
-    var description: Description = Description()
+    var description: String = ""
     var players: Players = Players()
     var version: Version = Version()
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     class Players() {
         var max = 0
         var online = 0
@@ -20,10 +21,7 @@ class MinecraftServerListJsonMapper() {
         }
     }
 
-    class Description {
-        var text = ""
-    }
-
+    @JsonIgnoreProperties(ignoreUnknown = true)
     class Version {
         var name = ""
         var protocol = 0
