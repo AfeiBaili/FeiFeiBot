@@ -1,5 +1,5 @@
 import com.fasterxml.jackson.databind.ObjectMapper
-import online.afeibaili.module.minecraft.MinecraftServerListJsonMapper
+import online.afeibaili.module.minecraft.MinecraftServerListJsonMapperNew
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -97,9 +97,9 @@ class MinecraftTest {
 
             socket.close()
 
-            val mcInfo = jsonMapper.readValue(json, MinecraftServerListJsonMapper::class.java)
+            val mcInfo = jsonMapper.readValue(json, MinecraftServerListJsonMapperNew::class.java)
 
-            fun playerToString(players: List<MinecraftServerListJsonMapper.Players.Player>): String {
+            fun playerToString(players: List<MinecraftServerListJsonMapperNew.Players.Player>): String {
                 val builder = StringBuilder()
                 players.dropLast(1).forEach { player ->
                     builder.appendLine("  ︱  玩家名字：${player.name}")

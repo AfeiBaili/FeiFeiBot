@@ -3,27 +3,41 @@ package online.afeibaili.module.minecraft
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class MinecraftServerListJsonMapper() {
+open class MinecraftServerListJsonMapper() {
     var favicon: String = ""
-    var description: String = ""
     var players: Players = Players()
     var version: Version = Version()
+}
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    class Players() {
-        var max = 0
-        var online = 0
-        var sample = listOf<Player>()
+@JsonIgnoreProperties(ignoreUnknown = true)
+class MinecraftServerListJsonMapperNew() : MinecraftServerListJsonMapper() {
+    var description: String = ""
+}
 
-        class Player {
-            var id: String = ""
-            var name: String = ""
-        }
+@JsonIgnoreProperties(ignoreUnknown = true)
+class MinecraftServerListJsonMapperOld() : MinecraftServerListJsonMapper() {
+    var description: Description = Description()
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Description() {
+    var translate: String = ""
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Players() {
+    var max = 0
+    var online = 0
+    var sample = listOf<Player>()
+
+    class Player {
+        var id: String = ""
+        var name: String = ""
     }
+}
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    class Version {
-        var name = ""
-        var protocol = 0
-    }
+@JsonIgnoreProperties(ignoreUnknown = true)
+class Version {
+    var name = ""
+    var protocol = 0
 }

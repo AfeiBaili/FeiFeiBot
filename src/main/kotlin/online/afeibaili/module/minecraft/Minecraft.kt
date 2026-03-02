@@ -135,9 +135,12 @@ object Minecraft {
 
                     socket.close()
 
-                    val mcInfo = JSON.readValue(json, MinecraftServerListJsonMapper::class.java)
 
-                    fun playerToString(players: List<MinecraftServerListJsonMapper.Players.Player>): String {
+                    val mcInfo = runCatching {
+                        JSON.readValue(json, MinecraftServerListJsonMapperNew::class.java)
+                    }.getOrElse { JSON.readValue(json, MinecraftServerListJsonMapperOld::class.java) }
+
+                    fun playerToString(players: List<Players.Player>): String {
                         val builder = StringBuilder()
                         players.dropLast(1).forEach { player ->
                             builder.appendLine("  ︱  玩家名字：${player.name}")
@@ -148,27 +151,41 @@ object Minecraft {
                         return builder.toString()
                     }
 
-                    if (mcInfo.players.online == 0) {
-                        return@Command buildString {
-                            appendLine("服务器地址🔴：$host:$port")
+                    fun getServerInfo(): String {
+                        return buildString {
                             appendLine("服务器信息：")
-                            appendLine("  ︱  描述信息：${mcInfo.description}")
+                            if (mcInfo is MinecraftServerListJsonMapperNew)
+                                appendLine("  ︱  描述信息：${mcInfo.description}")
+                            else if (mcInfo is MinecraftServerListJsonMapperOld)
+                                appendLine("  ︱  描述信息：${mcInfo.description.translate}")
                             appendLine("  ︱  版本号：${mcInfo.version.name}")
                             appendLine("  ︱--协议号：${mcInfo.version.protocol}")
-                            appendLine("当前没有人在线")
                         }
                     }
 
-                    return@Command buildString {
-                        appendLine("服务器地址🟢：$host:$port")
-                        appendLine("服务器信息：")
-                        appendLine("  ︱  描述信息：${mcInfo.description}")
-                        appendLine("  ︱  版本号：${mcInfo.version.name}")
-                        appendLine("  ︱--协议号：${mcInfo.version.protocol}")
-                        appendLine("当前人数：${mcInfo.players.online}")
-                        appendLine(playerToString(mcInfo.players.sample))
-                        append("最大人数：${mcInfo.players.max}")
+                    fun getZeroPlayerOnlineMessage(): String {
+                        return buildString {
+                            appendLine("服务器地址🔴：$host:$port")
+                            append(getServerInfo())
+                            append("当前没有人在线")
+                        }
                     }
+
+                    fun getMultiPlayerOnlineMessage(): String {
+                        return buildString {
+                            appendLine("服务器地址🟢：$host:$port")
+                            append(getServerInfo())
+                            appendLine("当前人数：${mcInfo.players.online}")
+                            appendLine(playerToString(mcInfo.players.sample))
+                            append("最大人数：${mcInfo.players.max}")
+                        }
+                    }
+
+                    if (mcInfo.players.online == 0) {
+                        return@Command getZeroPlayerOnlineMessage()
+                    }
+
+                    return@Command getMultiPlayerOnlineMessage()
                 }.getOrElse { exception ->
                     return@Command "网络流错误：${exception.message}"
                 }
