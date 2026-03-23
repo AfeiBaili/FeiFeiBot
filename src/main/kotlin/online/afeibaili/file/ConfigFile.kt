@@ -53,7 +53,7 @@ class ConfigFile(val path: String) {
                                 },
                                 "uploadFile": {
                                   "isOpen": true,
-                                  "maxFileSize": 5242880
+                                  "maxFileSize": 5242880,
                                   "pathList":[
                                     {
                                       "name": "路径别名",
