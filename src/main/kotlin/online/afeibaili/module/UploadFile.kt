@@ -70,8 +70,10 @@ object UploadFile {
                     fileMessage as FileMessage
                     if (fileMessage.size > uploadFile.maxFileSize) return@Command "文件大小不可超过${uploadFile.maxFileSize}字节"
 
+                    e.subject.files.root.refresh()
                     val absoluteFile: AbsoluteFile? = e.subject.files.root.files().toList()
                         .find { it.name == fileMessage.name && it.size == fileMessage.size }
+
                     absoluteFile ?: return@Command "在根目录下找不到群文件：${fileMessage.name}"
 
                     val file = File(namePath.path, fileMessage.name)
@@ -137,6 +139,10 @@ object UploadFile {
                             "已将最大文件大小${lastSize}更改为${size}字节"
                         })
                 ),
+                Command("打印群文件", "print") { p, e ->
+                    e as GroupMessageEvent
+                    e.subject.files.root.files().toList().joinToString("\n") { it.name }
+                }
             )
         )
     }
