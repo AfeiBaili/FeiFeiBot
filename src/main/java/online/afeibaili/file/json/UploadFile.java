@@ -14,10 +14,6 @@ public class UploadFile {
     Long maxFileSize;
     List<NamePath> pathList;
 
-    public Boolean getOpen() {
-        return isOpen;
-    }
-
     public Long getMaxFileSize() {
         return maxFileSize;
     }
