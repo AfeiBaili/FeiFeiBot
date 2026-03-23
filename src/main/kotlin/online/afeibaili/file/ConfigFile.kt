@@ -84,7 +84,7 @@ class ConfigFile(val path: String) {
                               "qwen": {
                                 "key": "qwen key",
                                 "setting": "机器人设定"
-                              }
+                              },
                               "youDao": {
                                 "appKey": "有道云翻译应用Id",
                                 "appSecret": "有道云翻译Key"
