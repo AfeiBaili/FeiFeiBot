@@ -48,9 +48,19 @@ class ConfigFile(val path: String) {
                                 "translation": true,
                                 "echoCave": true,
                                 "passwordBreakGame": {
-                                        "isOpen": true,
-                                        "fontPath": "字体相对于mirai主目录的相对路径"
+                                  "isOpen": true,
+                                  "fontPath": "字体相对于mirai主目录的相对路径"
+                                },
+                                "uploadFile": {
+                                  "isOpen": true,
+                                  "maxFileSize": 5242880
+                                  "pathList":[
+                                    {
+                                      "name": "路径别名",
+                                      "path": "/路径"
                                     }
+                                  ]
+                                }
                               },
                               "setting": {
                                 "currentBot": "deepseek",

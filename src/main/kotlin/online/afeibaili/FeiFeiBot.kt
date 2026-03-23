@@ -7,6 +7,7 @@ import online.afeibaili.file.ConfigFile
 import online.afeibaili.file.LevelMapFile
 import online.afeibaili.module.Otto
 import online.afeibaili.module.Translation
+import online.afeibaili.module.UploadFile
 import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.minecraft.Minecraft
 import online.afeibaili.module.music.SearchMusicId
@@ -39,6 +40,7 @@ object FeiFeiBot : KotlinPlugin(
         loadSearchMusicId()
         loadOtto()
         loadTerraria()
+        loadUpload()
     }
 
     fun reloadConfigFile() {
@@ -83,5 +85,9 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadOtto() {
         Otto.load()
+    }
+
+    fun loadUpload() {
+        if (config.module.uploadFile.isOpen) UploadFile.load()
     }
 }

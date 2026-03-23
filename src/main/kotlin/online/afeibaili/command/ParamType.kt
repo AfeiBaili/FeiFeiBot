@@ -7,6 +7,7 @@ sealed class ParamType(val description: String) {
     class INT : SingleParam("整形")
     class LONG : SingleParam("长整形")
     class FLOAT : SingleParam("浮点数")
+    class REFERENCE : SingleParam("引用消息")
 
     class NOTHING : ParamType("无")
 
@@ -19,6 +20,7 @@ sealed class ParamType(val description: String) {
         val LONG = LONG()
         val FLOAT = FLOAT()
         val NOTHING = NOTHING()
+        val REFERENCE = REFERENCE()
     }
 
     override fun toString(): String {

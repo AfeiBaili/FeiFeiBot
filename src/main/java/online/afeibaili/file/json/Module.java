@@ -7,6 +7,15 @@ public class Module {
     boolean translation;
     PasswordBreak passwordBreakGame;
     boolean echoCave;
+    UploadFile uploadFile;
+
+    public UploadFile getUploadFile() {
+        return uploadFile;
+    }
+
+    public void setUploadFile(UploadFile uploadFile) {
+        this.uploadFile = uploadFile;
+    }
 
     public boolean isEchoCave() {
         return echoCave;
