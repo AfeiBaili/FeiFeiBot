@@ -2,12 +2,10 @@ package online.afeibaili.bot
 
 import Markdown
 import com.fasterxml.jackson.databind.ObjectMapper
-import online.afeibaili.LoggerLevel
 import online.afeibaili.bot.json.Message
 import online.afeibaili.bot.json.RequestBody
 import online.afeibaili.bot.json.ResponseBody
 import online.afeibaili.bot.json.Stream
-import online.afeibaili.logger
 import java.io.InputStream
 import java.net.URI
 import java.net.http.HttpClient
@@ -31,7 +29,6 @@ fun sendRequest(requestBody: RequestBody, message: String, role: String, url: St
     val requestString: String = messageProcessing(requestBody, message, role)
     val request: HttpRequest = builderRequest(url, key, requestString)
     val response: HttpResponse<String> = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-    logger(response.body(), LoggerLevel.DEBUG)
     return jsonMapper.readValue(response.body(), ResponseBody::class.java)
 }
 

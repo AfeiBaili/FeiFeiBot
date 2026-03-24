@@ -11,6 +11,7 @@ package online.afeibaili.command
 class CommandCollection() : Iterable<Command> {
     val nameMap = LinkedHashMap<String, Command>()
     val aliasMap = LinkedHashMap<String, Command>()
+    val letterAliasMap = LinkedHashMap<String, Command>()
 
     var index = 0
     val list get() = nameMap.keys
@@ -22,11 +23,23 @@ class CommandCollection() : Iterable<Command> {
     fun add(command: Command) {
         nameMap[command.name] = command
         aliasMap[command.alias] = command
+
+        fun getLetterAlias(alias: String, lastIndex: Int): String {
+            val takeStr: String = alias.take(lastIndex)
+            return if (letterAliasMap[takeStr] == null)
+                takeStr
+            else
+                getLetterAlias(alias, lastIndex + 1)
+        }
+
+        val letterAlias: String = getLetterAlias(command.alias, 1)
+        letterAliasMap[letterAlias] = command
     }
 
     operator fun get(commandName: String): Command? {
         nameMap[commandName]?.let { return it }
         aliasMap[commandName]?.let { return it }
+        letterAliasMap[commandName]?.let { return it }
         return null
     }
 

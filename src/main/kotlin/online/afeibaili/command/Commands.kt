@@ -29,10 +29,10 @@ object Commands {
     val mune: Command = CommandRegistry.registerWithChild("菜单", "help", 0, ParamType.NOTHING, { _, _ ->
         buildString {
             cc.forEach { it ->
-                append(it)
+                appendLine(it)
             }
             appendLine()
-            append("查看详细命令请使用 看 <命令>")
+            append("查看详细参数和子命令请使用 看 <命令>")
         }
     }, Command("详细", "detail") { _, _ ->
         buildString {

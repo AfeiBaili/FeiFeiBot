@@ -17,7 +17,7 @@ object FeiFeiBot : KotlinPlugin(
     JvmPluginDescription(
         id = "online.afeibaili.feifeibot",
         name = "FeiFeiBot",
-        version = "3.16.0",
+        version = "3.17.1",
     ) {
         author("AfeiBaili")
     }) {
@@ -36,11 +36,12 @@ object FeiFeiBot : KotlinPlugin(
         loadTranslation()
         loadPasswordBreakGame()
         loadEchoCave()
-        Listener.loadingListener()
         loadSearchMusicId()
         loadOtto()
         loadTerraria()
         loadUpload()
+
+        Listener.loadingListener()
     }
 
     fun reloadConfigFile() {

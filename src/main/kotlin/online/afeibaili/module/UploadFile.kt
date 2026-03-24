@@ -48,7 +48,7 @@ object UploadFile {
                     appendLine("！！！注意！！！")
                     appendLine("请检查群文件是否有名字相同、大小相同、内容不同的文件")
                     appendLine("如果执意上传的话，可能上传的结果和预期不同")
-                    appendLine("*更改文件名*可有效避免这种问题")
+                    append("*更改文件名*可有效避免这种问题")
                 }
             },
             *arrayOf(

@@ -1,6 +1,7 @@
 package online.afeibaili.command
 
 import net.mamoe.mirai.event.events.MessageEvent
+import online.afeibaili.config
 
 
 /**
@@ -71,12 +72,7 @@ data class Command(
     }
 
     override fun toString(): String {
-        return buildString {
-            append("命令：${name} ($alias)  级别：$level")
-            if (childCommand != null) {
-                append("子命令：${childCommand.list.joinToString("、")}\\n")
-            }
-            appendLine()
-        }
+        val prefix = config.setting.commandPrefix
+        return buildString { append("$prefix$name ($alias)  等级:$level") }
     }
 }
