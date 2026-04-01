@@ -10,7 +10,7 @@ import online.afeibaili.module.Translation
 import online.afeibaili.module.UploadFile
 import online.afeibaili.module.echo.cave.EchoCave
 import online.afeibaili.module.minecraft.Minecraft
-import online.afeibaili.module.music.SearchMusicId
+import online.afeibaili.module.music.NetEasy
 import online.afeibaili.module.password.game.PasswordBreak
 
 object FeiFeiBot : KotlinPlugin(
@@ -36,7 +36,7 @@ object FeiFeiBot : KotlinPlugin(
         loadTranslation()
         loadPasswordBreakGame()
         loadEchoCave()
-        loadSearchMusicId()
+        loadNetEasy()
         loadOtto()
         loadTerraria()
         loadUpload()
@@ -80,8 +80,8 @@ object FeiFeiBot : KotlinPlugin(
         if (config.module.isEchoCave) EchoCave.load()
     }
 
-    fun loadSearchMusicId() {
-        SearchMusicId.load()
+    fun loadNetEasy() {
+        NetEasy.load()
     }
 
     fun loadOtto() {
