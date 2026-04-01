@@ -57,7 +57,7 @@ object NetEasy {
         """.trimIndent()
     }
 
-    val songById = Command("根据id点歌", "get-by-id", 0, ParamType.LONG) { p, e ->
+    val songById = Command("id点歌", "get-by-id", 0, ParamType.LONG) { p, e ->
         if (e !is GroupMessageEvent) return@Command "请在群聊中使用"
         val id: Long = runCatching { p[0].toLong() }.getOrElse { return@Command "请输入歌曲id" }
         val songUri: URI? = getSongUriById(id.toString())
