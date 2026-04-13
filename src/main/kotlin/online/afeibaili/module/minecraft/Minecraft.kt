@@ -15,7 +15,9 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.util.*
 import java.util.function.Consumer
+import javax.naming.directory.InitialDirContext
 
 object Minecraft {
     private val JSON = ObjectMapper()
@@ -66,8 +68,18 @@ object Minecraft {
             }, Command("服务器查询", "select-server", 0, ParamType.STRING) { p, _ ->
                 val (host, port) = runCatching {
                     val split: List<String> = p[0].split(":")
+
+                    if (split.size != 2) {
+                        val srv: Pair<String, Int>? = querySrv(split[0])
+                        if (srv != null) {
+                            return@runCatching srv
+                        }
+                    }
+
                     val host: String = split[0]
                     val port: Int = runCatching { split[1].toInt() }.getOrElse { 25565 }
+
+
                     host to port
                 }.getOrElse { return@Command "请输入服务器地址" }
 
@@ -191,5 +203,23 @@ object Minecraft {
                 }
             }
         )
+    }
+
+    val env = Hashtable<String, String>().apply {
+        put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory")
+        put("java.naming.provider.url", "dns:")
+    }
+
+    private fun querySrv(domain: String, srvPrefix: String = "_minecraft._tcp."): Pair<String, Int>? {
+        return runCatching {
+            val ctx = InitialDirContext(env)
+            val attrs = ctx.getAttributes(srvPrefix + domain, arrayOf("SRV"))
+            val srvAttr = attrs.get("SRV")
+            srvAttr ?: return null
+            val split: List<String> = srvAttr.get(0).toString().split("\\s+".toRegex())
+            split[3] to split[2].toInt()
+        }.getOrElse {
+            null
+        }
     }
 }

@@ -1,5 +1,4 @@
 import com.fasterxml.jackson.databind.ObjectMapper
-import online.afeibaili.module.minecraft.MinecraftServerListJsonMapperNew
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -7,6 +6,8 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.nio.charset.StandardCharsets
+import java.util.*
+import javax.naming.directory.InitialDirContext
 import kotlin.test.Test
 
 
@@ -18,6 +19,36 @@ import kotlin.test.Test
  */
 
 class MinecraftTest {
+
+    @Test
+    fun testSrv() {
+        val string = "_minecraft._tcp.atm.mc.afeibaili.cn"
+
+        val env = Hashtable<String, String>().apply {
+            put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory")
+            put("java.naming.provider.url", "dns:")
+        }
+
+        runCatching {
+            val ctx = InitialDirContext(env)
+            val attrs = ctx.getAttributes(string, arrayOf("SRV"))
+            val srvAttr = attrs.get("SRV")
+
+
+            println(srvAttr)
+
+            for (i in 0 until (srvAttr?.size() ?: 0)) {
+                val record = srvAttr?.get(i).toString()
+                // 解析格式: Priority Weight Port Target
+                val parts = record.split(" ")
+                println("Target: ${parts[3]}, Port: ${parts[2]}")
+            }
+        }.onFailure {
+            println("解析失败: ${it.message}")
+        }
+    }
+
+
     @Test
     fun testPing() {
 //        println(testServer(arrayOf("u:25565")))
