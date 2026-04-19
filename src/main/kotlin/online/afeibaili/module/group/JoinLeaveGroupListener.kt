@@ -1,9 +1,11 @@
 package online.afeibaili.module.group
 
+import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.events.MemberJoinEvent
 import net.mamoe.mirai.event.events.MemberLeaveEvent
 import online.afeibaili.Manager
+import online.afeibaili.config
 
 
 /**
@@ -15,12 +17,18 @@ import online.afeibaili.Manager
 
 object JoinLeaveGroupListener {
     fun load() {
-        GlobalEventChannel.subscribeAlways<MemberJoinEvent> { event ->
+        GlobalEventChannel.filter { group(it) }.subscribeAlways<MemberJoinEvent> { event ->
             Manager.processJoinGroup(event)
         }
 
-        GlobalEventChannel.subscribeAlways<MemberLeaveEvent> { event ->
+        GlobalEventChannel.filter { group(it) }.subscribeAlways<MemberLeaveEvent> { event ->
             Manager.processLeaveGroup(event)
         }
+    }
+
+    private fun group(event: Event): Boolean = when (event) {
+        is MemberJoinEvent -> config.groups.contains(event.groupId)
+        is MemberLeaveEvent -> config.groups.contains(event.groupId)
+        else -> false
     }
 }
