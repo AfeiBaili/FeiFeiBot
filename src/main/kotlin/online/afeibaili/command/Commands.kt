@@ -413,6 +413,16 @@ object Commands {
             configObject.store()
             "执行禁用群成功"
         },
+        Command("开启加退群消息", "open-join-leave-message", 2, ParamType.NOTHING) { _, _ ->
+            if (config.module.isOpenJoinLeaveMessage) return@Command "当前已开启加群退群消息"
+            config.module.isOpenJoinLeaveMessage = true
+            "已开启加群消息"
+        },
+        Command("关闭加退群消息", "close-join-leave-message", 2, ParamType.NOTHING) { _, _ ->
+            if (!config.module.isOpenJoinLeaveMessage) return@Command "当前已关闭加群退群消息"
+            config.module.isOpenJoinLeaveMessage = false
+            "已关闭加群消息"
+        },
     )
 
     val commandPrefix = CommandRegistry.register("更改命令前缀", "change-command-prefix", 3, ParamType.STRING) { p, _ ->

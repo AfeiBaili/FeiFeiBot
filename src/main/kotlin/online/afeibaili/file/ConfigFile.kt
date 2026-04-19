@@ -43,6 +43,7 @@ class ConfigFile(val path: String) {
                                 "name": "机器人名字"
                               },
                               "module": {
+                                "openJoinLeaveMessage": true,
                                 "openMemoryName": true,
                                 "enableMinecraft": true,
                                 "translation": true,

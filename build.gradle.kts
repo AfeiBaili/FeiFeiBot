@@ -19,7 +19,7 @@ dependencies {
 }
 
 group = "online.afeibaili"
-version = "3.18.0"
+version = rootProject.properties["version"] as String
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")

@@ -8,6 +8,15 @@ public class Module {
     PasswordBreak passwordBreakGame;
     boolean echoCave;
     UploadFile uploadFile;
+    boolean openJoinLeaveMessage;
+
+    public boolean isOpenJoinLeaveMessage() {
+        return openJoinLeaveMessage;
+    }
+
+    public void setOpenJoinLeaveMessage(boolean openJoinLeaveMessage) {
+        this.openJoinLeaveMessage = openJoinLeaveMessage;
+    }
 
     public UploadFile getUploadFile() {
         return uploadFile;

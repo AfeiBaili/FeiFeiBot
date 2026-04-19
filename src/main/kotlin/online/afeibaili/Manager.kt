@@ -4,6 +4,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.event.events.MemberJoinEvent
+import net.mamoe.mirai.event.events.MemberLeaveEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.events.NudgeEvent
 import net.mamoe.mirai.message.data.*
@@ -66,26 +68,48 @@ object Manager {
         return processCommand(command)
     }
 
+    ////  Message Process  ////////////////////////////////////////////////////
+
+    suspend fun sendMessageToContact(contact: Contact, message: MessageChain): Unit = when (currentBot) {
+        is Deepseek -> {
+            val deepseek: Deepseek = currentBot as Deepseek
+            sendByDeepseek(contact, deepseek, message, null)
+        }
+
+        is ChatGPT -> {
+            val chatgpt: ChatGPT = currentBot as ChatGPT
+            sendByChatGPT(contact, chatgpt, message, null)
+        }
+
+        is Qwen -> {
+            val qwen: Qwen = currentBot as Qwen
+            sendByQwen(contact, qwen, message, null)
+        }
+
+        else -> {}
+    }
+
+
+    suspend fun processJoinGroup(event: MemberJoinEvent) {
+        if (!config.module.isOpenJoinLeaveMessage) return
+
+        val contact: Contact = event.group
+        val message: MessageChain = PlainText(event.user.nick + "加入了群聊").toMessageChain()
+        sendMessageToContact(contact, message)
+    }
+
+    suspend fun processLeaveGroup(event: MemberLeaveEvent) {
+        if (!config.module.isOpenJoinLeaveMessage) return
+
+        sendMessageToContact(event.group, PlainText(event.user.nick + "离开了群聊").toMessageChain())
+    }
+
+
     suspend fun processNudge(event: NudgeEvent) {
         val contact: Contact = event.subject
         val message: MessageChain = PlainText(event.from.nick + "戳了戳你的脸").toMessageChain()
         if (event.target.id != bot.id) return
-        when (currentBot) {
-            is Deepseek -> {
-                val deepseek: Deepseek = currentBot as Deepseek
-                sendByDeepseek(contact, deepseek, message, null)
-            }
-
-            is ChatGPT -> {
-                val chatgpt: ChatGPT = currentBot as ChatGPT
-                sendByChatGPT(contact, chatgpt, message, null)
-            }
-
-            is Qwen -> {
-                val qwen: Qwen = currentBot as Qwen
-                sendByQwen(contact, qwen, message, null)
-            }
-        }
+        sendMessageToContact(contact, message)
     }
 
     private suspend fun botProcess(event: MessageEvent, isFriend: Boolean) {

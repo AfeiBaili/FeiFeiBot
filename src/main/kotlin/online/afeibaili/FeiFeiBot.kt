@@ -9,6 +9,7 @@ import online.afeibaili.module.Otto
 import online.afeibaili.module.Translation
 import online.afeibaili.module.UploadFile
 import online.afeibaili.module.echo.cave.EchoCave
+import online.afeibaili.module.group.JoinLeaveGroupListener
 import online.afeibaili.module.minecraft.Minecraft
 import online.afeibaili.module.music.NetEasy
 import online.afeibaili.module.password.game.PasswordBreak
@@ -40,6 +41,7 @@ object FeiFeiBot : KotlinPlugin(
         loadOtto()
         loadTerraria()
         loadUpload()
+        loadJoinLeaveGroupMessage()
 
         Listener.loadingListener()
     }
@@ -57,6 +59,10 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadCommand() {
         Commands.load()
+    }
+
+    fun loadJoinLeaveGroupMessage() {
+        JoinLeaveGroupListener.load()
     }
 
     //model
