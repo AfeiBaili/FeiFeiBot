@@ -26,7 +26,7 @@ object Minecraft {
         CommandRegistry.registerWithChild(
             "Minecraft", "mc", 0, ParamType.NOTHING, { _, _ ->
                 "请使用其他子命令"
-            }, Command("搜", "search", 0, ParamType.STRING) { p, e ->
+            }, Command("搜（遗弃的）", "search", 0, ParamType.STRING) { p, e ->
                 val text: String =
                     runCatching { p.joinToString(" ") }.getOrElse { return@Command "请输入词条和mod名称" }
                 runCatching {

@@ -1,5 +1,7 @@
 package online.afeibaili.command
 
+import net.mamoe.mirai.contact.Member
+import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.Image
@@ -178,7 +180,7 @@ object Commands {
                 else -> return@Command "不支持的机器人：${config.setting.currentBot}"
             }
             return@Command "已重置${config.setting.currentBot}机器人"
-        }, Command("获取记录", "history") { _, e ->
+        }, Command("获取记录（遗弃的）", "history") { _, e ->
             when (config.setting.currentBot) {
                 "chatgpt" -> uploadChatHistory(chatgpt, e)
                 "deepseek" -> uploadChatHistory(deepseek, e)
@@ -423,6 +425,29 @@ object Commands {
             config.module.isOpenJoinLeaveMessage = false
             "已关闭加群消息"
         },
+        Command("设置头衔", "set-card", 0, ParamType.STRING) { p, e ->
+            val text: String = runCatching {
+                val string: String = p[0]
+                if (string == "null") return@runCatching ""
+                string
+            }.getOrElse { return@Command "如果为值为null将清空头衔" }
+
+            if (e !is GroupMessageEvent) return@Command "只支持群聊使用"
+            val sender: Member = e.sender
+            val senderId: Long = e.sender.id
+            val member: NormalMember? = e.group.members.find { it.id == senderId }
+            member ?: return@Command "找不到该成员：${senderId}"
+            runCatching {
+                member.specialTitle = text
+            }.getOrElse {
+                return@Command "机器人权限不足"
+            }
+
+            return@Command if (text == "")
+                "成功将${sender.nick}的头衔清空"
+            else
+                "成功将${sender.nick}的头衔设置为${text}"
+        }
     )
 
     val commandPrefix = CommandRegistry.register("更改命令前缀", "change-command-prefix", 3, ParamType.STRING) { p, _ ->
