@@ -1,6 +1,10 @@
 # 菲菲机器人V3
 
+基于Mirai的QQ多功能机器人插件
+
 1.0及2.0由**Java**编写，3.0及之后将以**Kotlin**编写
+
+> 命令系统已重置，子命令更加清晰
 
 ## 基础介绍
 
@@ -12,55 +16,15 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 
 已编写等级系统，根据等级来判断执行人是否执行命令
 
-| 命令         | 等级 |
-|------------|----|
-| 菜单         | 0  |
-| 聊天功能       | 1  |
-| 设置等级       | 4  |
-| 查看所有人等级    | 0  |
-| 查看机器人当前模型  | 0  |
-| 查看机器人所有模型  | 0  |
-| 切换机器人模型    | 2  |
-| 查看机器人API余额 | 0  |
-| 重置菲菲       | 2  |
-| 重置小鲸鱼      | 2  |
-| 重置kimi     | 2  |
-| 重置所有       | 3  |
-| 获取机器人聊天记录  | 1  |
-| 新设定        | 1  |
-| 查看群        | 0  |
-| 添加群        | 2  |
-| 删除群        | 3  |
-| 开启流        | 1  |
-| 关闭流        | 1  |
-| 开启沉浸式对话    | 0  |
-| 关闭沉浸式对话    | 0  |
-| 设置命令前缀     | 3  |
-| 重载配置文件     | 4  |
-| 禁言         | 3  |
-| 解除禁言       | 3  |
-| 踢出         | 4  |
-| 创建图片       | 0  |
-| 搜词条        | 0  |
-| 翻译         | 0  |
-| 密文破译       | 0  |
-| 破译认输       | 0  |
-| 密文录入       | 0  |
-| 回声洞        | 0  |
-| 回声录入       | 0  |
-| 显示回声ID     | 1  |
-| 隐藏回声ID     | 1  |
-| 当前回声数      | 0  |
-
 > 查看命令基础使用可用参数，请直接输入  
-> 例如：/开启流 此命令需要两个参数，直接输入命令"/开启流"会打印出"开启流 <机器人1 | 机器人2>"
+> 例如：/help 此命令可以附带参数，直接输入命令"/help"会打印出"help相关命令"
 
 ## 机器人配置
 
 使用Json配置，首次启动会默认生成配置文件并报错需要配置完重启，配置路径为：  
 [Overflow](https://mirai.mrxiaom.top/) 主目录/config/feifei/config.json
 
-> 感谢一切开源人员的付出
+为不同的用户分配命令使用等级
 
 等级映射文件在主目录/data/feifei/level-map.properties，建议通过命令添加其他人等级
 
@@ -73,36 +37,50 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
     975709430
   ],
   "bot": {
-    "qq": 2664306741,
     "name": "机器人名字"
   },
   "module": {
+    "openJoinLeaveMessage": true,
     "openMemoryName": true,
-    "mcModSearch": true,
+    "enableMinecraft": true,
     "translation": true,
     "echoCave": true,
     "passwordBreakGame": {
       "isOpen": true,
       "fontPath": "字体相对于mirai主目录的相对路径"
+    },
+    "uploadFile": {
+      "isOpen": true,
+      "maxFileSize": 5242880,
+      "pathList":[
+        {
+          "name": "路径别名",
+          "path": "/路径"
+        }
+      ]
     }
   },
   "setting": {
-    "atByTargetBot": "<chatgpt | deepseek>",
+    "currentBot": "deepseek",
     "startMessage": "加载群后发送的提示消息",
-    "commandPrefix": "/"
+    "commandPrefix": "/",
+    "maxChatLength": 100,
+    "printNotFoundCommand": true
   },
   "chatgpt": {
-    "name": "chatgpt 称呼",
     "key": "chatgpt key",
     "setting": "机器人设定"
   },
   "deepseek": {
-    "name": "deepseek 称呼",
     "key": "deepseek key",
     "setting": "机器人设定"
   },
   "kimi": {
     "key": "kimi key",
+    "setting": "机器人设定"
+  },
+  "qwen": {
+    "key": "qwen key",
     "setting": "机器人设定"
   },
   "youDao": {
@@ -115,7 +93,7 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 }
 ```
 
-配置参数介绍
+配置参数介绍（新版命令待更新）
 
 **master**: 数值型 主要管理人员QQ
 
@@ -228,5 +206,7 @@ Ai回复的Markdown自动解析，关于markdown解析请看我的另一个项�
 
 效果：
 ![img_4.png](image/img_4.png)
+
+## 更多命令未展示
 
 ## 欢迎提交建议和BUG

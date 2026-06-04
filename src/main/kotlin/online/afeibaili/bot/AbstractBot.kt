@@ -1,5 +1,6 @@
 package online.afeibaili.bot
 
+import online.afeibaili.bot.json.Message
 import online.afeibaili.bot.json.RequestBody
 
 abstract class AbstractBot {
@@ -10,4 +11,8 @@ abstract class AbstractBot {
     abstract fun init(): AbstractBot
     abstract fun reset()
     abstract fun send(message: String, role: String = "user"): String
+
+    fun putChat(msg: String) {
+        requestBody.messages.add(Message("user", msg))
+    }
 }

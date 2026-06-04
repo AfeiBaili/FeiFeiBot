@@ -24,6 +24,7 @@ import online.afeibaili.command.CommandRegistry
 
 object Manager {
     var isBotAlive = true
+    var isPutChat = true
     val immersiveMap = HashMap<Long, String>()
     val messageScope = CoroutineScope(Dispatchers.Default)
 
@@ -174,7 +175,10 @@ object Manager {
                         )
                     )
 
-                    else -> {}
+                    else -> {
+                        if (isPutChat) currentBot.putChat(message)
+                        else {}
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

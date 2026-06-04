@@ -40,15 +40,15 @@ object Listener {
         }
     }
 
-    fun loadingNudgeEventListener() {
-        nudgeEvent = GlobalEventChannel.filter { nudge(it) }.subscribeAlways<NudgeEvent> { event ->
-            Manager.processNudge(event)
-        }
-    }
-
     fun loadingFriendListener() {
         friendMessageEvent = GlobalEventChannel.subscribeAlways<FriendMessageEvent> { event ->
             Manager.processMessage(event, isFriend = true)
+        }
+    }
+
+    fun loadingNudgeEventListener() {
+        nudgeEvent = GlobalEventChannel.filter { nudge(it) }.subscribeAlways<NudgeEvent> { event ->
+            Manager.processNudge(event)
         }
     }
 

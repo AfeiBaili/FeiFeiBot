@@ -180,15 +180,17 @@ object Commands {
                 else -> return@Command "不支持的机器人：${config.setting.currentBot}"
             }
             return@Command "已重置${config.setting.currentBot}机器人"
-        }, Command("获取记录（遗弃的）", "history") { _, e ->
-            when (config.setting.currentBot) {
-                "chatgpt" -> uploadChatHistory(chatgpt, e)
-                "deepseek" -> uploadChatHistory(deepseek, e)
-                "kimi" -> uploadChatHistory(kimi, e)
-                "qwen" -> uploadChatHistory(qwen, e)
-                else -> return@Command "不支持的机器人：${config.setting.currentBot}"
-            }
-            return@Command "已发送${config.setting.currentBot}聊天记录"
+        }, Command("获取记录", "history") { _, e ->
+            return@Command runCatching {
+                when (config.setting.currentBot) {
+                    "chatgpt" -> uploadChatHistory(chatgpt, e)
+                    "deepseek" -> uploadChatHistory(deepseek, e)
+                    "kimi" -> uploadChatHistory(kimi, e)
+                    "qwen" -> uploadChatHistory(qwen, e)
+                    else -> return@Command "不支持的机器人：${config.setting.currentBot}"
+                }
+                "已发送${config.setting.currentBot}聊天记录"
+            }.getOrElse { "获取聊天记录不可用，可能是信息太多" }
         }, Command("切换模型", "switch", 1, ParamType.STRING) { p, _ ->
             val model: String = runCatching {
                 p[0]
@@ -447,7 +449,25 @@ object Commands {
                 "成功将${sender.nick}的头衔清空"
             else
                 "成功将${sender.nick}的头衔设置为${text}"
-        }
+        },
+        Command(
+            "跟踪聊天", "track-chat", 0, ParamType.NOTHING, { p, e ->
+                Manager.isPutChat = !Manager.isPutChat
+                if (Manager.isPutChat) "当前跟踪聊天为开启状态" else "当前跟踪聊天为关闭状态"
+            },
+            CommandCollection.create(
+                Command("开启", "open") { p, e ->
+                    if (Manager.isPutChat) return@Command "当前已经是开启状态"
+                    Manager.isPutChat = true
+                    "已开启跟踪聊天"
+                },
+                Command("关闭", "close") { p, e ->
+                    if (!Manager.isPutChat) return@Command "当前已经是关闭状态"
+                    Manager.isPutChat = false
+                    "已关闭跟踪聊天"
+                }
+            )
+        )
     )
 
     val commandPrefix = CommandRegistry.register("更改命令前缀", "change-command-prefix", 3, ParamType.STRING) { p, _ ->

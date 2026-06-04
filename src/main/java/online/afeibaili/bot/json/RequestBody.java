@@ -7,6 +7,15 @@ public class RequestBody {
     List<Message> messages;
     Double temperature;
     Boolean stream = false;
+    Think thinking = new Think();
+
+    public Think getThinking() {
+        return thinking;
+    }
+
+    public void setThinking(Think thinking) {
+        this.thinking = thinking;
+    }
 
     public RequestBody(String model, List<Message> messages, Double temperature, Boolean stream) {
         this.model = model;

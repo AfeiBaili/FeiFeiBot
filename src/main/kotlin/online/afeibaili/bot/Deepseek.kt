@@ -13,7 +13,7 @@ import java.net.http.HttpResponse
 class Deepseek : AbstractBot(), Stream, Customizable {
     override val url: String = "https://api.deepseek.com/v1/chat/completions"
     override val key: String = config.deepseek.key
-    override val requestBody: RequestBody = RequestBody("deepseek-chat", FixedSizeQueue<Message>(pollIndex = 1), false)
+    override val requestBody: RequestBody = RequestBody("deepseek-v4-flash", FixedSizeQueue<Message>(pollIndex = 1), false)
 
     var isRunning = false
 

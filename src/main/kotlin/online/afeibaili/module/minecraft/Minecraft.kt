@@ -26,7 +26,7 @@ object Minecraft {
         CommandRegistry.registerWithChild(
             "Minecraft", "mc", 0, ParamType.NOTHING, { _, _ ->
                 "请使用其他子命令"
-            }, Command("搜（遗弃的）", "search", 0, ParamType.STRING) { p, e ->
+            }, Command("搜（不可用）", "search", 0, ParamType.STRING) { p, e ->
                 val text: String =
                     runCatching { p.joinToString(" ") }.getOrElse { return@Command "请输入词条和mod名称" }
                 runCatching {
@@ -66,12 +66,14 @@ object Minecraft {
                     }
                 }.getOrElse { return@Command "无法链接MCMod百科" }
             }, Command("服务器查询", "select-server", 0, ParamType.STRING) { p, _ ->
+                var srvAddr: Pair<String, Int>? = null
                 val (host, port) = runCatching {
                     val split: List<String> = p[0].split(":")
 
                     if (split.size != 2) {
                         val srv: Pair<String, Int>? = querySrv(split[0])
                         if (srv != null) {
+                            srvAddr = srv
                             return@runCatching srv
                         }
                     }
@@ -186,6 +188,7 @@ object Minecraft {
                     fun getMultiPlayerOnlineMessage(): String {
                         return buildString {
                             appendLine("服务器地址🟢：$host:$port")
+                            if (srvAddr != null) appendLine("服务器SRV：${p[0]}")
                             append(getServerInfo())
                             appendLine("当前人数：${mcInfo.players.online}")
                             appendLine(playerToString(mcInfo.players.sample))
@@ -217,7 +220,7 @@ object Minecraft {
             val srvAttr = attrs.get("SRV")
             srvAttr ?: return null
             val split: List<String> = srvAttr.get(0).toString().split("\\s+".toRegex())
-            split[3] to split[2].toInt()
+            split[3].removeSuffix(".") to split[2].toInt()
         }.getOrElse {
             null
         }
