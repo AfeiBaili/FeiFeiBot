@@ -452,18 +452,21 @@ object Commands {
         },
         Command(
             "跟踪聊天", "track-chat", 0, ParamType.NOTHING, { p, e ->
-                Manager.isPutChat = !Manager.isPutChat
-                if (Manager.isPutChat) "当前跟踪聊天为开启状态" else "当前跟踪聊天为关闭状态"
+                config.module.isPutChat = !config.module.isPutChat
+                configObject.store()
+                if (config.module.isPutChat) "当前跟踪聊天为开启状态" else "当前跟踪聊天为关闭状态"
             },
             CommandCollection.create(
                 Command("开启", "open") { p, e ->
-                    if (Manager.isPutChat) return@Command "当前已经是开启状态"
-                    Manager.isPutChat = true
+                    if (config.module.isPutChat) return@Command "当前已经是开启状态"
+                    config.module.isPutChat = true
+                    configObject.store()
                     "已开启跟踪聊天"
                 },
                 Command("关闭", "close") { p, e ->
-                    if (!Manager.isPutChat) return@Command "当前已经是关闭状态"
-                    Manager.isPutChat = false
+                    if (!config.module.isPutChat) return@Command "当前已经是关闭状态"
+                    config.module.isPutChat = false
+                    configObject.store()
                     "已关闭跟踪聊天"
                 }
             )

@@ -9,6 +9,15 @@ public class Module {
     boolean echoCave;
     UploadFile uploadFile;
     boolean openJoinLeaveMessage;
+    boolean putChat;
+
+    public boolean isPutChat() {
+        return putChat;
+    }
+
+    public void setPutChat(boolean putChat) {
+        this.putChat = putChat;
+    }
 
     public boolean isOpenJoinLeaveMessage() {
         return openJoinLeaveMessage;

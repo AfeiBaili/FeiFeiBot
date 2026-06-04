@@ -2,12 +2,19 @@ package online.afeibaili.bot.json;
 
 import java.util.List;
 
+import static online.afeibaili.UtilKt.config;
+
 public class RequestBody {
     String model;
     List<Message> messages;
     Double temperature;
     Boolean stream = false;
-    Think thinking = new Think();
+    Think thinking;
+
+    {
+        if (config.getDeepseek().isThink()) thinking = new Think("enabled");
+        else thinking = new Think("disabled");
+    }
 
     public Think getThinking() {
         return thinking;
