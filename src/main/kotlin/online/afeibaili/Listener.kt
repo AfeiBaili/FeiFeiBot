@@ -5,7 +5,7 @@ import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.Listener
 import net.mamoe.mirai.event.events.*
-import online.afeibaili.Manager.messageScope
+import online.afeibaili.MessageManager.messageScope
 import online.afeibaili.module.BotNameMemoryRemind
 import online.afeibaili.module.todo.TodoManager
 
@@ -36,19 +36,19 @@ object Listener {
 
     fun loadingGroupListener() {
         groupMessageEvent = GlobalEventChannel.filter { group(it) }.subscribeAlways<GroupMessageEvent> { event ->
-            Manager.processMessage(event)
+            MessageManager.processMessage(event)
         }
     }
 
     fun loadingFriendListener() {
         friendMessageEvent = GlobalEventChannel.subscribeAlways<FriendMessageEvent> { event ->
-            Manager.processMessage(event, isFriend = true)
+            MessageManager.processMessage(event, isFriend = true)
         }
     }
 
     fun loadingNudgeEventListener() {
         nudgeEvent = GlobalEventChannel.filter { nudge(it) }.subscribeAlways<NudgeEvent> { event ->
-            Manager.processNudge(event)
+            MessageManager.processNudge(event)
         }
     }
 
@@ -76,7 +76,7 @@ object Listener {
         else {
             val message: String = event.message.contentToString()
             if (event.sender.id == config.master && message.startsWith("@" + config.setting.commandPrefix)) {
-                val string: String? = Manager.commandParsing(event, true)
+                val string: String? = MessageManager.commandParsing(event, true)
                 if (string != null) event.subject.sendMessage(string)
             }
         }

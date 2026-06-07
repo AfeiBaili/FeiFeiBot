@@ -12,7 +12,7 @@ import java.net.http.HttpResponse
 class ChatGPT : AbstractBot(), Stream, Customizable {
     override val url: String = "https://api.chatanywhere.tech/v1/chat/completions"
     override val key: String = config.chatgpt.key
-    override val requestBody: RequestBody = RequestBody("gpt-4o-mini", FixedSizeQueue<Message>(pollIndex = 1), false)
+    override val requestBody: RequestBody = RequestBody("gpt-5.4-mini", FixedSizeQueue<Message>(pollIndex = 1), false)
 
     override fun init(): ChatGPT {
         requestBody.messages.add(Message("system", config.chatgpt.setting))

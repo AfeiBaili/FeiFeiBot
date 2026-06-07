@@ -10,6 +10,15 @@ public class Module {
     UploadFile uploadFile;
     boolean openJoinLeaveMessage;
     boolean putChat;
+    boolean multiInstance;
+
+    public boolean isMultiInstance() {
+        return multiInstance;
+    }
+
+    public void setMultiInstance(boolean multiInstance) {
+        this.multiInstance = multiInstance;
+    }
 
     public boolean isPutChat() {
         return putChat;

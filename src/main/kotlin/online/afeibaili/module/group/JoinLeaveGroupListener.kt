@@ -4,7 +4,7 @@ import net.mamoe.mirai.event.Event
 import net.mamoe.mirai.event.GlobalEventChannel
 import net.mamoe.mirai.event.events.MemberJoinEvent
 import net.mamoe.mirai.event.events.MemberLeaveEvent
-import online.afeibaili.Manager
+import online.afeibaili.MessageManager
 import online.afeibaili.config
 
 
@@ -18,11 +18,11 @@ import online.afeibaili.config
 object JoinLeaveGroupListener {
     fun load() {
         GlobalEventChannel.filter { group(it) }.subscribeAlways<MemberJoinEvent> { event ->
-            Manager.processJoinGroup(event)
+            MessageManager.processJoinGroup(event)
         }
 
         GlobalEventChannel.filter { group(it) }.subscribeAlways<MemberLeaveEvent> { event ->
-            Manager.processLeaveGroup(event)
+            MessageManager.processLeaveGroup(event)
         }
     }
 

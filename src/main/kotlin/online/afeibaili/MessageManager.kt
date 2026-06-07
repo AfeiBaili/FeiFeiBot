@@ -9,22 +9,19 @@ import net.mamoe.mirai.event.events.MemberLeaveEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.events.NudgeEvent
 import net.mamoe.mirai.message.data.*
-import online.afeibaili.bot.ChatGPT
-import online.afeibaili.bot.Deepseek
-import online.afeibaili.bot.Kimi
-import online.afeibaili.bot.Qwen
-import online.afeibaili.bot.Robots.chatgpt
-import online.afeibaili.bot.Robots.currentBot
-import online.afeibaili.bot.Robots.customized
-import online.afeibaili.bot.Robots.deepseek
-import online.afeibaili.bot.Robots.kimi
-import online.afeibaili.bot.Robots.qwen
+import online.afeibaili.BotManager.getChatGPTBot
+import online.afeibaili.BotManager.getCurrentBot
+import online.afeibaili.BotManager.getCustomizedBot
+import online.afeibaili.BotManager.getDeepseekBot
+import online.afeibaili.BotManager.getKimiBot
+import online.afeibaili.BotManager.getQwenBot
+import online.afeibaili.BotManager.immersiveMap
+import online.afeibaili.BotManager.isBotAlive
+import online.afeibaili.bot.*
 import online.afeibaili.command.Command
 import online.afeibaili.command.CommandRegistry
 
-object Manager {
-    var isBotAlive = true
-    val immersiveMap = HashMap<Long, String>()
+object MessageManager {
     val messageScope = CoroutineScope(Dispatchers.Default)
 
     fun processMessage(event: MessageEvent, isFriend: Boolean = false) = messageScope.launch {
@@ -70,23 +67,26 @@ object Manager {
 
     ////  Message Process  ////////////////////////////////////////////////////
 
-    suspend fun sendMessageToContact(contact: Contact, message: MessageChain): Unit = when (currentBot) {
-        is Deepseek -> {
-            val deepseek: Deepseek = currentBot as Deepseek
-            sendByDeepseek(contact, deepseek, message, null)
-        }
+    suspend fun sendMessageToContact(contact: Contact, message: MessageChain, id: Long) {
+        val currentBot = getCurrentBot(false, id)
+        when (currentBot) {
+            is Deepseek -> {
+                val deepseek: Deepseek = currentBot
+                sendByDeepseek(contact, deepseek, message, null)
+            }
 
-        is ChatGPT -> {
-            val chatgpt: ChatGPT = currentBot as ChatGPT
-            sendByChatGPT(contact, chatgpt, message, null)
-        }
+            is ChatGPT -> {
+                val chatgpt: ChatGPT = currentBot
+                sendByChatGPT(contact, chatgpt, message, null)
+            }
 
-        is Qwen -> {
-            val qwen: Qwen = currentBot as Qwen
-            sendByQwen(contact, qwen, message, null)
-        }
+            is Qwen -> {
+                val qwen: Qwen = currentBot
+                sendByQwen(contact, qwen, message, null)
+            }
 
-        else -> {}
+            else -> {}
+        }
     }
 
 
@@ -95,13 +95,13 @@ object Manager {
 
         val contact: Contact = event.group
         val message: MessageChain = PlainText(event.user.nick + "加入了群聊").toMessageChain()
-        sendMessageToContact(contact, message)
+        sendMessageToContact(contact, message, event.group.id)
     }
 
     suspend fun processLeaveGroup(event: MemberLeaveEvent) {
         if (!config.module.isOpenJoinLeaveMessage) return
 
-        sendMessageToContact(event.group, PlainText(event.user.nick + "离开了群聊").toMessageChain())
+        sendMessageToContact(event.group, PlainText(event.user.nick + "离开了群聊").toMessageChain(), event.group.id)
     }
 
 
@@ -109,33 +109,36 @@ object Manager {
         val contact: Contact = event.subject
         val message: MessageChain = PlainText(event.from.nick + "戳了戳你的脸").toMessageChain()
         if (event.target.id != bot.id) return
-        sendMessageToContact(contact, message)
+        sendMessageToContact(contact, message, event.subject.id)
     }
 
-    private suspend fun botProcess(event: MessageEvent, isFriend: Boolean) {
+    suspend fun botProcess(event: MessageEvent, isFriend: Boolean) {
         val singleMessages: MessageChain = event.message
         val contact: Contact = event.subject
+        val id = contact.id
         val senderName: String = event.sender.remark.ifEmpty {
             event.sender.nick
         }
+        val currentBot: AbstractBot = getCurrentBot(isFriend, id)
+        val customizedBot: CustomizedBot? = getCustomizedBot(isFriend, id)
 
         for (singleMessage in singleMessages) {
             if ((singleMessage is At && singleMessage.target == bot.id) || isFriend) {
                 when (currentBot) {
                     is Deepseek -> {
-                        val deepseek: Deepseek = currentBot as Deepseek
+                        val deepseek: Deepseek = currentBot
                         sendByDeepseek(contact, deepseek, event.message, senderName)
                         return
                     }
 
                     is ChatGPT -> {
-                        val chatgpt: ChatGPT = currentBot as ChatGPT
+                        val chatgpt: ChatGPT = currentBot
                         sendByChatGPT(contact, chatgpt, event.message, senderName)
                         return
                     }
 
                     is Qwen -> {
-                        val qwen: Qwen = currentBot as Qwen
+                        val qwen: Qwen = currentBot
                         sendByQwen(contact, qwen, event.message, senderName)
                         return
                     }
@@ -152,31 +155,38 @@ object Manager {
             try {
                 when {
                     immersiveMap.contains(event.sender.id) -> when (immersiveMap[event.sender.id]) {
-                        "deepseek" -> sendByDeepseek(contact, deepseek, event.message, senderName)
-                        "chatgpt" -> sendByChatGPT(contact, chatgpt, event.message, senderName)
-                        "qwen" -> sendByQwen(contact, qwen, event.message, senderName)
+                        "deepseek" -> sendByDeepseek(contact, getDeepseekBot(false, id), event.message, senderName)
+                        "chatgpt" -> sendByChatGPT(contact, getChatGPTBot(false, id), event.message, senderName)
+                        "qwen" -> sendByQwen(contact, getQwenBot(false, id), event.message, senderName)
                         else -> {}
                     }
 
                     contains(config.bot.name) -> {
                         when (currentBot) {
-                            is Deepseek -> sendByDeepseek(contact, deepseek, event.message, senderName)
-                            is ChatGPT -> sendByChatGPT(contact, chatgpt, event.message, senderName)
-                            is Qwen -> sendByQwen(contact, qwen, event.message, senderName)
-                            is Kimi -> contact.sendMessage(kimi.send(message))
+                            is Deepseek -> sendByDeepseek(
+                                contact,
+                                getDeepseekBot(isFriend, id),
+                                event.message,
+                                senderName
+                            )
+
+                            is ChatGPT -> sendByChatGPT(contact, getChatGPTBot(isFriend, id), event.message, senderName)
+                            is Qwen -> sendByQwen(contact, getQwenBot(isFriend, id), event.message, senderName)
+                            is Kimi -> contact.sendMessage(getKimiBot(isFriend, id).send(message))
                             else -> {}
                         }
                     }
 
-                    customized != null && contains(customized!!.name) -> contact.sendMessage(
-                        customized!!.bot.send(
+                    customizedBot != null && contains(customizedBot.name) -> contact.sendMessage(
+                        customizedBot.bot.send(
                             message
                         )
                     )
 
                     else -> {
                         if (config.module.isPutChat) currentBot.putChat(message)
-                        else {}
+                        else {
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -214,7 +224,6 @@ object Manager {
 
         fun start() = Start(messageChain)
     }
-
 
     private suspend fun sendByChatGPT(
         contact: Contact,

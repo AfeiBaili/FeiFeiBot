@@ -2,18 +2,19 @@ package online.afeibaili.command
 
 import net.mamoe.mirai.contact.Member
 import net.mamoe.mirai.contact.NormalMember
+import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.QuoteReply
 import online.afeibaili.*
+import online.afeibaili.BotManager.getChatGPTBot
+import online.afeibaili.BotManager.getDeepseekBot
+import online.afeibaili.BotManager.getKimiBot
+import online.afeibaili.BotManager.getQwenBot
+import online.afeibaili.BotManager.getRobotsOrCreate
 import online.afeibaili.bot.*
-import online.afeibaili.bot.Robots.chatgpt
-import online.afeibaili.bot.Robots.customized
-import online.afeibaili.bot.Robots.deepseek
-import online.afeibaili.bot.Robots.kimi
-import online.afeibaili.bot.Robots.kolors
-import online.afeibaili.bot.Robots.qwen
 import online.afeibaili.bot.json.ImageResponse
 import online.afeibaili.module.todo.LocalDateTimeSerializer
 import online.afeibaili.module.todo.Todo
@@ -27,6 +28,22 @@ object Commands {
     fun load() {
 
     }
+
+    fun getId(event: MessageEvent): Long = event.subject.id
+
+    fun getIsFriend(event: MessageEvent): Boolean {
+        return when (event) {
+            is GroupMessageEvent -> false
+            is FriendMessageEvent -> true
+            else -> throw RuntimeException("未知的消息时间：$event")
+        }
+    }
+
+    fun chatgpt(event: MessageEvent) = getChatGPTBot(getIsFriend(event), getId(event))
+    fun deepseek(event: MessageEvent) = getDeepseekBot(getIsFriend(event), getId(event))
+    fun qwen(event: MessageEvent) = getQwenBot(getIsFriend(event), getId(event))
+    fun kimi(event: MessageEvent) = getKimiBot(getIsFriend(event), getId(event))
+    fun robots(event: MessageEvent) = getRobotsOrCreate(getIsFriend(event), getId(event))
 
     val mune: Command = CommandRegistry.registerWithChild("菜单", "help", 0, ParamType.NOTHING, { _, _ ->
         buildString {
@@ -107,115 +124,127 @@ object Commands {
         Command(
             "内核模型", "model", 0, ParamType.NOTHING, { p, e ->
                 childCommand!!["current"]!!.action.invoke(this, p, e)
-            }, CommandCollection.create(Command("当前模型", "current", 0, ParamType.NOTHING) { _, _ ->
-                val model = when (config.setting.currentBot) {
-                    "chatgpt" -> getModel(chatgpt)
-                    "deepseek" -> getModel(deepseek)
-                    "kimi" -> getModel(kimi)
-                    "qwen" -> getModel(qwen)
-                    else -> return@Command "未知机器人：${config.setting.currentBot}"
+            }, CommandCollection.create(Command("当前模型", "current", 0, ParamType.NOTHING) { _, e ->
+                val currentBotName: String = robots(e).currentBotName
+
+                val model = when (currentBotName) {
+                    "chatgpt" -> getModel(chatgpt(e))
+                    "deepseek" -> getModel(deepseek(e))
+                    "kimi" -> getModel(kimi(e))
+                    "qwen" -> getModel(qwen(e))
+                    else -> return@Command "未知机器人：$currentBotName"
                 }
-                "当前${config.setting.currentBot}模型为：${model}"
-            }, Command("全部", "all") { _, _ ->
-                return@Command when (config.setting.currentBot) {
+                "当前${currentBotName}模型为：${model}"
+            }, Command("全部", "all") { _, e ->
+                val currentBotName: String = robots(e).currentBotName
+
+                return@Command when (currentBotName) {
                     "chatgpt" -> getChatGPTModuleAsString()
                     "deepseek" -> getDeepseekModuleAsString()
-                    else -> "不支持的机器人：${config.setting.currentBot}"
+                    else -> "不支持的机器人：$currentBotName"
                 }
-            }, Command("切换", "switch", 2, ParamType.STRING) { p, _ ->
+            }, Command("切换", "switch", 2, ParamType.STRING) { p, e ->
                 val model: String = runCatching {
                     p[0]
                 }.getOrElse {
                     return@Command "请填入模型"
                 }
+                val currentBotName: String = robots(e).currentBotName
 
-                return@Command when (config.setting.currentBot) {
+                return@Command when (currentBotName) {
                     "chatgpt" -> {
-                        setModel(chatgpt, model)
+                        setModel(chatgpt(e), model)
                         "设置chatgpt模型成功！"
                     }
 
                     "deepseek" -> {
-                        setModel(deepseek, model)
+                        setModel(deepseek(e), model)
                         "设置deepseek模型成功！"
                     }
 
-                    else -> "不支持的机器人：${config.setting.currentBot}"
+                    else -> "不支持的机器人：$currentBotName"
                 }
-            }, Command("余额", "balance") { _, _ ->
-                return@Command when (config.setting.currentBot) {
-                    "chatgpt" -> getChatgptBalance(chatgpt)
-                    "deepseek" -> getDeepseekBalance(deepseek)
-                    else -> "不支持的机器人：${config.setting.currentBot}"
+            }, Command("余额", "balance") { _, e ->
+                val currentBotName: String = robots(e).currentBotName
+                return@Command when (currentBotName) {
+                    "chatgpt" -> getChatgptBalance(chatgpt(e))
+                    "deepseek" -> getDeepseekBalance(deepseek(e))
+                    else -> "不支持的机器人：$currentBotName"
                 }
             })
         ),
     )
 
     val chat = CommandRegistry.registerWithChild(
-        "聊天", "chat", 1, ParamType.NOTHING, { _, _ ->
-            Manager.isBotAlive = !Manager.isBotAlive
-            "已设置当前聊天为：${if (Manager.isBotAlive) "开启状态" else "关闭状态"}"
-        }, Command("开启", "open", 1, ParamType.NOTHING) { _, _ ->
-            Manager.isBotAlive = true
+        "聊天", "chat", 3, ParamType.NOTHING, { _, _ ->
+            BotManager.isBotAlive = !BotManager.isBotAlive
+            "已设置当前聊天为：${if (BotManager.isBotAlive) "开启状态" else "关闭状态"}"
+        }, Command("开启", "open", 3, ParamType.NOTHING) { _, _ ->
+            BotManager.isBotAlive = true
             "已开启聊天"
-        }, Command("关闭", "close", 1, ParamType.NOTHING) { _, _ ->
-            Manager.isBotAlive = false
+        }, Command("关闭", "close", 3, ParamType.NOTHING) { _, _ ->
+            BotManager.isBotAlive = false
             "已关闭聊天"
         }, Command(
             "重置模型", "reset", 2, ParamType.NOTHING, CommandCollection.create(
-                Command("所有", "all", 2, ParamType.NOTHING) { _, _ ->
-                    chatgpt.reset()
-                    deepseek.reset()
-                    kimi.reset()
-                    qwen.reset()
+                Command("所有", "all", 2, ParamType.NOTHING) { _, e ->
+                    val robots: Robots = robots(e)
+                    robots.chatgpt.reset()
+                    robots.deepseek.reset()
+                    robots.kimi.reset()
+                    robots.qwen.reset()
                     "所有模型都重置好了~"
                 })
-        ) { _, _ ->
-            when (config.setting.currentBot) {
-                "chatgpt" -> chatgpt.reset()
-                "deepseek" -> deepseek.reset()
-                "kimi" -> kimi.reset()
-                "qwen" -> qwen.reset()
-                else -> return@Command "不支持的机器人：${config.setting.currentBot}"
+        ) { _, e ->
+            val robots: Robots = robots(e)
+            val currentBotName: String = robots.currentBotName
+
+            when (currentBotName) {
+                "chatgpt" -> robots.chatgpt.reset()
+                "deepseek" -> robots.deepseek.reset()
+                "kimi" -> robots.kimi.reset()
+                "qwen" -> robots.qwen.reset()
+                else -> return@Command "不支持的机器人：${currentBotName}"
             }
-            return@Command "已重置${config.setting.currentBot}机器人"
+            return@Command "已重置${currentBotName}机器人"
         }, Command("获取记录", "history") { _, e ->
             return@Command runCatching {
-                when (config.setting.currentBot) {
-                    "chatgpt" -> uploadChatHistory(chatgpt, e)
-                    "deepseek" -> uploadChatHistory(deepseek, e)
-                    "kimi" -> uploadChatHistory(kimi, e)
-                    "qwen" -> uploadChatHistory(qwen, e)
-                    else -> return@Command "不支持的机器人：${config.setting.currentBot}"
+                val currentBotName: String = robots(e).currentBotName
+
+                when (currentBotName) {
+                    "chatgpt" -> uploadChatHistory(chatgpt(e), e)
+                    "deepseek" -> uploadChatHistory(deepseek(e), e)
+                    "kimi" -> uploadChatHistory(kimi(e), e)
+                    "qwen" -> uploadChatHistory(qwen(e), e)
+                    else -> return@Command "不支持的机器人：${currentBotName}"
                 }
-                "已发送${config.setting.currentBot}聊天记录"
+                "已发送${currentBotName}聊天记录"
             }.getOrElse { "获取聊天记录不可用，可能是信息太多" }
-        }, Command("切换模型", "switch", 1, ParamType.STRING) { p, _ ->
+        }, Command("切换模型", "switch", 1, ParamType.STRING) { p, e ->
             val model: String = runCatching {
                 p[0]
             }.getOrElse { return@Command "请填入模型<chatgpt | deepseek | qwen | kimi>" }
+            val robots: Robots = robots(e)
 
             when (model) {
-                "chatgpt" -> config.setting.currentBot = "chatgpt"
-                "deepseek" -> config.setting.currentBot = "deepseek"
-                "kimi" -> config.setting.currentBot = "kimi"
-                "qwen" -> config.setting.currentBot = "qwen"
+                "chatgpt" -> robots.currentBotName = "chatgpt"
+                "deepseek" -> robots.currentBotName = "deepseek"
+                "kimi" -> robots.currentBotName = "kimi"
+                "qwen" -> robots.currentBotName = "qwen"
                 else -> return@Command "未知模型，请填入模型<chatgpt | deepseek | qwen | kimi>"
             }
-            configObject.store()
             "已切换模型${model}"
-        }, Command("当前模型", "current") { _, _ ->
-            "当前模型为：${config.setting.currentBot}"
+        }, Command("当前模型", "current") { _, e ->
+            "当前模型为：${robots(e).currentBotName}"
         }, Command(
             "新设定", "new-set", 0, ParamType.Multiple(listOf(ParamType.STRING, ParamType.STRING, ParamType.STRING))
-        ) { p, _ ->
+        ) { p, e ->
             val triple: Triple<String, String, String> = runCatching {
                 Triple(p[0], p[1], p[2])
             }.getOrElse {
                 return@Command "请使用“机器人、称呼、设定”三个参数: <chatgpt | deepseek | qwen> <name> <setting>"
             }
-            customized = when (triple.first) {
+            robots(e).customized = when (triple.first) {
                 "chatgpt" -> CustomizedBot(ChatGPT().customize(triple.third) as AbstractBot, triple.second)
 
                 "deepseek" -> CustomizedBot(Deepseek().customize(triple.third) as AbstractBot, triple.second)
@@ -230,45 +259,47 @@ object Commands {
                 机器人称呼：${triple.second}
             """.trimIndent()
         }, Command(
-            "流", "stream", 1, ParamType.NOTHING, { _, _ ->
-                return@Command when (config.setting.currentBot) {
+            "流", "stream", 1, ParamType.NOTHING, { _, e ->
+                val currentBotName: String = robots(e).currentBotName
+
+                return@Command when (currentBotName) {
                     "chatgpt" -> {
-                        chatgpt.requestBody.stream = !chatgpt.requestBody.stream
-                        "当前chatgpt流为：${if (chatgpt.requestBody.stream) "开启状态" else "关闭状态"}"
+                        chatgpt(e).requestBody.stream = !chatgpt(e).requestBody.stream
+                        "当前chatgpt流为：${if (chatgpt(e).requestBody.stream) "开启状态" else "关闭状态"}"
                     }
 
                     "deepseek" -> {
-                        deepseek.requestBody.stream = !deepseek.requestBody.stream
-                        "当前deepseek流为：${if (deepseek.requestBody.stream) "开启状态" else "关闭状态"}"
+                        deepseek(e).requestBody.stream = !deepseek(e).requestBody.stream
+                        "当前deepseek流为：${if (deepseek(e).requestBody.stream) "开启状态" else "关闭状态"}"
                     }
 
                     else -> {
-                        "不支持的机器人：${config.setting.currentBot}"
+                        "不支持的机器人：$currentBotName"
                     }
                 }
             }, CommandCollection.create(
-                Command("开启", "open", 1, ParamType.STRING) { p, _ ->
+                Command("开启", "open", 1, ParamType.STRING) { p, e ->
                     val botName: String = runCatching {
                         p[0]
                     }.getOrElse {
                         return@Command "请填入值：<chatgpt | deepseek>"
                     }
                     when (botName) {
-                        "chatgpt" -> chatgpt.requestBody.stream = true
-                        "deepseek" -> deepseek.requestBody.stream = true
+                        "chatgpt" -> chatgpt(e).requestBody.stream = true
+                        "deepseek" -> deepseek(e).requestBody.stream = true
                         else -> return@Command "不支持的机器人：$botName"
                     }
                     "已开启${botName}流"
                 },
-                Command("关闭", "close", 1, ParamType.STRING) { p, _ ->
+                Command("关闭", "close", 1, ParamType.STRING) { p, e ->
                     val botName: String = runCatching {
                         p[0]
                     }.getOrElse {
                         return@Command "请填入值：<chatgpt | deepseek>"
                     }
                     when (botName) {
-                        "chatgpt" -> chatgpt.requestBody.stream = false
-                        "deepseek" -> deepseek.requestBody.stream = false
+                        "chatgpt" -> chatgpt(e).requestBody.stream = false
+                        "deepseek" -> deepseek(e).requestBody.stream = false
                         else -> return@Command "不支持的机器人：$botName"
                     }
                     "已关闭${botName}流"
@@ -278,25 +309,29 @@ object Commands {
             "沉浸式", "immersive", 0, ParamType.NOTHING, { _, e ->
                 val qq = e.sender.id
                 val bots = listOf("chatgpt", "deepseek", "qwen")
-                return@Command if (Manager.immersiveMap.containsKey(qq)) {
-                    Manager.immersiveMap.remove(qq)
+                val currentBotName: String = robots(e).currentBotName
+
+                return@Command if (BotManager.immersiveMap.containsKey(qq)) {
+                    BotManager.immersiveMap.remove(qq)
                     "${e.sender.nick}已关闭沉浸式对话"
                 } else {
-                    if (config.setting.currentBot in bots) {
-                        Manager.immersiveMap.put(qq, config.setting.currentBot)
+                    if (currentBotName in bots) {
+                        BotManager.immersiveMap.put(qq, currentBotName)
                         "${e.sender.nick}已开启沉浸式对话"
-                    } else "不支持的机器人：${config.setting.currentBot}"
+                    } else "不支持的机器人：${currentBotName}"
                 }
             }, CommandCollection.create(
                 Command("开启", "open") { _, e ->
+                    val currentBotName: String = robots(e).currentBotName
+
                     val qq = e.sender.id
-                    if (Manager.immersiveMap.containsKey(qq)) {
+                    if (BotManager.immersiveMap.containsKey(qq)) {
                         return@Command "${e.sender.nick}已经是沉浸式对话了"
                     }
-                    when (config.setting.currentBot) {
-                        "chatgpt" -> Manager.immersiveMap.put(qq, "chatgpt")
-                        "deepseek" -> Manager.immersiveMap.put(qq, "deepseek")
-                        "qwen" -> Manager.immersiveMap.put(qq, "qwen")
+                    when (currentBotName) {
+                        "chatgpt" -> BotManager.immersiveMap.put(qq, "chatgpt")
+                        "deepseek" -> BotManager.immersiveMap.put(qq, "deepseek")
+                        "qwen" -> BotManager.immersiveMap.put(qq, "qwen")
                         else -> return@Command "不支持的机器人"
                     }
 
@@ -304,8 +339,8 @@ object Commands {
                 },
                 Command("关闭", "close") { _, e ->
                     val qq = e.sender.id
-                    if (!Manager.immersiveMap.containsKey(qq)) return@Command "${e.sender.nick}并不在沉浸式列表"
-                    Manager.immersiveMap.remove(qq)
+                    if (!BotManager.immersiveMap.containsKey(qq)) return@Command "${e.sender.nick}并不在沉浸式列表"
+                    BotManager.immersiveMap.remove(qq)
                     "${e.sender.nick}关闭了沉浸式对话"
                 },
             )
@@ -494,16 +529,17 @@ object Commands {
         Command("Kolors", "kolors", 0, ParamType.STRING) { p, e ->
             val text: String = p.joinToString(" ")
             if (text.isEmpty()) return@Command "未输入描述词"
+            val robots: Robots = robots(e)
 
             runCatching {
-                val image: ImageResponse.Image = kolors.send(text).images[0]
+                val image: ImageResponse.Image = robots.kolors.send(text).images[0]
                 downloadAndSendImage(image.url, e)
             }.onFailure { return@Command "无法获取图片，可能是服务器出错" }
             "已生成图片"
         },
         Command("千问", "qwen", 1, ParamType.STRING) { p, e ->
             val text: String = p.joinToString(" ")
-            val url: String = qwen.sendGenerateImageRequest(text)
+            val url: String = qwen(e).sendGenerateImageRequest(text)
             downloadAndSendImage(url, e)
             "已创建，提示词：$text"
         },
@@ -517,7 +553,7 @@ object Commands {
                     }
                 }
             }
-            val url: String = qwen.sendGenerateImageRequest(
+            val url: String = qwen(e).sendGenerateImageRequest(
                 text,
                 *mutableListOf.toTypedArray(),
             )
