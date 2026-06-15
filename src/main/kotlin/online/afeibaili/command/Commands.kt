@@ -149,9 +149,7 @@ object Commands {
                 }.getOrElse {
                     return@Command "请填入模型"
                 }
-                val currentBotName: String = robots(e).currentBotName
-
-                return@Command when (currentBotName) {
+                return@Command when (model) {
                     "chatgpt" -> {
                         setModel(chatgpt(e), model)
                         "设置chatgpt模型成功！"
@@ -162,7 +160,7 @@ object Commands {
                         "设置deepseek模型成功！"
                     }
 
-                    else -> "不支持的机器人：$currentBotName"
+                    else -> "不支持的机器人：$model"
                 }
             }, Command("余额", "balance") { _, e ->
                 val currentBotName: String = robots(e).currentBotName
