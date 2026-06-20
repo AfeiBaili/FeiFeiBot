@@ -13,7 +13,8 @@ import java.net.http.HttpResponse
 class Deepseek : AbstractBot(), Stream, Customizable {
     override val url: String = "https://api.deepseek.com/v1/chat/completions"
     override val key: String = config.deepseek.key
-    override val requestBody: RequestBody = RequestBody("deepseek-v4-flash", FixedSizeQueue<Message>(pollIndex = 1), false)
+    override val requestBody: RequestBody =
+        RequestBody("deepseek-v4-flash", FixedSizeQueue<Message>(pollIndex = 1), false)
 
     var isRunning = false
 
@@ -33,17 +34,19 @@ class Deepseek : AbstractBot(), Stream, Customizable {
     }
 
     override fun send(message: String, role: String): String {
-        val sb = StringBuilder()
-        val responseBody: ResponseBody = sendRequest(requestBody, message, role, url, key)
-        val responseBodyMessage: Message = responseBody.choices[0].message
-        if (responseBodyMessage.reasoningContent != null) {
-            val reasoningContent: String = responseBodyMessage.reasoningContent
-            sb.append("推理内容：\n").append(reasoningContent).append("\n\n")
-            sb.append("正式回答：\n")
+        synchronized(this) {
+            val sb = StringBuilder()
+            val responseBody: ResponseBody = sendRequest(requestBody, message, role, url, key)
+            val responseBodyMessage: Message = responseBody.choices[0].message
+            if (responseBodyMessage.reasoningContent != null) {
+                val reasoningContent: String = responseBodyMessage.reasoningContent
+                sb.append("推理内容：\n").append(reasoningContent).append("\n\n")
+                sb.append("正式回答：\n")
+            }
+            requestBody.messages.add(responseBodyMessage)
+            sb.append(responseBodyMessage.content)
+            return markdown.parsingText(sb.toString())
         }
-        requestBody.messages.add(responseBodyMessage)
-        sb.append(responseBodyMessage.content)
-        return markdown.parsingText(sb.toString())
     }
 
     override suspend fun sendAsStream(

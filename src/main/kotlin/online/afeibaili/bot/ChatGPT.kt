@@ -30,13 +30,15 @@ class ChatGPT : AbstractBot(), Stream, Customizable {
     }
 
     override fun send(message: String, role: String): String {
-        val responseBody: ResponseBody = sendRequest(requestBody, message, role, url, key)
-        val responseMessage: Message = responseBody.choices[0].message
-        if (responseMessage.content == null) {
-            return "${config.bot.name}不能回答~，服务器过滤了惹！"
+        synchronized(this) {
+            val responseBody: ResponseBody = sendRequest(requestBody, message, role, url, key)
+            val responseMessage: Message = responseBody.choices[0].message
+            if (responseMessage.content == null) {
+                return "${config.bot.name}不能回答~，服务器过滤了惹！"
+            }
+            requestBody.messages.add(responseMessage)
+            return markdown.parsingText(responseMessage.content)
         }
-        requestBody.messages.add(responseMessage)
-        return markdown.parsingText(responseMessage.content)
     }
 
     override suspend fun sendAsStream(

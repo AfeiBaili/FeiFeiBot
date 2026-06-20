@@ -21,9 +21,11 @@ class Kimi : AbstractBot() {
     }
 
     override fun send(message: String, role: String): String {
-        val responseBody: ResponseBody = sendRequest(requestBody, message, role, url, key)
-        val responseMessage: Message = responseBody.choices[0].message
-        requestBody.messages.add(responseMessage)
-        return responseMessage.content
+        synchronized(this) {
+            val responseBody: ResponseBody = sendRequest(requestBody, message, role, url, key)
+            val responseMessage: Message = responseBody.choices[0].message
+            requestBody.messages.add(responseMessage)
+            return responseMessage.content
+        }
     }
 }
