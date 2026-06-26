@@ -14,7 +14,7 @@ import java.io.File
 
 class FileLoader() {
     fun <T> load(filePath: String, loader: Loader<T>): T {
-        val file: File = File(filePath)
+        val file = File(filePath)
         if (!file.exists()) {
             logger("$filePath 文件不存在，已创建文件")
             file.parentFile.mkdirs()

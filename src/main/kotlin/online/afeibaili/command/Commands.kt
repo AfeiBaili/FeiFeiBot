@@ -16,6 +16,7 @@ import online.afeibaili.BotManager.getQwenBot
 import online.afeibaili.BotManager.getRobotsOrCreate
 import online.afeibaili.bot.*
 import online.afeibaili.bot.json.ImageResponse
+import online.afeibaili.file.register.KeyWordDataJsonFile
 import online.afeibaili.module.todo.LocalDateTimeSerializer
 import online.afeibaili.module.todo.Todo
 import online.afeibaili.module.todo.TodoManager
@@ -502,6 +503,39 @@ object Commands {
                     configObject.store()
                     "已关闭跟踪聊天"
                 }
+            )
+        ),
+        Command(
+            "关键提醒", "keyword", 0, ParamType.NOTHING, { p, e ->
+                "使用添加命令添加一个关键字，群里触发关键字时将At本人"
+            }, CommandCollection.create(
+                Command("添加", "add", 0, ParamType.STRING) { p, e ->
+                    val keyword: String = runCatching {
+                        p[0]
+                    }.getOrElse { return@Command "请输入关键字" }
+                    val id: Long = e.sender.id
+                    KeyWordDataJsonFile.keywords.add(keyword, id)
+                    KeyWordDataJsonFile.store()
+
+                    "${e.sender.nick}已添加关键字: $keyword"
+                },
+                Command("删除", "delete", 0, ParamType.STRING) { p, e ->
+                    val keyword: String = runCatching {
+                        p[0]
+                    }.getOrElse { return@Command "请输入关键字" }
+                    val id: Long = e.sender.id
+                    val isRemoved: Boolean = KeyWordDataJsonFile.keywords.remove(keyword, id)
+                    KeyWordDataJsonFile.store()
+                    return@Command if (isRemoved)
+                        "${e.sender.nick}已删除关键字: $keyword"
+                    else "删除失败，可能删除了不存在的关键字"
+
+                },
+                Command("清空", "clear", 2, ParamType.NOTHING) { p, e ->
+                    KeyWordDataJsonFile.keywords.clear()
+                    KeyWordDataJsonFile.store()
+                    "已删除所有用户的关键字"
+                },
             )
         )
     )

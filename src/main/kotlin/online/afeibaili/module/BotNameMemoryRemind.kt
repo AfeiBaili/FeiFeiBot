@@ -18,7 +18,8 @@ class BotNameMemoryRemind {
                 }
             }
         }
-        timer.schedule(timerTask, 10000, 60000)
+        //十分钟
+        timer.schedule(timerTask, 10000, 60000 * 10)
     }
 
     fun cancelTimer() {

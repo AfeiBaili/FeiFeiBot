@@ -20,7 +20,7 @@ class JsonListLoader<T>() : Loader<List<T>> {
             val value: List<T> = objectMapper.readValue(string, object : TypeReference<List<T>>() {})
             return value
         }.onFailure {
-            logger("无任何回声！", LoggerLevel.WARN)
+            logger("转换对象失败：${it.message}", LoggerLevel.WARN)
             return emptyList()
         }
         return emptyList()

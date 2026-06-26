@@ -20,6 +20,7 @@ import online.afeibaili.BotManager.isBotAlive
 import online.afeibaili.bot.*
 import online.afeibaili.command.Command
 import online.afeibaili.command.CommandRegistry
+import online.afeibaili.message.KeywordMessageProcesser
 
 object MessageManager {
     val messageScope = CoroutineScope(Dispatchers.Default)
@@ -32,8 +33,13 @@ object MessageManager {
             commandParsing(event)?.let {
                 contact.sendMessage(it)
             }
-        } else if (isBotAlive) botProcess(event, isFriend)
+        } else if (isBotAlive) {
+            KeywordMessageProcesser.process(event)
+            botProcess(event, isFriend)
+        }
     }
+
+    //// Command Parsing ///////////////////////////////////////
 
     internal suspend fun commandParsing(event: MessageEvent, isFilter: Boolean = false): String? {
         val message = if (isFilter) event.message.contentToString().removePrefix("@" + config.setting.commandPrefix)
@@ -111,6 +117,8 @@ object MessageManager {
         if (event.target.id != bot.id) return
         sendMessageToContact(contact, message, event.subject.id)
     }
+
+    //// Message Process ////////////////////////////////////////////
 
     suspend fun botProcess(event: MessageEvent, isFriend: Boolean) {
         val singleMessages: MessageChain = event.message
