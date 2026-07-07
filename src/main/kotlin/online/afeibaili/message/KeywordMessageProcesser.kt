@@ -5,7 +5,7 @@ import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.message.data.*
-import online.afeibaili.file.register.KeyWordDataJsonFile
+import online.afeibaili.file.KeyWordDataJsonFile
 
 
 /**

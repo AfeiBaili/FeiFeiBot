@@ -23,11 +23,6 @@ object TodoManager {
     val map = LinkedHashMap<String, Todo>()
     val dir = File(System.getProperty("user.dir") + "/data/feifei/todo")
 
-    val formatter1: DateTimeFormatter = DateTimeFormatter.ofPattern("H:m")
-    val formatter2: DateTimeFormatter = DateTimeFormatter.ofPattern("H:m:s")
-    val formatter3: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy年M月d日-H:m")
-    val formatter4: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy年M月d日-H:m:s")
-
     init {
         dir.mkdirs()
         dir.listFiles()?.forEach { file ->

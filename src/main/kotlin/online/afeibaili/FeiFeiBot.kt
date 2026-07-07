@@ -3,9 +3,10 @@ package online.afeibaili
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescription
 import net.mamoe.mirai.console.plugin.jvm.KotlinPlugin
 import online.afeibaili.command.Commands
+import online.afeibaili.file.AdminManagerJsonFile
 import online.afeibaili.file.ConfigFile
+import online.afeibaili.file.KeyWordDataJsonFile
 import online.afeibaili.file.LevelMapFile
-import online.afeibaili.file.register.KeyWordDataJsonFile
 import online.afeibaili.module.Otto
 import online.afeibaili.module.Translation
 import online.afeibaili.module.UploadFile
@@ -44,6 +45,7 @@ object FeiFeiBot : KotlinPlugin(
         loadUpload()
         loadJoinLeaveGroupMessage()
         loadKeyWord()
+        loadAdminManager()
 
         Listener.loadingListener()
     }
@@ -102,5 +104,9 @@ object FeiFeiBot : KotlinPlugin(
 
     fun loadKeyWord() {
         KeyWordDataJsonFile.load()
+    }
+
+    fun loadAdminManager() {
+        AdminManagerJsonFile.load()
     }
 }

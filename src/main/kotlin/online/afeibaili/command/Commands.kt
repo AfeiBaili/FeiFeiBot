@@ -16,12 +16,15 @@ import online.afeibaili.BotManager.getQwenBot
 import online.afeibaili.BotManager.getRobotsOrCreate
 import online.afeibaili.bot.*
 import online.afeibaili.bot.json.ImageResponse
-import online.afeibaili.file.register.KeyWordDataJsonFile
+import online.afeibaili.file.AdminManagerJsonFile
+import online.afeibaili.file.AdminManagerJsonFile.Companion.adminManager
+import online.afeibaili.file.KeyWordDataJsonFile
 import online.afeibaili.module.todo.LocalDateTimeSerializer
 import online.afeibaili.module.todo.Todo
 import online.afeibaili.module.todo.TodoManager
+import online.afeibaili.util.TimeParser
+import online.afeibaili.util.TimeParser.toDateTimeString
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 object Commands {
     val cc get() = CommandRegistry.commandCollection
@@ -361,16 +364,13 @@ object Commands {
     )
 
     val group = CommandRegistry.registerWithChild(
-        "群聊", "group", 0, ParamType.NOTHING,
-        { p, e ->
+        "群聊", "group", 0, ParamType.NOTHING, { p, e ->
             childCommand!!["look"]!!.action.invoke(this, p, e)
-        },
-        Command("查看可用", "look") { _, e ->
+        }, Command("查看可用", "look") { _, e ->
             buildString {
                 config.groups.forEach { appendLine("$it ${e.bot.getGroup(it)?.name}") }
             }.removeSuffix("\n")
-        },
-        Command("添加", "add", 1, ParamType.LONG) { p, _ ->
+        }, Command("添加", "add", 1, ParamType.LONG) { p, _ ->
             val groupId: Long = runCatching {
                 p[0].toLong()
             }.getOrElse {
@@ -380,8 +380,7 @@ object Commands {
             else config.groups = config.groups.plus(groupId)
             configObject.store()
             "执行添加群成功"
-        },
-        Command("删除", "delete", 1, ParamType.LONG) { p, _ ->
+        }, Command("删除", "delete", 1, ParamType.LONG) { p, _ ->
             val groupId: Long = runCatching {
                 p[0].toLong()
             }.getOrElse {
@@ -393,8 +392,7 @@ object Commands {
             } else return@Command "不存在的群聊"
             configObject.store()
             "执行删除群成功"
-        },
-        Command("禁言", "ban-speak", 3, ParamType.Multiple(listOf(ParamType.AT, ParamType.INT))) { p, e ->
+        }, Command("禁言", "ban-speak", 3, ParamType.Multiple(listOf(ParamType.AT, ParamType.INT))) { p, e ->
             val at: At = runCatching { getNoAt(1, e) }.getOrElse { return@Command "请输入@QQ参数和秒数参数" }
             val seconds: Int = runCatching { p[1].toInt() }.getOrElse { 600 }
 
@@ -407,8 +405,7 @@ object Commands {
                 }.onFailure { return@Command "请检查机器人是否有权限，且时长是否正确0-30天" }
             } else return@Command "你不在群聊中"
             "群里是否包含${at.target}此人？"
-        },
-        Command("解除禁言", "lift-ban", 3, ParamType.AT) { _, e ->
+        }, Command("解除禁言", "lift-ban", 3, ParamType.AT) { _, e ->
             val at: At = runCatching { getNoAt(1, e) }.getOrElse { return@Command "请输入@QQ参数" }
             if (e is GroupMessageEvent) {
                 runCatching {
@@ -420,8 +417,7 @@ object Commands {
             } else return@Command "你不在群聊中"
 
             "群里是否包含${at.target}此人？"
-        },
-        Command("踢出", "kick-out", 4, ParamType.AT) { _, e ->
+        }, Command("踢出", "kick-out", 4, ParamType.AT) { _, e ->
             val at: At = runCatching { getNoAt(1, e) }.getOrElse { return@Command "请输入@QQ参数" }
             if (e is GroupMessageEvent) {
                 runCatching {
@@ -433,16 +429,14 @@ object Commands {
                 }.onFailure { return@Command "请检查机器人是否有权限" }
             } else return@Command "你不在群聊中"
             "群里是否包含此人？"
-        },
-        Command("启用此群", "enable", 3, ParamType.NOTHING) { _, e ->
+        }, Command("启用此群", "enable", 3, ParamType.NOTHING) { _, e ->
             if (e !is GroupMessageEvent) return@Command "不在群聊中"
 
             if (config.groups.contains(e.group.id)) return@Command "已包含此群聊"
             else config.groups = config.groups.plus(e.group.id)
             configObject.store()
             "执行启用群成功"
-        },
-        Command("禁用此群", "disable", 3, ParamType.NOTHING) { _, e ->
+        }, Command("禁用此群", "disable", 3, ParamType.NOTHING) { _, e ->
             if (e !is GroupMessageEvent) return@Command "不在群聊中"
 
             if (config.groups.contains(e.group.id)) {
@@ -450,18 +444,15 @@ object Commands {
             } else return@Command "不存在的群聊"
             configObject.store()
             "执行禁用群成功"
-        },
-        Command("开启加退群消息", "open-join-leave-message", 2, ParamType.NOTHING) { _, _ ->
+        }, Command("开启加退群消息", "open-join-leave-message", 2, ParamType.NOTHING) { _, _ ->
             if (config.module.isOpenJoinLeaveMessage) return@Command "当前已开启加群退群消息"
             config.module.isOpenJoinLeaveMessage = true
             "已开启加群消息"
-        },
-        Command("关闭加退群消息", "close-join-leave-message", 2, ParamType.NOTHING) { _, _ ->
+        }, Command("关闭加退群消息", "close-join-leave-message", 2, ParamType.NOTHING) { _, _ ->
             if (!config.module.isOpenJoinLeaveMessage) return@Command "当前已关闭加群退群消息"
             config.module.isOpenJoinLeaveMessage = false
             "已关闭加群消息"
-        },
-        Command("设置头衔", "set-card", 0, ParamType.STRING) { p, e ->
+        }, Command("设置头衔", "set-card", 0, ParamType.STRING) { p, e ->
             val text: String = runCatching {
                 val string: String = p[0]
                 if (string == "null") return@runCatching ""
@@ -479,33 +470,23 @@ object Commands {
                 return@Command "机器人权限不足"
             }
 
-            return@Command if (text == "")
-                "成功将${sender.nick}的头衔清空"
-            else
-                "成功将${sender.nick}的头衔设置为${text}"
-        },
-        Command(
-            "跟踪聊天", "track-chat", 0, ParamType.NOTHING, { p, e ->
-                config.module.isPutChat = !config.module.isPutChat
-                configObject.store()
-                if (config.module.isPutChat) "当前跟踪聊天为开启状态" else "当前跟踪聊天为关闭状态"
-            },
-            CommandCollection.create(
-                Command("开启", "open") { p, e ->
-                    if (config.module.isPutChat) return@Command "当前已经是开启状态"
-                    config.module.isPutChat = true
-                    configObject.store()
-                    "已开启跟踪聊天"
-                },
-                Command("关闭", "close") { p, e ->
-                    if (!config.module.isPutChat) return@Command "当前已经是关闭状态"
-                    config.module.isPutChat = false
-                    configObject.store()
-                    "已关闭跟踪聊天"
-                }
-            )
-        ),
-        Command(
+            return@Command if (text == "") "成功将${sender.nick}的头衔清空"
+            else "成功将${sender.nick}的头衔设置为${text}"
+        }, Command("跟踪聊天", "track-chat", 0, ParamType.NOTHING, { p, e ->
+            config.module.isPutChat = !config.module.isPutChat
+            configObject.store()
+            if (config.module.isPutChat) "当前跟踪聊天为开启状态" else "当前跟踪聊天为关闭状态"
+        }, CommandCollection.create(Command("开启", "open") { p, e ->
+            if (config.module.isPutChat) return@Command "当前已经是开启状态"
+            config.module.isPutChat = true
+            configObject.store()
+            "已开启跟踪聊天"
+        }, Command("关闭", "close") { p, e ->
+            if (!config.module.isPutChat) return@Command "当前已经是关闭状态"
+            config.module.isPutChat = false
+            configObject.store()
+            "已关闭跟踪聊天"
+        })), Command(
             "关键提醒", "keyword", 0, ParamType.NOTHING, { p, e ->
                 "使用添加命令添加一个关键字，群里触发关键字时将At本人"
             }, CommandCollection.create(
@@ -526,8 +507,7 @@ object Commands {
                     val id: Long = e.sender.id
                     val isRemoved: Boolean = KeyWordDataJsonFile.keywords.remove(keyword, id)
                     KeyWordDataJsonFile.store()
-                    return@Command if (isRemoved)
-                        "${e.sender.nick}已删除关键字: $keyword"
+                    return@Command if (isRemoved) "${e.sender.nick}已删除关键字: $keyword"
                     else "删除失败，可能删除了不存在的关键字"
 
                 },
@@ -536,6 +516,61 @@ object Commands {
                     KeyWordDataJsonFile.store()
                     "已删除所有用户的关键字"
                 },
+            )
+        ), Command(
+            "管理员", "admin", 0, ParamType.NOTHING, { p, e ->
+                "请使用see命令"
+            }, CommandCollection.create(
+                Command("给予", "give", 0, ParamType.STRING) { p, e ->
+                    if (e !is GroupMessageEvent) return@Command "请在群聊中使用"
+                    //获取格式化参数
+                    val dateTimeString: String = runCatching {
+                        p[0]
+                    }.getOrElse { return@Command TimeParser.toString("请添加时间格式来指定时间") }
+                    //获取时间
+                    val localDateTime: LocalDateTime = runCatching {
+                        TimeParser.parse(dateTimeString)
+                    }.getOrElse { return@Command "格式异常，无法获取时间日期。详情看：${it.message}" }
+                    //判断时间是否已过
+                    if (localDateTime.isBefore(LocalDateTime.now()))
+                        return@Command "当前时间[${localDateTime.toDateTimeString()}]已过，请换时间"
+                    //判断时间是否大于30天
+                    val maxDay = 30L
+                    if (localDateTime.isAfter(LocalDateTime.now().plusDays(maxDay)))
+                        return@Command "当前时间大于${maxDay}天，管理员时间不可超过${maxDay}天"
+                    //是否在白名单
+                    val bool: Boolean = adminManager.createAdmin(
+                        e.group.id, e.sender.id, localDateTime
+                    )
+                    if (!bool) return@Command "不在管理员白名单中"
+                    val member: NormalMember? = e.group.members[e.sender.id]
+                    if (member == null) return@Command "找不到成员${e.sender.id}"
+                    //成功修改
+                    member.modifyAdmin(true)
+                    AdminManagerJsonFile.store()
+                    "已给予${member.nick}管理员，到期时间为：${localDateTime.toDateTimeString()}"
+                }, Command("白名单", "whitelist", 0, ParamType.NOTHING, { p, e ->
+                    if (e !is GroupMessageEvent) return@Command "请在群聊中使用"
+                    val list: List<Long>? = adminManager.getList(e.group.id)
+                    if (list == null || list.isEmpty()) return@Command "此群暂无白名单"
+                    return@Command "此群白名单人员\n" + list.joinToString("\n") { it ->
+                        "${e.group.members[it]?.nick}(@$it)"
+                    }
+                }, CommandCollection.create(Command("添加", "add", 4, ParamType.AT) { p, e ->
+                    if (e !is GroupMessageEvent) return@Command "请在群聊中使用"
+                    val at: At = runCatching { getNoAt(1, e) }.getOrElse { return@Command "请输入@QQ参数" }
+                    adminManager.addWhiteList(e.group.id, at.target)
+                    AdminManagerJsonFile.store()
+                    "已添加${e.group.members[at.target]?.nick}的白名单"
+                }, Command("删除", "delete", 4, ParamType.AT) { p, e ->
+                    if (e !is GroupMessageEvent) return@Command "请在群聊中使用"
+                    val at: At = runCatching { getNoAt(1, e) }.getOrElse { return@Command "请输入@QQ参数" }
+                    adminManager.deleteWhiteList(e.group.id, at.target)
+                    AdminManagerJsonFile.store()
+                    val member: NormalMember? = e.group.members[at.target]
+                    member?.modifyAdmin(false)
+                    "已删除${e.group.members[at.target]?.nick}的白名单"
+                }))
             )
         )
     )
@@ -603,78 +638,14 @@ object Commands {
             val (time, message) = runCatching { p[0] to p[1] }.getOrElse {
                 return@Command """
                 传入时间参数和信息参数 时间日期参数 打印消息参数
-                时间日期参数格式：
-                1.根据时间提醒
-                +无限
-                +12h
-                +30m
-                +10s
-                2.根据日期提醒
-                20:00
-                20:00:10
-                2005年05月16日-20:00
-                2005年05月16日-20:00:00
+                $TimeParser
             """.trimIndent()
             }
 
-            val localDateTime: LocalDateTime? = if (time.startsWith("+")) when {
-                time.endsWith("无限") -> {
-                    null
-                }
-
-                time.endsWith("h") -> {
-                    val t: String = time.removeSuffix("h").removePrefix("+")
-                    val hours: Long = runCatching { t.toLong() }.getOrElse { return@Command "无法格式化小时：$t" }
-                    LocalDateTime.now().plusHours(hours)
-                }
-
-                time.endsWith("m") -> {
-                    val t: String = time.removeSuffix("m").removePrefix("+")
-                    val minute: Long = runCatching { t.toLong() }.getOrElse { return@Command "无法格式化分钟：$t" }
-                    LocalDateTime.now().plusMinutes(minute)
-                }
-
-                time.endsWith("s") -> {
-                    val t: String = time.removeSuffix("s").removePrefix("+")
-                    val seconds: Long = runCatching { t.toLong() }.getOrElse { return@Command "无法格式化秒：$t" }
-                    LocalDateTime.now().plusSeconds(seconds)
-                }
-
-                else -> return@Command "不支持的格式：${time}"
-            } else {
-                var localDateTime = runCatching {
-                    val localTime: LocalTime = LocalTime.from(TodoManager.formatter1.parse(time))
-                    LocalDateTime.now().withHour(localTime.hour).withMinute(localTime.minute).withSecond(0)
-                }.getOrElse { null }
-
-                if (localDateTime == null) {
-                    localDateTime = runCatching {
-                        val localTime: LocalTime = LocalTime.from(TodoManager.formatter2.parse(time))
-                        LocalDateTime.now().withHour(localTime.hour).withMinute(localTime.minute)
-                            .withSecond(localTime.second)
-                    }.getOrElse { null }
-                }
-
-                if (localDateTime == null) {
-                    localDateTime = runCatching {
-                        LocalDateTime.from(TodoManager.formatter3.parse(time))
-                    }.getOrElse { null }
-                }
-
-                if (localDateTime == null) {
-                    localDateTime = runCatching {
-                        LocalDateTime.from(TodoManager.formatter4.parse(time))
-                    }.getOrElse { null }
-                }
-
-                localDateTime ?: return@Command """
-                                请检查日期是否准确，支持的日期：
-                                20:00
-                                20:00:10
-                                2005年05月16日-20:00
-                                2005年05月16日-20:00:00
-                            """.trimIndent()
-            }
+            var localDateTime = if (TimeParser.parseIsInfinite(time)) null
+            else runCatching {
+                TimeParser.parse(time)
+            }.getOrElse { return@Command "解析时间失败：${it.message}" }
 
             if (localDateTime == null) {
                 TodoManager.createTodo(message, e)

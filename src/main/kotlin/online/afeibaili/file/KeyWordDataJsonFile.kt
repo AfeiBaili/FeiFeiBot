@@ -1,4 +1,4 @@
-package online.afeibaili.file.register
+package online.afeibaili.file
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
