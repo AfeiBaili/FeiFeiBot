@@ -519,7 +519,11 @@ object Commands {
             )
         ), Command(
             "管理员", "admin", 0, ParamType.NOTHING, { p, e ->
-                "请使用see命令"
+                buildString {
+                    appendLine("请使用see命令查看详情命令")
+                    appendLine("查询定时器：")
+                    append(AdminManagerJsonFile.timerListToString())
+                }
             }, CommandCollection.create(
                 Command("给予", "give", 0, ParamType.STRING) { p, e ->
                     if (e !is GroupMessageEvent) return@Command "请在群聊中使用"
@@ -549,7 +553,8 @@ object Commands {
                     member.modifyAdmin(true)
                     AdminManagerJsonFile.store()
                     "已给予${member.nick}管理员，到期时间为：${localDateTime.toDateTimeString()}"
-                }, Command("白名单", "whitelist", 0, ParamType.NOTHING, { p, e ->
+                },
+                Command("白名单", "whitelist", 0, ParamType.NOTHING, { p, e ->
                     if (e !is GroupMessageEvent) return@Command "请在群聊中使用"
                     val list: List<Long>? = adminManager.getList(e.group.id)
                     if (list == null || list.isEmpty()) return@Command "此群暂无白名单"
@@ -570,7 +575,7 @@ object Commands {
                     val member: NormalMember? = e.group.members[at.target]
                     member?.modifyAdmin(false)
                     "已删除${e.group.members[at.target]?.nick}的白名单"
-                }))
+                })),
             )
         )
     )

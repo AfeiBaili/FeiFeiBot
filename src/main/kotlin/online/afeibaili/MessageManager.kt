@@ -21,6 +21,7 @@ import online.afeibaili.bot.*
 import online.afeibaili.command.Command
 import online.afeibaili.command.CommandRegistry
 import online.afeibaili.message.KeywordMessageProcesser
+import online.afeibaili.util.Time
 
 object MessageManager {
     val messageScope = CoroutineScope(Dispatchers.Default)
@@ -157,9 +158,10 @@ object MessageManager {
         }
 
         val message: String =
-            MessageProcessor(event.message).start().filterAtMessage().addSenderName(senderName).endAndToString()
+            MessageProcessor(event.message).start().filterAtMessage().addSenderName(senderName).addDateTime()
+                .endAndToString()
 
-        with(message) {
+        with(event.message.contentToString()) {
             try {
                 when {
                     immersiveMap.contains(event.sender.id) -> when (immersiveMap[event.sender.id]) {
@@ -215,10 +217,19 @@ object MessageManager {
                 return this
             }
 
-            fun addSenderName(name: String?, infix: String = "："): Start {
+            fun addDateTime(): Start {
+                val time: String = Time.formatMonthDayTime(Time.now())
+                messageChain = MessageChainBuilder().apply {
+                    +("[Time:$time]")
+                    +messageChain
+                }.build()
+                return this
+            }
+
+            fun addSenderName(name: String?, infix: String = ":"): Start {
                 name?.let {
                     messageChain = MessageChainBuilder().apply {
-                        +(name + infix)
+                        +("[Name:$name]$infix")
                         +messageChain
                     }.build()
                 }
@@ -240,7 +251,8 @@ object MessageManager {
         senderName: String?,
     ) {
         val message: String =
-            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).end().contentToString()
+            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).addDateTime().end()
+                .contentToString()
         if (chatgpt.getStream()) chatgpt.sendAsStream(message, contact)
         else contact.sendMessage(chatgpt.send(message))
     }
@@ -252,7 +264,8 @@ object MessageManager {
         senderName: String?,
     ) {
         val message: String =
-            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).end().contentToString()
+            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).addDateTime().end()
+                .contentToString()
         contact.sendMessage(qwen.send(message))
     }
 
@@ -263,7 +276,8 @@ object MessageManager {
         senderName: String?,
     ) {
         val message: String =
-            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).end().contentToString()
+            MessageProcessor(message).start().filterAtMessage().addSenderName(senderName).addDateTime().end()
+                .contentToString()
         if (deepseek.getStream()) deepseek.sendAsStream(message, contact)
         else contact.sendMessage(deepseek.send(message))
     }

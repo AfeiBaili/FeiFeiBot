@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter
 object TimeParser {
     class TimerParserException(msg: String) : RuntimeException(msg)
 
-
     const val SEPARATOR = "-"
     val formatterList = listOf(
         DateTimeFormatter.ofPattern("H:m"),

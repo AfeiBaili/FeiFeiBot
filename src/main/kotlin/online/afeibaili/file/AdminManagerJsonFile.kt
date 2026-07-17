@@ -14,6 +14,7 @@ import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.buildMessageChain
 import online.afeibaili.bot
 import online.afeibaili.file.AdminManagerJsonFile.Companion.adminManager
+import online.afeibaili.util.Time
 import online.afeibaili.util.TimeParser.toDateTimeString
 import java.io.File
 import java.time.Instant
@@ -66,6 +67,23 @@ class AdminManagerJsonFile {
             synchronized(this) {
                 om.writerWithDefaultPrettyPrinter()
                     .writeValue(File(path, "admin-manager.json"), adminManager)
+            }
+        }
+
+        fun timerListToString(): String {
+            return buildString {
+                adminManager.groupMap.forEach { (groupId, group) ->
+                    appendLine("群号：${groupId.toString().take(4)}")
+                    group.adminTimer.forEach { adminTimer ->
+                        val time: LocalDateTime = LocalDateTime.ofInstant(
+                            Instant.ofEpochMilli(adminTimer.endTimeMillis),
+                            ZoneOffset.ofHours(8)
+                        )
+                        append("\t")
+                        append(bot.getGroup(groupId)?.members?.get(adminTimer.adminId)?.nick)
+                        appendLine("至[${Time.formatMonthDayTime(time)}]到期")
+                    }
+                }
             }
         }
     }

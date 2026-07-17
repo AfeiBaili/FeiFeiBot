@@ -18,7 +18,6 @@ object BotManager {
     val friendBots = ConcurrentHashMap<Long, Robots>()
     val groupBots = ConcurrentHashMap<Long, Robots>()
     val mianBots = Robots()
-    val keyWorldList = HashMap<String, List<Long>>()
 
     fun getRobotsOrCreate(isFriend: Boolean, id: Long): Robots {
         val rb: Robots = if (isFriend) {
