@@ -144,7 +144,6 @@ data class AdminTimer(
         val timer = Timer()
 
         if (!localDateTime.isBefore(LocalDateTime.now())) {
-            println("加载计时器：$this")
             timer.schedule(Date.from(Instant.ofEpochMilli(endTimeMillis))) {
                 val group: Group? = bot.getGroup(groupId)
                 if (group == null) return@schedule
