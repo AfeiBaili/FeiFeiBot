@@ -151,7 +151,7 @@ object Minecraft {
                     return buildString {
                         appendLine("服务器地址🔴：$host:$port")
                         append(getServerInfo())
-                        append("最大人数${rootNode.get("players").getString("max")}，")
+                        append("最大人数：${rootNode.get("players").getString("max")}，")
                         append("当前没有人在线")
                     }
                 }
