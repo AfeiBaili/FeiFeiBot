@@ -31,8 +31,9 @@ object MessageManager {
         val contact: Contact = event.subject
 
         if (message.startsWith(config.setting.commandPrefix)) {
-            commandParsing(event)?.let {
-                contact.sendMessage(it)
+            val msg: String? = commandParsing(event)
+            if (msg != null && msg.isNotBlank()) {
+                contact.sendMessage(msg)
             }
         } else if (isBotAlive) {
             KeywordMessageProcesser.process(event)
