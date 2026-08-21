@@ -536,12 +536,13 @@ object Commands {
                         TimeParser.parse(dateTimeString)
                     }.getOrElse { return@Command "格式异常，无法获取时间日期。详情看：${it.message}" }
                     //判断时间是否已过
-                    if (localDateTime.isBefore(LocalDateTime.now()))
-                        return@Command "当前时间[${localDateTime.toDateTimeString()}]已过，请换时间"
+                    if (localDateTime.isBefore(LocalDateTime.now())) return@Command "当前时间[${localDateTime.toDateTimeString()}]已过，请换时间"
                     //判断时间是否大于30天
                     val maxDay = 30L
-                    if (localDateTime.isAfter(LocalDateTime.now().plusDays(maxDay)))
-                        return@Command "当前时间大于${maxDay}天，管理员时间不可超过${maxDay}天"
+                    if (localDateTime.isAfter(
+                            LocalDateTime.now().plusDays(maxDay)
+                        )
+                    ) return@Command "当前时间大于${maxDay}天，管理员时间不可超过${maxDay}天"
                     //是否在白名单
                     val bool: Boolean = adminManager.createAdmin(
                         e.group.id, e.sender.id, localDateTime
@@ -641,10 +642,10 @@ object Commands {
         },
         Command("创建任务", "create", 0, ParamType.Multiple(listOf(ParamType.STRING, ParamType.STRING))) { p, e ->
             val (time, message) = runCatching { p[0] to p[1] }.getOrElse {
-                return@Command """
-                传入时间参数和信息参数 时间日期参数 打印消息参数
-                $TimeParser
-            """.trimIndent()
+                return@Command buildString {
+                    appendLine("传入时间参数和信息参数 时间日期参数 打印消息参数")
+                    append(TimeParser.toString())
+                }
             }
 
             var localDateTime = if (TimeParser.parseIsInfinite(time)) null

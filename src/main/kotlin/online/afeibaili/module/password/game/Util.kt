@@ -19,7 +19,7 @@ import java.io.FileWriter
  */
 
 val theme = DefaultTheme()
-val sentenceWriter = FileWriter(createOrGetSentencesFile())
+val sentenceWriter = FileWriter(createOrGetSentencesFile(), true)
 
 fun logsSentence(sentence: String) {
     ManageGame.sentenceList.add(sentence)

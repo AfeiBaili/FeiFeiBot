@@ -83,20 +83,20 @@ object TimeParser {
     }
 
     override fun toString(): String {
-        return """
-                时间日期格式化格式：
-                1.根据添加时间解析
-                +10s
-                +30m
-                +12h
-                +30d
-                2.根据时间日期解析
-                20:00
-                20.00
-                20：00
-                20:00:10
-                2005年05月16日-20:00
-                2005年05月16日-20:00:00
-            """.trimIndent()
+        return buildString {
+            appendLine("时间日期格式化格式：")
+            appendLine("1.根据添加时间解析")
+            appendLine("+10s")
+            appendLine("+30m")
+            appendLine("+12h")
+            appendLine("+30d")
+            appendLine("2.根据时间日期解析")
+            appendLine("20:00")
+            appendLine("20.00")
+            appendLine("20：00")
+            appendLine("20:00:10")
+            appendLine("2005年05月16日-20:00")
+            append("2005年05月16日-20:00:00")
+        }
     }
 }

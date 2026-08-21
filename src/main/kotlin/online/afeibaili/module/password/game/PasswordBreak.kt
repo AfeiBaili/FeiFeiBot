@@ -8,7 +8,7 @@ import online.afeibaili.command.ParamType
 object PasswordBreak {
     fun load() {
         CommandRegistry.registerWithChild(
-            "密文破译小游戏", "password-break", 0, ParamType.NOTHING, { _, e ->
+            "密文破译", "password-break", 0, ParamType.NOTHING, { _, e ->
                 if (e !is GroupMessageEvent) return@registerWithChild "不支持在私聊中游玩"
                 val groupEvent: GroupMessageEvent = e
                 return@registerWithChild ManageGame.play(groupEvent.group.id)
