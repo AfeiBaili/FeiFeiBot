@@ -2,7 +2,7 @@ package online.afeibaili.file.json;
 
 public class Module {
     boolean openMemoryName;
-    boolean enableMinecraft;
+    Minecraft minecraft;
     //    boolean enableTerraria;
     boolean translation;
     PasswordBreak passwordBreakGame;
@@ -48,16 +48,16 @@ public class Module {
         return echoCave;
     }
 
-    public boolean isEnableMinecraft() {
-        return enableMinecraft;
-    }
-
-    public void setEnableMinecraft(boolean enableMinecraft) {
-        this.enableMinecraft = enableMinecraft;
-    }
-
     public void setEchoCave(boolean echoCave) {
         this.echoCave = echoCave;
+    }
+
+    public Minecraft getMinecraft() {
+        return minecraft;
+    }
+
+    public void setMinecraft(Minecraft minecraft) {
+        this.minecraft = minecraft;
     }
 
     public PasswordBreak getPasswordBreakGame() {

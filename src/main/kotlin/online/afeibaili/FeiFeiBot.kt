@@ -71,7 +71,7 @@ object FeiFeiBot : KotlinPlugin(
 
     //model
     fun loadMinecraft() {
-        if (config.module.isEnableMinecraft) Minecraft.load()
+        if (config.module.minecraft.isOpen) Minecraft.load()
     }
 
     fun loadTerraria() {

@@ -10,6 +10,7 @@ import net.mamoe.mirai.utils.ExternalResource.Companion.uploadAsImage
 import online.afeibaili.command.Command
 import online.afeibaili.command.CommandRegistry
 import online.afeibaili.command.ParamType
+import online.afeibaili.config
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import java.io.ByteArrayInputStream
@@ -26,18 +27,28 @@ import javax.naming.directory.InitialDirContext
 
 object Minecraft {
     private val JSON = ObjectMapper()
+    private val cookie: Map<String, String>
+        get() {
+            val mcmodCookies: String = config.module.minecraft.mcmodCookies
+            return mcmodCookies.split(";").associate { kv ->
+                val indexOf: Int = kv.indexOf('=')
+                val key = kv.substring(0 until indexOf)
+                val value = kv.substring(indexOf + 1 until kv.length)
+                key to value
+            }.also { println(it) }
+        }
 
     fun load() {
         CommandRegistry.registerWithChild("Minecraft", "mc", 0, ParamType.NOTHING, { _, _ ->
             "请使用其他子命令"
-        }, Command("搜（不可用）", "search", 0, ParamType.STRING) { p, e ->
+        }, Command("搜", "search", 0, ParamType.STRING) { p, e ->
             val text: String = runCatching { p.joinToString(" ") }.getOrElse { return@Command "请输入词条和mod名称" }
             runCatching {
                 val document = Jsoup.connect(
                     "https://search.mcmod.cn/s?key=" + URLEncoder.encode(
                         text, StandardCharsets.UTF_8
                     ) + "&site=&filter=0&mold=0"
-                ).get()
+                ).cookies(cookie).get()
                 val takeTime = document.getElementsByClass("info")[0]
                 val startTakeChar = takeTime.toString().indexOf('[')
                 val endTakeChar = takeTime.toString().indexOf(']')
@@ -119,7 +130,9 @@ object Minecraft {
                 }
 
                 suspend fun getIcon(): Message {
-                    val encodeBase64: String = rootNode.getString("favicon").removePrefix("data:image/png;base64,")
+                    val encodeBase64: String = rootNode.getString("favicon")
+                        .removePrefix("data:image/png;base64,")
+                        .replace("\\s".toRegex(), "")
                     val bytes: ByteArray = Base64.getDecoder().decode(encodeBase64)
                     val inputStream = ByteArrayInputStream(bytes)
                     inputStream.use {
